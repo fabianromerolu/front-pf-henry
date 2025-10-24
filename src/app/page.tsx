@@ -88,7 +88,7 @@ export default function Home() {
   return (
     <div>
       <div>
-        <div className="flex flex-wrap gap-6 justify-center">
+        <div className="flex flex-wrap gap-6 justify-center mt-20">
           {mockProducts.map((vehicle) => (
             <VehicleCard key={vehicle.id} vehicle={vehicle} />
           ))}
