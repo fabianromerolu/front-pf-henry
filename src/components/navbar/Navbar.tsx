@@ -42,12 +42,12 @@ export default function Navbar() {
 
   return (
     <header className="flex justify-between items-center px-4 md:px-8 bg-blue-100 shadow-md">
-      {/* LOGO */}
+      
       <div className="flex items-center">
         <Image src={Logo} alt="VOLANTIA Logo" width={120} height={40} className="h-auto" />
       </div>
 
-      {/* BOTÓN HAMBURGUESA */}
+      
       <button
         onClick={() => setIsOpen(true)}
         className="text-blue-900 focus:outline-none hover:cursor-pointer"
@@ -58,7 +58,7 @@ export default function Navbar() {
         </svg>
       </button>
 
-      {/* OVERLAY */}
+      
       <div
         className={`fixed inset-0 bg-white/50 z-40 transition-opacity duration-300 ${
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
@@ -66,7 +66,7 @@ export default function Navbar() {
         onClick={() => setIsOpen(false)}
       />
 
-      {/* MENÚ LATERAL */}
+      
       <nav
         className={`fixed top-0 right-0 w-72 h-full bg-[#f6f7fb] p-8 z-50 transform transition-transform duration-300 ease-in-out ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
@@ -104,10 +104,10 @@ export default function Navbar() {
                 onClick={() => setIsOpen(false)}
                 className={`group relative flex items-center gap-4 pl-6 pr-6 py-3 text-[#787A91] text-lg capitalize transition-all duration-200 hover:text-[#0F044C] hover:bg-white hover:shadow-md w-full rounded-md`}
               >
-                {/* Línea lateral (visible sin animación) */}
+                
                 <span className="absolute left-0 top-0 h-full w-[4px] bg-[#0F044C] opacity-0 group-hover:opacity-100 rounded-r-sm"></span>
 
-                {/* Ícono */}
+                
                 <Image
                   src={link.icon}
                   alt={`${link.name} icon`}
@@ -116,13 +116,13 @@ export default function Navbar() {
                   className="opacity-80 group-hover:opacity-100 transition-opacity duration-150"
                 />
 
-                {/* Texto */}
+                
                 <span>{link.name}</span>
               </a>
             </li>
           ))}
 
-          {/* BOTÓN LOGOUT / LOGIN */}
+          
           {isLoggedIn ? (
             <li className="pt-6">
               <button
