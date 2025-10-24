@@ -1,22 +1,22 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useState } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 // Icons
-const VehicleIcon = '/icons/vehicles.svg';
-const OfferIcon = '/icons/offer.svg';
-const ContactIcon = '/icons/contact.svg';
-const ProfileIcon = '/icons/profile.svg';
-const LogoutIcon = '/icons/logout.svg';
-const Logo = 'logo.svg';
+const VehicleIcon = "/icons/vehicles.svg";
+const OfferIcon = "/icons/offer.svg";
+const ContactIcon = "/icons/contact.svg";
+const ProfileIcon = "/icons/profile.svg";
+const LogoutIcon = "/icons/logout.svg";
+const Logo = "logo.svg";
 
 // Enlaces base (públicos)
 const NavLinksBase = [
-  { name: 'vehicles', href: '/vehicles', icon: VehicleIcon },
-  { name: 'offer', href: '/offer', icon: OfferIcon },
-  { name: 'contact', href: '/contact', icon: ContactIcon },
+  { name: "vehicles", href: "/vehicles", icon: VehicleIcon },
+  { name: "offer", href: "/offer", icon: OfferIcon },
+  { name: "contact", href: "/contact", icon: ContactIcon },
 ];
 
 export default function Navbar() {
@@ -24,30 +24,36 @@ export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const router = useRouter();
 
-  const AuthLinks = [{ name: 'profile', href: '/profile', icon: ProfileIcon }];
+  const AuthLinks = [{ name: "profile", href: "/profile", icon: ProfileIcon }];
 
-  const allNavLinks = isLoggedIn ? [...NavLinksBase, ...AuthLinks] : NavLinksBase;
+  const allNavLinks = isLoggedIn
+    ? [...NavLinksBase, ...AuthLinks]
+    : NavLinksBase;
 
   const handleLogout = () => {
-    console.log('Usuario deslogueado');
+    console.log("Usuario deslogueado");
     setIsLoggedIn(false);
     setIsOpen(false);
   };
 
   const handleLogin = () => {
-    console.log('Usuario logueado');
+    console.log("Usuario logueado");
     setIsLoggedIn(true);
     setIsOpen(false);
   };
 
   return (
-    <header className="flex justify-between items-center px-4 md:px-8 bg-blue-100 shadow-md">
-      
-      <div className="flex items-center">
-        <Image src={Logo} alt="VOLANTIA Logo" width={120} height={40} className="h-auto" />
+    <header className="flex justify-between items-center h-18 px-4 md:px-8 bg-light-blue shadow-md">
+      <div className="flex items-center mt-2">
+        <Image
+          src={Logo}
+          alt="VOLANTIA Logo"
+          width={120}
+          height={40}
+          className="h-auto"
+        />
       </div>
 
-      
       <button
         onClick={() => setIsOpen(true)}
         className="text-blue-900 focus:outline-none hover:cursor-pointer"
@@ -58,18 +64,16 @@ export default function Navbar() {
         </svg>
       </button>
 
-      
       <div
         className={`fixed inset-0 bg-white/50 z-40 transition-opacity duration-300 ${
-          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         } md:hidden`}
         onClick={() => setIsOpen(false)}
       />
 
-      
       <nav
         className={`fixed top-0 right-0 w-72 h-full bg-[#f6f7fb] p-8 z-50 transform transition-transform duration-300 ease-in-out ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
+          isOpen ? "translate-x-0" : "translate-x-full"
         }`}
         aria-labelledby="mobile-menu-heading"
       >
@@ -104,10 +108,8 @@ export default function Navbar() {
                 onClick={() => setIsOpen(false)}
                 className={`group relative flex items-center gap-4 pl-6 pr-6 py-3 text-[#787A91] text-lg capitalize transition-all duration-200 hover:text-[#0F044C] hover:bg-white hover:shadow-md w-full rounded-md`}
               >
-                
                 <span className="absolute left-0 top-0 h-full w-[4px] bg-[#0F044C] opacity-0 group-hover:opacity-100 rounded-r-sm"></span>
 
-                
                 <Image
                   src={link.icon}
                   alt={`${link.name} icon`}
@@ -116,13 +118,11 @@ export default function Navbar() {
                   className="opacity-80 group-hover:opacity-100 transition-opacity duration-150"
                 />
 
-                
                 <span>{link.name}</span>
               </a>
             </li>
           ))}
 
-          
           {isLoggedIn ? (
             <li className="pt-6">
               <button
