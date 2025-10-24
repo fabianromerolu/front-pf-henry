@@ -1,6 +1,6 @@
 "use client";
 
-import VehicleItems from "@/app/Interfaces/VehicleItems";
+import VehicleItems from "@/Interfaces/VehicleItems";
 import Image from "next/image";
 import Link from "next/link";
 import DarkButtom from "../Buttoms/LightButtom";
