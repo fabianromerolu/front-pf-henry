@@ -2,101 +2,165 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
- 
-//icons
-const VehicleIcon = '/icons/vehicles.svg'; 
+import { useRouter } from 'next/navigation';
+
+// Icons
+const VehicleIcon = '/icons/vehicles.svg';
 const OfferIcon = '/icons/offer.svg';
 const ContactIcon = '/icons/contact.svg';
 const ProfileIcon = '/icons/profile.svg';
 const LogoutIcon = '/icons/logout.svg';
 const Logo = 'logo.svg';
 
-
-const NavLinks = [
+// Enlaces base (públicos)
+const NavLinksBase = [
   { name: 'vehicles', href: '/vehicles', icon: VehicleIcon },
   { name: 'offer', href: '/offer', icon: OfferIcon },
   { name: 'contact', href: '/contact', icon: ContactIcon },
-  { name: 'profile', href: '/profile', icon: ProfileIcon },
 ];
 
 export default function Navbar() {
-    
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const router = useRouter();
 
-  // Función para manejar el clic en "Log out"
+  const AuthLinks = [{ name: 'profile', href: '/profile', icon: ProfileIcon }];
+
+  const allNavLinks = isLoggedIn ? [...NavLinksBase, ...AuthLinks] : NavLinksBase;
+
   const handleLogout = () => {
-    // Aquí iría la lógica de deslogueo (ej. borrar token, redireccionar)
-    console.log("Usuario deslogueado");
-    setIsOpen(false); // Cierra el menú después de la acción
+    console.log('Usuario deslogueado');
+    setIsLoggedIn(false);
+    setIsOpen(false);
+  };
+
+  const handleLogin = () => {
+    console.log('Usuario logueado');
+    setIsLoggedIn(true);
+    setIsOpen(false);
   };
 
   return (
     <header className="flex justify-between items-center px-4 md:px-8 bg-blue-100 shadow-md">
-      {/* 1. LOGOTIPO (Izquierda) */}
+      {/* LOGO */}
       <div className="flex items-center">
         <Image src={Logo} alt="VOLANTIA Logo" width={120} height={40} className="h-auto" />
       </div>
 
-      {/* 2. Botón de Menú HAMBURGUESA (Derecha) */}
-      <button 
-        onClick={() => setIsOpen(true)} // Abre el menú
-        className="text-blue-900 focus:outline-none"
+      {/* BOTÓN HAMBURGUESA */}
+      <button
+        onClick={() => setIsOpen(true)}
+        className="text-blue-900 focus:outline-none hover:cursor-pointer"
         aria-label="Open Menu"
       >
-        {/* Icono de menú de 3 barras */}
-        <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3 18h18v-2H3v2zM3 13h18v-2H3v2zM3 6v2h18V6H3z"/>
+        <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M3 18h18v-2H3v2zM3 13h18v-2H3v2zM3 6v2h18V6H3z" />
         </svg>
       </button>
 
-      {/* 3. MENÚ LATERAL DESPLEGABLE (<nav>) */}
-      {/* Overlay Oscuro (se muestra si isOpen es true) */}
+      {/* OVERLAY */}
       <div
         className={`fixed inset-0 bg-white/50 z-40 transition-opacity duration-300 ${
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         } md:hidden`}
-        onClick={() => setIsOpen(false)} // Cierra al hacer clic fuera
+        onClick={() => setIsOpen(false)}
       />
 
+      {/* MENÚ LATERAL */}
       <nav
-        className={`fixed top-0 right-0 w-80 h-full bg-white p-6 z-50 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 right-0 w-72 h-full bg-[#f6f7fb] p-8 z-50 transform transition-transform duration-300 ease-in-out ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
-        }`} // Ocultar completamente en desktop si no se usa
+        }`}
         aria-labelledby="mobile-menu-heading"
       >
-        {/* Encabezado: Botón de Cerrar (X) */}
+        {/* BOTÓN CERRAR */}
         <div className="flex justify-end mb-8">
-          <button onClick={() => setIsOpen(false)} className="text-gray-500 hover:text-gray-900">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
+          <button
+            onClick={() => setIsOpen(false)}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
 
-        {/* Lista de Enlaces */}
-        <ul className="space-y-6">
-          {NavLinks.map((link) => (
+        {/* ENLACES */}
+        <ul className="space-y-4">
+          {allNavLinks.map((link) => (
             <li key={link.name}>
-              <a href={link.href} className="flex items-center text-lg text-gray-700 hover:text-indigo-600 capitalize">
-                <Image src={link.icon} alt={`${link.name} icon`} width={24} height={24} className="mr-4" />
-                {link.name}
+              <a
+                href={link.href}
+                onClick={() => setIsOpen(false)}
+                className={`group relative flex items-center gap-4 pl-6 pr-6 py-3 text-[#787A91] text-lg capitalize transition-all duration-200 hover:text-[#0F044C] hover:bg-white hover:shadow-md w-full rounded-md`}
+              >
+                {/* Línea lateral (visible sin animación) */}
+                <span className="absolute left-0 top-0 h-full w-[4px] bg-[#0F044C] opacity-0 group-hover:opacity-100 rounded-r-sm"></span>
+
+                {/* Ícono */}
+                <Image
+                  src={link.icon}
+                  alt={`${link.name} icon`}
+                  width={26}
+                  height={26}
+                  className="opacity-80 group-hover:opacity-100 transition-opacity duration-150"
+                />
+
+                {/* Texto */}
+                <span>{link.name}</span>
               </a>
             </li>
           ))}
-          
-          {/* Botón de Log Out (en la parte inferior) */}
-          <li className="pt-8">
-            <button 
-              onClick={handleLogout}
-              className="flex items-center text-lg text-red-500 hover:text-red-700 w-full text-left capitalize"
-            >
-              <Image src={LogoutIcon} alt="Log out icon" width={24} height={24} className="mr-4" />
-              log out
-            </button>
-          </li>
+
+          {/* BOTÓN LOGOUT / LOGIN */}
+          {isLoggedIn ? (
+            <li className="pt-6">
+              <button
+                onClick={handleLogout}
+                className="group relative flex items-center gap-4 pl-6 pr-6 py-3 text-[#787A91] text-lg capitalize transition-all duration-200 hover:text-red-600 hover:bg-white hover:shadow-md w-full rounded-md"
+              >
+                <span className="absolute left-0 top-0 h-full w-[4px] bg-red-600 opacity-0 group-hover:opacity-100 rounded-r-sm"></span>
+
+                <Image
+                  src={LogoutIcon}
+                  alt="Log out icon"
+                  width={26}
+                  height={26}
+                  className="opacity-80 group-hover:opacity-100 transition-opacity duration-150"
+                />
+
+                <span>log out</span>
+              </button>
+            </li>
+          ) : (
+            <li className="pt-6">
+              <button
+                onClick={handleLogin}
+                className="flex items-center gap-4 text-green-500 hover:text-green-700 text-lg capitalize px-4 py-3 rounded-lg transition-all duration-200 hover:bg-white hover:shadow-md w-full"
+              >
+                <Image
+                  src={ProfileIcon}
+                  alt="Log in icon"
+                  width={26}
+                  height={26}
+                  className="opacity-80"
+                />
+                <span>log in</span>
+              </button>
+            </li>
+          )}
         </ul>
       </nav>
-      
     </header>
   );
 }
