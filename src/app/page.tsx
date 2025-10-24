@@ -56,6 +56,33 @@ export default function Home() {
         "Fully electric luxury sedan offering cutting-edge technology, autopilot, and a smooth driving experience.",
       photo: "/assets/kiaCar.png",
     },
+    {
+      id: 3,
+      title: "Tesla Model 3 2023",
+      make: "Tesla",
+      model: "Model 3",
+      year: 2023,
+      trim: "Long Range",
+      color: "Midnight Silver",
+      seats: 5,
+      doors: 4,
+      state: "Jalisco",
+      lat: 20.6597,
+      lng: -103.3496,
+      pricePerHour: 60,
+      pricePerDay: 300,
+      pricePerWeek: 1800,
+      deposit: 400,
+      kmIncludedPerDay: 250,
+      pricePerExtraKm: 4,
+      minHours: 2,
+      minDriverAge: 25,
+      insuranceIncluded: true,
+      rules: "Charging must be at 80% upon return. No pets allowed.",
+      description:
+        "Fully electric luxury sedan offering cutting-edge technology, autopilot, and a smooth driving experience.",
+      photo: "/assets/kiaCar.png",
+    },
   ];
 
   return (
