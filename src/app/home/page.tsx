@@ -2,7 +2,7 @@
 import MenuBar from "@/components/MenuBar/MenuBar";
 import React from "react";
 
-function Home() {
+export default function Home() {
   return (
     <div>
       <div className="bg-light-blue w-full h-50"></div>
@@ -18,4 +18,3 @@ function Home() {
   );
 }
 
-export default Home;

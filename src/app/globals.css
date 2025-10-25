@@ -41,3 +41,12 @@ body {
 .hind {
   font-family: var(--font-hind), sans-serif;
 }
+
+/* ===== Fade-slide entre pasos ===== */
+@keyframes fade-slide {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-slide {
+  animation: fade-slide .28s ease-out both;
+}
