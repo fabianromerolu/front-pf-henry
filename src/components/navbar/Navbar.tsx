@@ -1,8 +1,8 @@
+// src/components/navbar/Navbar.tsx
 "use client";
 
 import { useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 
 // Icons
 const VehicleIcon = "/icons/vehicles.svg";
@@ -22,13 +22,10 @@ const NavLinksBase = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const router = useRouter();
 
   const AuthLinks = [{ name: "profile", href: "/profile", icon: ProfileIcon }];
 
-  const allNavLinks = isLoggedIn
-    ? [...NavLinksBase, ...AuthLinks]
-    : NavLinksBase;
+  const allNavLinks = isLoggedIn ? [...NavLinksBase, ...AuthLinks] : NavLinksBase;
 
   const handleLogout = () => {
     console.log("Usuario deslogueado");
@@ -45,13 +42,7 @@ export default function Navbar() {
   return (
     <header className="flex justify-between items-center h-18 px-4 md:px-8 bg-light-blue shadow-md">
       <div className="flex items-center mt-2">
-        <Image
-          src={Logo}
-          alt="VOLANTIA Logo"
-          width={120}
-          height={40}
-          className="h-auto"
-        />
+        <Image src={Logo} alt="VOLANTIA Logo" width={120} height={40} className="h-auto" />
       </div>
 
       <button
@@ -83,18 +74,8 @@ export default function Navbar() {
             onClick={() => setIsOpen(false)}
             className="text-gray-400 hover:text-gray-600 transition-colors"
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
@@ -106,7 +87,7 @@ export default function Navbar() {
               <a
                 href={link.href}
                 onClick={() => setIsOpen(false)}
-                className={`group relative flex items-center gap-4 pl-6 pr-6 py-3 text-[#787A91] text-lg capitalize transition-all duration-200 hover:text-[#0F044C] hover:bg-white hover:shadow-md w-full rounded-md`}
+                className="group relative flex items-center gap-4 pl-6 pr-6 py-3 text-[#787A91] text-lg capitalize transition-all duration-200 hover:text-[#0F044C] hover:bg-white hover:shadow-md w-full rounded-md"
               >
                 <span className="absolute left-0 top-0 h-full w-[4px] bg-[#0F044C] opacity-0 group-hover:opacity-100 rounded-r-sm"></span>
 
@@ -148,13 +129,7 @@ export default function Navbar() {
                 onClick={handleLogin}
                 className="flex items-center gap-4 text-green-500 hover:text-green-700 text-lg capitalize px-4 py-3 rounded-lg transition-all duration-200 hover:bg-white hover:shadow-md w-full"
               >
-                <Image
-                  src={ProfileIcon}
-                  alt="Log in icon"
-                  width={26}
-                  height={26}
-                  className="opacity-80"
-                />
+                <Image src={ProfileIcon} alt="Log in icon" width={26} height={26} className="opacity-80" />
                 <span>log in</span>
               </button>
             </li>

@@ -3,7 +3,7 @@
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 
-type Role = "admin" | "user" | undefined;
+type Role = "admin" | "renter" | "user"| undefined;
 
 function safeDecodeIsAdmin(token: string | null): boolean {
   try {

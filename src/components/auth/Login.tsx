@@ -10,7 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 import { loginWithAuth0 } from "@/services/authService.service";
 import { toast } from "react-toastify";
 
-/* ===== util: detectar admin en token ===== */
+/* ===== util: detectar rol desde token ===== */
 function roleFromToken(t: string | null): "admin" | "renter" | "user" | null {
   if (!t) return null;
   try {
@@ -33,6 +33,13 @@ function roleFromToken(t: string | null): "admin" | "renter" | "user" | null {
     return null;
   }
 }
+
+/** CSS Vars tipadas (evita any) */
+type CSSVars = CSSProperties & {
+  "--bg-opacity"?: string;
+  "--bg-blur"?: string;
+  "--bg-tint"?: string;
+};
 
 export default function FormLogin() {
   const router = useRouter();
@@ -68,9 +75,9 @@ export default function FormLogin() {
           const token = localStorage.getItem("auth:token");
           const role = roleFromToken(token);
           const dest =
-             role === "admin" ? "/dashboard/admin"
-            : role === "renter" ? "/dashboard/renter"
-            : "/dashboard";
+            role === "admin" ? "/dashboard/admin" :
+            role === "renter" ? "/dashboard/renter" :
+            "/dashboard";
           window.location.replace(dest);
           return;
         }
@@ -84,23 +91,22 @@ export default function FormLogin() {
   useEffect(() => {
     if (!isHydrated) return;
     if (isAuthenticated) {
-       const dest =
-        user?.role === "admin" ? "/dashboard/admin"
-        : user?.role === "renter" ? "/dashboard/renter"
-        : "/dashboard";
+      const dest =
+        user?.role === "admin" ? "/dashboard/admin" :
+        user?.role === "renter" ? "/dashboard/renter" :
+        "/dashboard";
       router.replace(dest);
     }
   }, [isHydrated, isAuthenticated, user?.role, router]);
 
   if (!mounted || !isHydrated) return null;
 
-  /* ===== Variables del fondo (ajusta aquí) ===== */
-  const bgVars: CSSProperties = {
-    ["--bg-opacity" as any]: "0.75",   // opacidad de la imagen (0–1)
-    ["--bg-blur" as any]: "3px",       // blur de la imagen (ej: 0px, 3px, 8px)
-    ["--bg-tint" as any]: "0.60",      // opacidad del tinte/gradiente
+  /* ===== Variables del fondo (tipadas) ===== */
+  const bgVars: CSSVars = {
+    "--bg-opacity": "0.75",
+    "--bg-blur": "3px",
+    "--bg-tint": "0.60",
   };
-
 
   /* ===== estilos ===== */
   const inputBase =
@@ -110,7 +116,6 @@ export default function FormLogin() {
   const iconBtn =
     "absolute inset-y-0 right-3 my-auto inline-flex items-center text-white/80 hover:text-[var(--color-light-blue)]";
 
-  // Botón primario (igual al Register)
   const btnPrimary =
     "w-full h-11 rounded-lg font-semibold text-[var(--color-dark-blue)] bg-white hover:bg-[var(--color-light-blue)] " +
     "border border-white/30 shadow hover:shadow-lg active:scale-[0.99] transition " +
@@ -146,7 +151,7 @@ export default function FormLogin() {
         />
       </div>
 
-      {/* Card (centrada) con el mismo gradiente sólido del footer */}
+      {/* Card */}
       <section className="w-full max-w-md">
         <div
           className="
@@ -156,7 +161,7 @@ export default function FormLogin() {
             bg-[linear-gradient(to_right,var(--color-dark-blue)_0%,var(--color-custume-blue)_50%,var(--color-dark-blue)_100%)]
           "
         >
-          {/* Header centrado con “ghost button” para equilibrar */}
+          {/* Header */}
           <header className="mb-6 grid grid-cols-[auto_1fr_auto] items-center gap-2">
             <button
               type="button"

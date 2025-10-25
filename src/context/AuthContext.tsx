@@ -99,8 +99,9 @@ function writeCookies(user: AuthUser | null, token: string | null) {
     document.cookie = `auth_token=; Path=/; Max-Age=0; SameSite=Lax`;
   }
 
-  // role (admin | user) — fuente: user.role o, si hay token, del payload
-  let role: "admin" | "user" | "" = "";
+ 
+  
+  let role: "admin" | "renter" | "user" | "" = "";
   if (user?.role) {
     role = user.role;
   } else if (token) {

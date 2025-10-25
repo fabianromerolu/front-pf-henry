@@ -1,6 +1,6 @@
 // src/components/auth/Register.tsx
 "use client";
-import { useFormik } from "formik";
+import { useFormik, type FormikTouched } from "formik";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useEffect, type CSSProperties } from "react";
 import {
@@ -32,6 +32,13 @@ function strengthLabel(score: number): string {
 /* Ampliamos localmente los valores para phone/role sin romper tu schema */
 type ExtendedValues = RegisterFormValues & { phone?: string; role?: "USER" | "RENTER" };
 
+/** CSS Vars tipadas (evita any) */
+type CSSVars = CSSProperties & {
+  "--bg-opacity"?: string;
+  "--bg-blur"?: string;
+  "--bg-tint"?: string;
+};
+
 export default function FormRegister() {
   const router = useRouter();
   const { isHydrated, register: registerAction } = useAuth();
@@ -45,7 +52,8 @@ export default function FormRegister() {
 
   const formik = useFormik<ExtendedValues>({
     initialValues: { ...RegisterInitialValues, phone: "", role: "USER" },
-    validationSchema: RegisterValidationSchema as any,
+    // Evita `any` usando unknown → esquema de Yup
+    validationSchema: RegisterValidationSchema as unknown as import("yup").AnyObjectSchema,
     onSubmit: async (values, { setSubmitting }) => {
       try {
         const ok = await registerAction(values);
@@ -58,17 +66,27 @@ export default function FormRegister() {
     },
   });
 
+  /* Helpers tipados para errores/touched */
+  const getErr = <K extends keyof ExtendedValues>(k: K): string | undefined => {
+    const e = formik.errors[k];
+    return typeof e === "string" ? e : undefined;
+  };
+  const isTouched = <K extends keyof ExtendedValues>(k: K): boolean => {
+    const t = formik.touched[k];
+    return typeof t === "boolean" ? t : false;
+  };
+
   const pwScore = useMemo(() => scorePassword(formik.values.password), [formik.values.password]);
   const pwPercent = (pwScore / 5) * 100;
   const pwLabel = strengthLabel(pwScore);
 
   if (!mounted || !isHydrated) return null;
 
-  /* ======== Variables para el fondo (ajusta aquí) ======== */
-  const bgVars: CSSProperties = {
-    ["--bg-opacity" as any]: "0.75",   // opacidad de la imagen (0–1)
-    ["--bg-blur" as any]: "3px",       // blur de la imagen (ej: 0px, 3px, 8px)
-    ["--bg-tint" as any]: "0.60",      // opacidad del tinte/gradiente
+  /* ======== Variables para el fondo (tipadas) ======== */
+  const bgVars: CSSVars = {
+    "--bg-opacity": "0.75",
+    "--bg-blur": "3px",
+    "--bg-tint": "0.60",
   };
 
   /* ===== estilos ===== */
@@ -92,12 +110,17 @@ export default function FormRegister() {
   /* ===== validación por paso ===== */
   const step1Fields: (keyof ExtendedValues)[] = ["name", "username", "email"];
   const step2Fields: (keyof ExtendedValues)[] = ["phone", "role"];
-  const step3Fields: (keyof ExtendedValues)[] = ["password", "confirmPassword"];
 
   const nextFrom = async (fields: (keyof ExtendedValues)[], toStep: 2 | 3) => {
     const errors = await formik.validateForm();
-    formik.setTouched(fields.reduce((acc, k) => ({ ...acc, [k]: true }), {} as any), true);
-    const hasErrors = fields.some((k) => (errors as any)[k]);
+    // Construimos touched tipado (sin any)
+    const touchedObj = fields.reduce<Partial<Record<keyof ExtendedValues, boolean>>>((acc, k) => {
+      acc[k] = true;
+      return acc;
+    }, {});
+    formik.setTouched(touchedObj as FormikTouched<ExtendedValues>, true);
+
+    const hasErrors = fields.some((k) => Boolean((errors as Partial<Record<keyof ExtendedValues, unknown>>)[k]));
     if (!hasErrors) setStep(toStep);
   };
 
@@ -111,9 +134,11 @@ export default function FormRegister() {
     if (step === 1) {
       return (
         <ul className="list-disc pl-4 space-y-1">
-          <li>Usuario: minúsculas/números/_ (sin "__", ni empezar/terminar en _).</li>
+          <li>
+            Usuario: minúsculas/números/<code>_</code> (sin <code>__</code>, ni empezar/terminar en <code>_</code>).
+          </li>
           <li>Usa un email válido; ahí llegan confirmaciones.</li>
-          <li>Nombre: solo letras y espacios (p. ej., “Ana María”).</li>
+          <li>Nombre: solo letras y espacios (p. ej., &laquo;Ana Mar&iacute;a&raquo;).</li>
         </ul>
       );
     }
@@ -167,9 +192,9 @@ export default function FormRegister() {
         />
       </div>
 
-      {/* Grid principal: form + aside. Form pegado al aside para que quede centrado visualmente */}
+      {/* Grid principal: form + aside */}
       <section className="w-full max-w-6xl mx-auto grid md:grid-cols-[minmax(0,1fr)_320px] items-start gap-3 md:gap-4">
-        {/* ===== Columna FORM (más cerca del aside) ===== */}
+        {/* ===== Columna FORM ===== */}
         <div className="max-w-md w-full mx-auto md:mx-0 md:justify-self-end">
           <div
             className="
@@ -221,33 +246,56 @@ export default function FormRegister() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label htmlFor="name" className={labelBase}>Nombre completo</label>
-                        <input id="name" name="name" type="text" autoComplete="name"
-                          value={formik.values.name} onChange={formik.handleChange} onBlur={formik.handleBlur}
-                          placeholder="John Doe" className={inputBase} />
-                        {formik.touched.name && formik.errors.name && (
-                          <p className={errorText}>{formik.errors.name as any}</p>
+                        <input
+                          id="name"
+                          name="name"
+                          type="text"
+                          autoComplete="name"
+                          value={formik.values.name}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          placeholder="John Doe"
+                          className={inputBase}
+                        />
+                        {isTouched("name") && getErr("name") && (
+                          <p className={errorText}>{getErr("name")}</p>
                         )}
                       </div>
 
                       <div>
                         <label htmlFor="username" className={labelBase}>Usuario</label>
-                        <input id="username" name="username" type="text" autoComplete="username"
-                          value={formik.values.username} onChange={formik.handleChange} onBlur={formik.handleBlur}
-                          placeholder="johndoe" className={inputBase} />
-                        {formik.touched.username && formik.errors.username && (
-                          <p className={errorText}>{formik.errors.username as any}</p>
+                        <input
+                          id="username"
+                          name="username"
+                          type="text"
+                          autoComplete="username"
+                          value={formik.values.username}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          placeholder="johndoe"
+                          className={inputBase}
+                        />
+                        {isTouched("username") && getErr("username") && (
+                          <p className={errorText}>{getErr("username")}</p>
                         )}
                       </div>
                     </div>
 
                     <div>
                       <label htmlFor="email" className={labelBase}>Email</label>
-                      <input id="email" name="email" type="email" autoComplete="email"
+                      <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        autoComplete="email"
                         value={formik.values.email}
                         onChange={(e) => formik.setFieldValue("email", e.target.value.trimStart())}
-                        onBlur={formik.handleBlur} placeholder="john@volantia.com" className={inputBase} />
-                      {formik.touched.email && formik.errors.email && (
-                        <p className={errorText}>{formik.errors.email as any}</p>
+                        onBlur={formik.handleBlur}
+                        placeholder="john@volantia.com"
+                        className={inputBase}
+                      />
+                      {isTouched("email") && getErr("email") && (
+                        <p className={errorText}>{getErr("email")}</p>
                       )}
                     </div>
 
@@ -265,24 +313,37 @@ export default function FormRegister() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label htmlFor="phone" className={labelBase}>Teléfono (opcional)</label>
-                        <input id="phone" name="phone" type="tel" autoComplete="tel"
-                          value={formik.values.phone ?? ""} onChange={formik.handleChange} onBlur={formik.handleBlur}
-                          placeholder="+573001112233" className={inputBase} />
-                        {formik.touched.phone && (formik.errors as any)?.phone && (
-                          <p className={errorText}>{(formik.errors as any).phone}</p>
+                        <input
+                          id="phone"
+                          name="phone"
+                          type="tel"
+                          autoComplete="tel"
+                          value={formik.values.phone ?? ""}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          placeholder="+573001112233"
+                          className={inputBase}
+                        />
+                        {isTouched("phone") && getErr("phone") && (
+                          <p className={errorText}>{getErr("phone")}</p>
                         )}
                       </div>
 
                       <div>
                         <label htmlFor="role" className={labelBase}>Tipo de cuenta</label>
-                        <select id="role" name="role" value={formik.values.role ?? "USER"}
-                          onChange={formik.handleChange} onBlur={formik.handleBlur}
-                          className={`${inputBase} pr-10 appearance-none`}>
+                        <select
+                          id="role"
+                          name="role"
+                          value={formik.values.role ?? "USER"}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          className={`${inputBase} pr-10 appearance-none`}
+                        >
                           <option value="USER">Usuario</option>
                           <option value="RENTER">Arrendador (RENTER)</option>
                         </select>
-                        {formik.touched.role && (formik.errors as any)?.role && (
-                          <p className={errorText}>{(formik.errors as any).role}</p>
+                        {isTouched("role") && getErr("role") && (
+                          <p className={errorText}>{getErr("role")}</p>
                         )}
                       </div>
                     </div>
@@ -308,21 +369,37 @@ export default function FormRegister() {
                     <div>
                       <label htmlFor="password" className={labelBase}>Contraseña</label>
                       <div className="relative">
-                        <input id="password" name="password" type={showPw ? "text" : "password"} autoComplete="new-password"
-                          value={formik.values.password} onChange={formik.handleChange} onBlur={formik.handleBlur}
-                          placeholder="••••••••" className={inputBase} />
-                        <button type="button" onClick={() => setShowPw((v) => !v)} className={iconBtn}
-                          aria-label={showPw ? "Ocultar contraseña" : "Mostrar contraseña"} title={showPw ? "Ocultar" : "Mostrar"}>
+                        <input
+                          id="password"
+                          name="password"
+                          type={showPw ? "text" : "password"}
+                          autoComplete="new-password"
+                          value={formik.values.password}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          placeholder="••••••••"
+                          className={inputBase}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPw((v) => !v)}
+                          className={iconBtn}
+                          aria-label={showPw ? "Ocultar contraseña" : "Mostrar contraseña"}
+                          title={showPw ? "Ocultar" : "Mostrar"}
+                        >
                           {showPw ? <FiEyeOff /> : <FiEye />}
                         </button>
                       </div>
-                      {formik.touched.password && formik.errors.password && (
-                        <p className={errorText}>{formik.errors.password as any}</p>
+                      {isTouched("password") && getErr("password") && (
+                        <p className={errorText}>{getErr("password")}</p>
                       )}
 
                       <div className="mt-2">
                         <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden">
-                          <div className="h-2 rounded-full bg-[var(--color-light-blue)] transition-all" style={{ width: `${pwPercent}%` }} />
+                          <div
+                            className="h-2 rounded-full bg-[var(--color-light-blue)] transition-all"
+                            style={{ width: `${pwPercent}%` }}
+                          />
                         </div>
                         <div className="mt-1 text-xs text-white/80 flex items-center justify-between">
                           <span>Fuerza: {pwLabel}</span>
@@ -334,16 +411,29 @@ export default function FormRegister() {
                     <div>
                       <label htmlFor="confirmPassword" className={labelBase}>Confirmar contraseña</label>
                       <div className="relative">
-                        <input id="confirmPassword" name="confirmPassword" type={showPw2 ? "text" : "password"} autoComplete="new-password"
-                          value={formik.values.confirmPassword} onChange={formik.handleChange} onBlur={formik.handleBlur}
-                          placeholder="••••••••" className={inputBase} />
-                        <button type="button" onClick={() => setShowPw2((v) => !v)} className={iconBtn}
-                          aria-label={showPw2 ? "Ocultar confirmación" : "Mostrar confirmación"} title={showPw2 ? "Ocultar" : "Mostrar"}>
+                        <input
+                          id="confirmPassword"
+                          name="confirmPassword"
+                          type={showPw2 ? "text" : "password"}
+                          autoComplete="new-password"
+                          value={formik.values.confirmPassword}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          placeholder="••••••••"
+                          className={inputBase}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPw2((v) => !v)}
+                          className={iconBtn}
+                          aria-label={showPw2 ? "Ocultar confirmación" : "Mostrar confirmación"}
+                          title={showPw2 ? "Ocultar" : "Mostrar"}
+                        >
                           {showPw2 ? <FiEyeOff /> : <FiEye />}
                         </button>
                       </div>
-                      {formik.touched.confirmPassword && formik.errors.confirmPassword && (
-                        <p className={errorText}>{formik.errors.confirmPassword as any}</p>
+                      {isTouched("confirmPassword") && getErr("confirmPassword") && (
+                        <p className={errorText}>{getErr("confirmPassword")}</p>
                       )}
                     </div>
 
@@ -362,7 +452,7 @@ export default function FormRegister() {
           </div>
         </div>
 
-        {/* ===== Columna ASIDE (sólida para legibilidad) ===== */}
+        {/* ===== Columna ASIDE ===== */}
         <aside className="space-y-4">
           <div
             className="
