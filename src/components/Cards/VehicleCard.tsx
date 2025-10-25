@@ -16,10 +16,10 @@ export const VehicleCard = ({ vehicle }: CardProps) => {
       <div className="group relative w-full max-w-[380px] h-auto bg-white overflow-hidden transition-all duration-300 hover:shadow-2xl shadow-lg p-8 cursor-pointer mx-auto">
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h4 className="text-dark-blue montserrat text-4xl font-bold lowercase mb-1">
+            <h4 className="text-dark-blue montserrat text-4xl font-bold lowercase mb-0">
               {vehicle.make}
             </h4>
-            <h3 className="text-dark-blue montserrat text-3xl font-medium lowercase">
+            <h3 className="text-dark-blue montserrat text-3xl font-medium lowercase mb-0">
               {vehicle.model}
             </h3>
           </div>
@@ -31,10 +31,10 @@ export const VehicleCard = ({ vehicle }: CardProps) => {
         <div className="relative overflow-hidden mb-6 bg-gray-50">
           <Image
             width={600}
-            height={300}
+            height={600}
             src={vehicle.photo}
             alt={vehicle.title}
-            className="w-full h-72 object-contain transition-all duration-500 group-hover:scale-105"
+            className="w-full object-contain transition-all duration-500 group-hover:scale-105"
           />
         </div>
 
