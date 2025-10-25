@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Montserrat, Taviraj, Hind } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/navbar/Navbar";
+import Navbar from "@/components/Navbar/Navbar";
 
 const geistMontserrat = Montserrat({
   variable: "--font-montserrat",
@@ -36,7 +36,7 @@ export default function RootLayout({
       <body
         className={`${geistMontserrat.variable} ${geistTaviraj.variable} ${geistHind.variable} antialiased`}
       >
-      <Navbar/>
+        <Navbar />
         {children}
       </body>
     </html>
