@@ -1,3 +1,4 @@
+
 import VehicleCard from "@/components/Cards/VehicleCard";
 import mockProducts from "@/helpers/mockProducts";
 
