@@ -3,7 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import DarkButtom from "../Buttoms/DarkButtom";
 import LightButtom from "../Buttoms/LightButtom";
-import VehicleItems from "@/interfaces/VehicleItems";
+import VehicleItems from "@/Interfaces/VehicleItems";
+
 
 interface CardProps {
   vehicle: VehicleItems;
