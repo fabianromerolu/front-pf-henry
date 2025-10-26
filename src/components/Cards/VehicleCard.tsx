@@ -3,11 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 import DarkButtom from "../Buttoms/DarkButtom";
 import LightButtom from "../Buttoms/LightButtom";
-import VehicleItems from "@/Interfaces/VehicleItems";
+import vehicleItems from "@/interfaces/vehicleItems";
+
 
 
 interface CardProps {
-  vehicle: VehicleItems;
+  vehicle: vehicleItems;
 }
 
 export const VehicleCard = ({ vehicle }: CardProps) => {
@@ -38,19 +39,11 @@ export const VehicleCard = ({ vehicle }: CardProps) => {
           />
         </div>
 
-        <div className="flex justify-around items-center mb-8">
-          {/* Aquí van los iconos */}
-        </div>
+        <div className="flex justify-around items-center mb-8">{/* iconos */}</div>
 
         <div className="flex flex-col gap-3">
-          <DarkButtom
-            className="w-full py-4 rounded-full text-xl lowercase"
-            text="rent now"
-          />
-          <LightButtom
-            className="w-full py-4 rounded-full text-xl lowercase"
-            text="see details"
-          />
+          <DarkButtom className="w-full py-4 rounded-full text-xl lowercase" text="rent now" />
+          <LightButtom className="w-full py-4 rounded-full text-xl lowercase" text="see details" />
         </div>
       </div>
     </Link>
