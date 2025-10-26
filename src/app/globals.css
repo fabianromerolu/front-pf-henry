@@ -3,8 +3,9 @@
 @theme inline {
   --color-custume-light: #eaeaea;
   --color-light-blue: #d3e4ff;
-  --color-costume-blue: #141e61;
+  --color-custume-blue: #141e61;
   --color-dark-blue: #0f044c;
+  --color-sutume-gray: #787a91;
 
   --font-montserrat: var(--font-Montserrat);
   --font-taviraj: var(--font-Taviraj);
@@ -18,26 +19,34 @@
 }
 
 :root {
-  font-family: var(--font-Taviraj), serif;
+  font-family: var(--font-hind), serif;
 
-  --font-primary: var(--font-Taviraj);
-  --font-secondary: var(--font-Montserrat);
-  --font-tertiary: var(--font-Hind);
+  --font-primary: var(--font-montserrat);
+  --font-secondary: var(--font-taviraj);
+  --font-tertiary: var(--font-hind);
 }
 
 body {
   background: var(--background);
-  color: #111;
 }
 
 .montserrat {
-  font-family: var(--font-Montserrat), sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
 }
 
 .taviraj {
-  font-family: var(--font-Taviraj), serif;
+  font-family: var(--font-taviraj), serif;
 }
 
 .hind {
-  font-family: var(--font-Hind), sans-serif;
+  font-family: var(--font-hind), sans-serif;
+}
+
+/* ===== Fade-slide entre pasos ===== */
+@keyframes fade-slide {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-slide {
+  animation: fade-slide .28s ease-out both;
 }
