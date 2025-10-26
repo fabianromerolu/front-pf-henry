@@ -3,11 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 import DarkButtom from "../Buttoms/DarkButtom";
 import LightButtom from "../Buttoms/LightButtom";
-import VehicleItems from "@/interfaces/VehicleItems";
+import vehicleItems from "@/interfaces/vehicleItems";
+
 
 
 interface CardProps {
-  vehicle: VehicleItems;
+  vehicle: vehicleItems;
 }
 
 export const VehicleCard = ({ vehicle }: CardProps) => {
