@@ -139,14 +139,6 @@ async function safeJson<T>(res: Response): Promise<T | null> {
   }
 }
 
-function destByRole(role?: UserRole | null): string {
-  return role === "admin"
-    ? "/dashboard/admin"
-    : role === "renter"
-    ? "/dashboard/renter"
-    : "/dashboard";
-}
-
 /* ============== resolutores de usuario ============== */
 // 1) /auth/me/jwt (con Bearer); 2) /auth/me (cookie OIDC); 3) /users/:id (si sub en JWT)
 export async function resolveUserFromToken(accessToken: string): Promise<AuthUser | null> {
