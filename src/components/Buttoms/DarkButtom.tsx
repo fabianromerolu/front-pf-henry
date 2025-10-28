@@ -1,19 +1,45 @@
+import Link from "next/link";
 import React from "react";
 
-interface ButtonProps {
-  className: string;
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   text: string;
+  size?: "md" | "lg" | "xl";
+  href?: string;
 }
 
-function LightButtom({ text }: ButtonProps) {
+const sizeClasses = {
+  md: "text-base py-1 w-50",
+  lg: "text-lg py-1.5 w-70",
+  xl: "text-xl py-2.5 w-100",
+};
+function DarkButton({
+  text,
+  size = "md",
+  className = "",
+  href,
+  ...props
+}: ButtonProps) {
+  const buttonClasses = `
+    flex justify-center taviraj rounded-4xl bg-custume-blue text-light-blue hover:bg-light-blue hover:text-custume-blue
+    ${sizeClasses[size]}
+    ${className}
+  `
+    .trim()
+    .replace(/\s+/g, " ");
+
+  if (href) {
+    return (
+      <Link href={href} className={buttonClasses}>
+        {text}
+      </Link>
+    );
+  }
+
   return (
-    <button
-      className="bg-custume-blue taviraj w-full text-3xl text-custume-light p-2 rounded-4xl hover:bg-light-blue hover:text-dark-blue"
-      type="submit"
-    >
+    <button className={buttonClasses} {...props}>
       {text}
     </button>
   );
 }
 
-export default LightButtom;
+export default DarkButton;
