@@ -310,17 +310,25 @@ export async function saveTokenFromQueryAndHydrateAuth(
   const url = new URL(window.location.href);
   const token = url.searchParams.get("token");
 
-  // Caso moderno: el back NO pasa token por query (usa cookie httpOnly).
+  // Caso moderno: NO llega ?token=, dependemos de cookie httpOnly del back
   if (!token) {
     const me = await getMe();
     if (me) {
+      // 🔹 Marca sesión en el DOMINIO DEL FRONT para que el middleware no te bote
+      // Cookie corta (15min) alineada al volantia_token del back
+      document.cookie = `auth_token=1; Path=/; Max-Age=${60 * 15}; SameSite=Lax`;
+      // Cookie de rol para rutas de admin/renter si tu middleware la quisiera usar
+      document.cookie = `role=${me.role ?? "user"}; Path=/; Max-Age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+
       setAuth(me, null);
       window.location.replace(destByRole(me.role));
+      return;
     }
+    // Si no hay me(), te quedas en la página; el login local seguirá funcionando.
     return;
   }
 
-  // Compat: soporte si viene ?token=
+  // Compat: viene ?token= en la URL
   const user = await resolveUserFromToken(token);
 
   localStorage.setItem("auth:token", token);
@@ -335,6 +343,7 @@ export async function saveTokenFromQueryAndHydrateAuth(
   // Redirige por rol
   window.location.replace(destByRole(user?.role));
 }
+
 
 /* ============= getMe() (hook useUser) ============= */
 export async function getMe(): Promise<AuthUser | null> {

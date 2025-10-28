@@ -1,3 +1,4 @@
+//src/components/auth/RequiereAuth.tsx
 "use client";
 
 import { ReactNode, useEffect, useMemo, useState } from "react";

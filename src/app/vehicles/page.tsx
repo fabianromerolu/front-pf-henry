@@ -1,5 +1,5 @@
 
-import mockProducts from "@/helpers/mockProducts";
+
 
 export default function ProductsPage() {
   return (
