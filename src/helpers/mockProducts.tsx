@@ -1,54 +1,14 @@
-import vehicleProps from "@/interfaces/vehicleProps";
+import type VehicleProps from "@/interfaces/vehicleProps";
+import {
+  BodyType,
+  Category,
+  Transmition,
+  Fuel,
+  DriveTrain,
+  Status,
+} from "@/interfaces/vehicleProps";
 
-
-enum BodyType {
-  Sedan,
-  Hatchback,
-  Suv,
-  Pickup,
-  Van,
-  Coupe,
-  Convertible,
-}
-
-enum Category {
-  Economy,
-  Compact,
-  Modsize,
-  Suv,
-  Pickup,
-  Van,
-  Premium,
-  Electric,
-}
-
-enum Transmition {
-  Manual,
-  Automatic,
-}
-
-enum Fuel {
-  Gasoline,
-  Diesel,
-  Hybrid,
-  Electric,
-}
-
-enum DriveTrain {
-  FWD,
-  RWD,
-  AWD,
-  WD4,
-}
-
-enum Status {
-  borrador,
-  publicado,
-  pausado,
-  bloqueado,
-}
-
-const mockProducts: vehicleProps[] = [
+const mockProducts: VehicleProps[] = [
   {
     id: 1,
     title: "Toyota Corolla 2023",
