@@ -1,20 +1,24 @@
-// src/app/auth/sso/page.tsx
 "use client";
 
 import { useEffect, useRef } from "react";
 import { saveTokenFromQueryAndHydrateAuth } from "@/services/authService.service";
 import { useAuth } from "@/context/AuthContext";
+import type { AuthUser } from "@/services/authService.service";
 
-// ✅ evita SSG/ISR en esta página (solo client runtime)
+/** Evita SSG/ISR y cacheo para esta página puente */
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const fetchCache = "default-no-store";
 
+/** Tipo mínimo que necesitamos del contexto */
+type SetAuthFn = (user: AuthUser | null, token: string | null) => void;
+type AuthCtxLike = { setAuth?: SetAuthFn } | null;
+
 export default function SsoBridgePage() {
-  // ❌ NO: const { setAuth } = useAuth() as any;
-  // ✅ SÍ: primero obtén el objeto, luego opcional encadena
-  const auth = typeof useAuth === "function" ? (useAuth() as any) : null;
-  const setAuth = auth?.setAuth as undefined | ((u: any, t: any) => void);
+  // ✅ Llamamos SIEMPRE el hook (regla de hooks). Si el provider no está,
+  // `useAuth()` puede devolver algo falsy; lo tratamos como nullable.
+  const ctx = useAuth() as unknown as AuthCtxLike;
+  const setAuth = ctx?.setAuth;
 
   const didRun = useRef(false);
 
@@ -27,7 +31,7 @@ export default function SsoBridgePage() {
         if (typeof setAuth === "function") setAuth(user, token);
       });
     })();
-  }, [setAuth]); // con didRun no reejecuta en loop
+  }, [setAuth]);
 
   return (
     <main className="min-h-screen flex items-center justify-center">
