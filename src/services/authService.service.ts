@@ -296,10 +296,11 @@ export function loginWithAuth0(): void {
     process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "") ||
     "http://localhost:3000";
 
-  // puedes cambiar returnTo a window.location.pathname si quieres volver a la misma página
-  const returnTo = "/";
+  // tras el login vamos a /auth/sso para recoger ?token o tirar de cookies
+  const returnTo = "/auth/sso";
   window.location.href = `${apiBase}/login?returnTo=${encodeURIComponent(returnTo)}`;
 }
+
 
 /* ============= Guardar token desde ?token=... ============= */
 export async function saveTokenFromQueryAndHydrateAuth(
