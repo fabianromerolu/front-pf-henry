@@ -5,7 +5,7 @@ const PUBLIC_PATHS = new Set<string>([
   "/", "/home",
   "/login", "/register",
   "/forgot-password",
-  "/auth/sso", // 👈 asegúrate de exponer el puente SSO
+  "/auth/sso", // 👈 puente SSO debe ser público
 ]);
 
 function isPublic(pathname: string) {
@@ -24,7 +24,7 @@ export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   if (isPublic(pathname)) return NextResponse.next();
 
-  // 🔹 Acepta marcador de sesión del FRONT (auth_token o role)
+  // ✅ Acepta "marcador" de sesión del FRONT
   const hasFrontSession =
     Boolean(req.cookies.get("auth_token")?.value) ||
     Boolean(req.cookies.get("role")?.value);
