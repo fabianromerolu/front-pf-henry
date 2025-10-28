@@ -4,7 +4,7 @@ export default interface VehicleItems {
   make: string;
   model: string;
   year: number;
-  trim: string;
+  trim?: string;
   bodytype?: BodyType;
   category?: Category;
   transmition?: Transmition;
@@ -12,7 +12,8 @@ export default interface VehicleItems {
   drivetrain?: DriveTrain;
   color: string;
   seats: number;
-  doors: number;
+  country?: string;
+  city?: string;
   state: string;
   lat: number;
   lng: number;
@@ -26,8 +27,9 @@ export default interface VehicleItems {
   minDriverAge: number;
   insuranceIncluded: boolean;
   rules: string;
-  description: string;
+  description?: string;
   photo: string;
+  status?: Status;
 }
 
 enum BodyType {
@@ -68,4 +70,11 @@ enum DriveTrain {
   RWD,
   AWD,
   WD4,
+}
+
+enum Status {
+  borrador,
+  publicado,
+  pausado,
+  bloqueado,
 }

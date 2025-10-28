@@ -23,7 +23,7 @@ export const VehicleCard = ({ vehicle }: CardProps) => {
               {vehicle.model}
             </h3>
           </div>
-          <div className="text-gray-400 montserrat text-3xl font-semibold">
+          <div className="text-gray-400 montserrat text-3xl">
             ${vehicle.pricePerHour}
           </div>
         </div>
