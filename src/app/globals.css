@@ -7,9 +7,9 @@
   --color-dark-blue: #0f044c;
   --color-sutume-gray: #787a91;
 
-  --font-montserrat: var(--font-Montserrat);
-  --font-taviraj: var(--font-Taviraj);
-  --font-hind: var(--font-Hind);
+  --font-montserrat: var(--font-montserrat);
+  --font-taviraj: var(--font-taviraj);
+  --font-hind: var(--font-hind);
 }
 
 @media (prefers-color-scheme: dark) {

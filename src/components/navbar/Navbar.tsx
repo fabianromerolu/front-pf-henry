@@ -10,7 +10,7 @@ const OfferIcon = "/icons/offer.svg";
 const ContactIcon = "/icons/contact.svg";
 const ProfileIcon = "/icons/profile.svg";
 const LogoutIcon = "/icons/logout.svg";
-const Logo = "logo.svg";
+const Logo = "/logo.svg";
 
 // Enlaces base (públicos)
 const NavLinksBase = [
@@ -72,7 +72,7 @@ export default function Navbar() {
       />
 
       <nav
-        className={`fixed top-0 right-0 w-72 h-full bg-[#f6f7fb] p-8 z-50 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 right-0 w-72 h-full bg-custume-light p-8 z-50 transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
         aria-labelledby="mobile-menu-heading"
@@ -106,7 +106,7 @@ export default function Navbar() {
               <a
                 href={link.href}
                 onClick={() => setIsOpen(false)}
-                className={`group relative flex items-center gap-4 pl-6 pr-6 py-3 text-[#787A91] text-lg capitalize transition-all duration-200 hover:text-[#0F044C] hover:bg-white hover:shadow-md w-full rounded-md`}
+                className={`group relative flex items-center gap-4 pl-6 pr-6 py-3 text-[#787A91] text-lg capitalize transition-all duration-200 hover:text-[#0F044C] hover:shadow-md w-full rounded-md`}
               >
                 <span className="absolute left-0 top-0 h-full w-[4px] bg-[#0F044C] opacity-0 group-hover:opacity-100 rounded-r-sm"></span>
 
@@ -146,7 +146,7 @@ export default function Navbar() {
             <li className="pt-6">
               <button
                 onClick={handleLogin}
-                className="flex items-center gap-4 text-green-500 hover:text-green-700 text-lg capitalize px-4 py-3 rounded-lg transition-all duration-200 hover:bg-white hover:shadow-md w-full"
+                className="flex items-center gap-4 text-green-500 hover:text-green-700 text-lg capitalize px-4 py-3 rounded-lg transition-all duration-200 hover:shadow-md w-full"
               >
                 <Image
                   src={ProfileIcon}

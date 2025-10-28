@@ -8,7 +8,7 @@ interface ButtonProps {
 function LightButtom({ text }: ButtonProps) {
   return (
     <button
-      className="bg-custume-blue taviraj w-full text-3xl text-custume-light p-2 rounded-4xl"
+      className="bg-custume-blue font-taviraj w-full text-xl text-custume-light p-2 rounded-4xl"
       type="submit"
     >
       {text}
