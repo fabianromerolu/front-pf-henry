@@ -1,7 +1,9 @@
+import { AuthProvider } from "@/context/AuthContext";
 import type { Metadata } from "next";
 import { Montserrat, Taviraj, Hind } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar/Navbar";
+import Navbar from "@/components/navbar/Navbar";
+import Footer from "@/components/footer/Footer"
 
 const geistMontserrat = Montserrat({
   variable: "--font-montserrat",

@@ -1,12 +1,12 @@
 "use client";
-import Image from "next/image";
-import type VehicleItems from "@/Interfaces/VehicleItems"; 
-
+import Image from "next/image"; 
+import Link from "next/link";
 import DarkButton from "@/components/Buttoms/DarkButtom";
 import LightButton from "@/components/Buttoms/LightButtom";
+import VehicleProps from "@/interfaces/vehicleProps";
 
 interface VehicleDetailProps {
-  vehicle: VehicleItems;
+  vehicle: VehicleProps;
 }
 
 const SteeringWheelIcon = "/icons/steeringWheel.svg";
@@ -30,19 +30,19 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
           <header className="flex justify-between items-start mb-6 p-6">
       
             
-            <h1 className="text-6xl font-normal tracking-tight"> 
+            <h1 className="font-normal tracking-tight"> 
               
-              <span className=" font-light block"> 
+              <span className="text-4xl font-light block"> 
                 {vehicle.make}
               </span>
              
-              <span className="font-normal block text-5xl">
+              <span className="text-4xl font-normal block">
                 {vehicle.model}
               </span>
             </h1>
             
             
-            <p className="text-5xl font-light text-custume-light"> 
+            <p className="text-4xl font-light text-custume-light"> 
               ${vehicle.pricePerDay}
             </p>
           </header>
@@ -51,28 +51,28 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
           <ul className="flex justify-start space-x-12 p-6 text-center mt-auto text-custume-light/70">
             
             <li>
-              <div className="text-2xl mb-1">
+              <div className="text-xl mb-1">
                 <Image src={SteeringWheelIcon} width={60} height={60} alt="steering-Wheel" />
               </div>
               {vehicle.bodytype || "SUV"} 
             </li>
             
             <li>
-              <div className="text-2xl mb-1">
+              <div className="text-xl mb-1">
                 <Image src={SeatsIcon} width={60} height={60} alt="seats" />
               </div>
               {vehicle.seats} seats 
             </li>
             
             <li>
-              <div className="text-2xl mb-1">
+              <div className="text-xl mb-1">
                 <Image src={PetrolPumpIcon} width={60} height={60} alt="pump" />
               </div>
-              {vehicle.fuel || "Gasolina"} mpg
+              {vehicle.fuel || "Gasolina"} 
             </li>
             
             <li>
-              <div className="text-2xl mb-1">
+              <div className="text-xl mb-1">
                 <Image src={ElectricCarIcon} width={60} height={60} alt="transmition" />
               </div>
               {vehicle.transmition || "Automática"}
@@ -110,9 +110,11 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
         </div>
 
         
-        <div className="cta-buttons flex flex-col space-y-3 mt-auto">
-          <DarkButton className="hover:cursor-pointer" text="rent now" />
-          <LightButton className="" text="send plus"/>
+        <div className="flex flex-col space-y-3 mt-auto">
+          <DarkButton className="hover:cursor-pointer" size="lg" text="rent now" />
+          <Link href="/vehicles" passHref>
+            <LightButton className="hover:cursor-pointer" size="lg" text="back to vehicles"/>
+          </Link>
         </div>
   </section>
 </main>
