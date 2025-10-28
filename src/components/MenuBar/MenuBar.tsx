@@ -6,6 +6,7 @@ import DarkButtom from "../Buttoms/DarkButtom";
 import LightButton from "../Buttoms/LightButtom";
 import VehicleCard from "../cards/vehicleCard";
 
+
 enum BodyType {
   Sedan,
   Hatchback,

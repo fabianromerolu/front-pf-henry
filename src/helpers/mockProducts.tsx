@@ -1,5 +1,6 @@
 import vehicleProps from "@/interfaces/vehicleProps";
 
+
 enum BodyType {
   Sedan,
   Hatchback,
