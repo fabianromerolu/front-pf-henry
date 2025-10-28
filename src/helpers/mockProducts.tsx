@@ -1,4 +1,4 @@
-import vehicleProps from "@/Interfaces/vehicleProps";
+import vehicleProps from "@/interfaces/vehicleProps";
 
 
 enum BodyType {
