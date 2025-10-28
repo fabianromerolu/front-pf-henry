@@ -1,8 +1,8 @@
+// src/components/navbar/Navbar.tsx
 "use client";
 
 import { useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 
 // Icons
 const VehicleIcon = "/icons/vehicles.svg";
@@ -22,7 +22,6 @@ const NavLinksBase = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const router = useRouter();
 
   const AuthLinks = [{ name: "profile", href: "/profile", icon: ProfileIcon }];
 
@@ -106,7 +105,7 @@ export default function Navbar() {
               <a
                 href={link.href}
                 onClick={() => setIsOpen(false)}
-                className={`group relative flex items-center gap-4 pl-6 pr-6 py-3 text-[#787A91] text-lg capitalize transition-all duration-200 hover:text-[#0F044C] hover:shadow-md w-full rounded-md`}
+                className="group relative flex items-center gap-4 pl-6 pr-6 py-3 text-[#787A91] text-lg capitalize transition-all duration-200 hover:text-[#0F044C] hover:bg-white hover:shadow-md w-full rounded-md"
               >
                 <span className="absolute left-0 top-0 h-full w-[4px] bg-[#0F044C] opacity-0 group-hover:opacity-100 rounded-r-sm"></span>
 

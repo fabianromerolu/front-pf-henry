@@ -5,7 +5,8 @@
   --color-light-blue: #d3e4ff;
   --color-custume-blue: #141e61;
   --color-dark-blue: #0f044c;
-  --color-sutume-gray: #787a91;
+  --color-custume-gray: #787a91;
+  --color-custume-red: #a10b0b;
 
   --font-montserrat: var(--font-montserrat);
   --font-taviraj: var(--font-taviraj);
@@ -40,4 +41,13 @@ body {
 
 .hind {
   font-family: var(--font-hind), sans-serif;
+}
+
+/* ===== Fade-slide entre pasos ===== */
+@keyframes fade-slide {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-slide {
+  animation: fade-slide .28s ease-out both;
 }

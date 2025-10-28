@@ -36,8 +36,11 @@ export default function RootLayout({
       <body
         className={`${geistMontserrat.variable} ${geistTaviraj.variable} ${geistHind.variable} antialiased`}
       >
-      <Navbar/>
+        <AuthProvider>
+        <Navbar />
         {children}
+        <Footer/>
+        </AuthProvider>
       </body>
     </html>
   );

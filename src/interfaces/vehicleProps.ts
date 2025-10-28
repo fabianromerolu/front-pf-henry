@@ -1,3 +1,4 @@
+// ✅ Enums exportados como strings (más seguros y legibles)
 export enum BodyType {
   Sedan = "Sedan",
   Hatchback = "Hatchback",
@@ -5,12 +6,12 @@ export enum BodyType {
   Pickup = "Pickup",
   Van = "Van",
   Coupe = "Coupe",
-  Convertible = "Convertible"
+  Convertible = "Convertible",
 }
 
 export enum Transmition {
   Manual = "Manual",
-  Automatic = "Automatic"
+  Automatic = "Automatic",
 }
 
 export enum Category {
@@ -21,31 +22,38 @@ export enum Category {
   Pickup = "Pickup",
   Van = "Van",
   Premium = "Premium",
-  Electric = "Electric"
+  Electric = "Electric",
 }
 
 export enum Fuel {
   Gasoline = "Gasoline",
   Diesel = "Diesel",
   Hybrid = "Hybrid",
-  Electric = "Electric"
+  Electric = "Electric",
 }
 
 export enum DriveTrain {
   FWD = "FWD",
   RWD = "RWD",
   AWD = "AWD",
-  WD4 = "WD4"
+  WD4 = "WD4",
 }
 
+export enum Status {
+  borrador = "borrador",
+  publicado = "publicado",
+  pausado = "pausado",
+  bloqueado = "bloqueado",
+}
 
-export default interface VehicleItems {
+// ✅ Interfaz unificada (nombre estándar PascalCase)
+export default interface VehicleProps {
   id: number;
   title: string;
   make: string;
   model: string;
   year: number;
-  trim: string;
+  trim?: string;
   bodytype?: BodyType;
   category?: Category;
   transmition?: Transmition;
@@ -53,7 +61,8 @@ export default interface VehicleItems {
   drivetrain?: DriveTrain;
   color: string;
   seats: number;
-  doors: number;
+  country?: string;
+  city?: string;
   state: string;
   lat: number;
   lng: number;
@@ -67,6 +76,7 @@ export default interface VehicleItems {
   minDriverAge: number;
   insuranceIncluded: boolean;
   rules: string;
-  description: string;
+  description?: string;
   photo: string;
+  status?: Status;
 }
