@@ -1,13 +1,11 @@
-import VehicleCard from "@/components/Cards/VehicleCard";
 import MenuBar from "@/components/MenuBar/MenuBar";
-import mockProducts from "@/helpers/mockProducts";
 
 export default function VehiclesPage() {
   return (
     <div>
       <MenuBar />
       <div>
-        <div className="flex flex-wrap gap-6 justify-center mt-20"></div>
+        <div className="flex flex-wrap gap-6 justify-center mt-10"></div>
       </div>
     </div>
   );

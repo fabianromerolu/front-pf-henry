@@ -2,28 +2,50 @@
 
 import mockProducts from "@/helpers/mockProducts";
 import React, { useState } from "react";
-import VehicleCard from "../Cards/VehicleCard";
 import DarkButtom from "../Buttoms/DarkButtom";
 import LightButton from "../Buttoms/LightButtom";
+import VehicleCard from "../cards/vehicleCard";
+
+enum BodyType {
+  Sedan,
+  Hatchback,
+  Suv,
+  Pickup,
+  Van,
+  Coupe,
+  Convertible,
+}
+
+enum Transmition {
+  Manual,
+  Automatic,
+}
+
+enum Fuel {
+  Gasoline,
+  Diesel,
+  Hybrid,
+  Electric,
+}
 
 const filterOptions = {
-  type: ["sedan", "suv", "pickup"],
-  state: ["nuevo", "usado"],
-  make: ["toyota", "honda", "ford", "kia"],
-  energy: ["gasoline", "diesel", "electric"],
+  bodytype: Object.keys(BodyType).filter((k) => isNaN(Number(k))),
+  state: ["Monterrey", "Guadalajara", "Sonora", "Guerrero"],
+  transmition: Object.keys(Transmition).filter((k) => isNaN(Number(k))),
+  fuel: Object.keys(Fuel).filter((k) => isNaN(Number(k))),
 };
 
 function MenuBar() {
   const [filters, setFilters] = useState<{
-    type: string | null;
+    bodytype: string | null;
     state: string | null;
-    make: string | null;
-    energy: string | null;
+    transmition: string | null;
+    fuel: string | null;
   }>({
-    type: null,
+    bodytype: null,
     state: null,
-    make: null,
-    energy: null,
+    transmition: null,
+    fuel: null,
   });
 
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -41,10 +63,10 @@ function MenuBar() {
 
   const clearFilters = () => {
     setFilters({
+      bodytype: null,
       state: null,
-      make: null,
-      type: null,
-      energy: null,
+      transmition: null,
+      fuel: null,
     });
   };
 
@@ -56,6 +78,24 @@ function MenuBar() {
       if (filterValue === null) return true;
 
       const productValue = product[filterKey as keyof typeof product];
+
+      if (
+        filterKey === "bodytype" ||
+        filterKey === "transmition" ||
+        filterKey === "fuel"
+      ) {
+        if (typeof productValue === "number") {
+          const enumObj =
+            filterKey === "bodytype"
+              ? BodyType
+              : filterKey === "transmition"
+              ? Transmition
+              : Fuel;
+          const enumString = enumObj[productValue as number];
+          return enumString?.toLowerCase() === filterValue.toLowerCase();
+        }
+      }
+
       if (typeof productValue === "string") {
         return productValue.toLowerCase() === filterValue.toLowerCase();
       }
@@ -68,11 +108,17 @@ function MenuBar() {
     (v) => v !== null
   ).length;
 
+  const filterLabels: Record<string, string> = {
+    bodytype: "Type",
+    state: "State",
+    transmition: "Transmition",
+    fuel: "Fuel",
+  };
+
   return (
     <div>
-      {/* Título y botón (NO sticky) */}
       <div className="max-w-6xl mx-auto p-6">
-        <h2 className="flex justify-center text-3xl montserrat mb-6 text-dark-blue">
+        <h2 className="flex justify-center text-4xl montserrat mb-6 text-custume-red text-bold">
           What are you looking for?
         </h2>
 
@@ -81,7 +127,7 @@ function MenuBar() {
         </div>
       </div>
 
-      <div className="sticky top-0 z-50 bg-custume-light py-4 p-b2 ">
+      <div className="sticky top-0 z-50 bg-custume-light py-4 p-b2">
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
             {(
@@ -99,7 +145,7 @@ function MenuBar() {
                   }`}
                 >
                   <span className="capitalize truncate">
-                    {filters[category] || category}
+                    {filters[category] || filterLabels[category] || category}
                   </span>
                   <svg
                     className={`w-5 h-5 transition-transform flex-shrink-0 ml-2 ${
@@ -119,7 +165,7 @@ function MenuBar() {
                 </button>
 
                 {openDropdown === category && (
-                  <div className="absolute z-10 w-full mt-2 bg-custume-light border-2 border-custume-gray rounded-lg shadow-lg">
+                  <div className="absolute z-10 w-full mt-2 bg-custume-light border-2 border-custume-gray rounded-lg shadow-lg max-h-60 overflow-y-auto">
                     {filterOptions[category].map((option) => (
                       <button
                         key={option}
@@ -143,8 +189,8 @@ function MenuBar() {
             <div className="flex items-center justify-between p-3 bg-custume-light border-2 border-custume-blue rounded-lg">
               <div className="flex flex-wrap gap-2">
                 <span className="text-dark-blue">
-                  <strong>{activeFiltersCount}</strong> filter
-                  {activeFiltersCount > 1 ? "s" : ""} activ
+                  <strong>{activeFiltersCount}</strong> filtro
+                  {activeFiltersCount > 1 ? "s" : ""} activo
                   {activeFiltersCount > 1 ? "s" : ""}:
                 </span>
                 {Object.entries(filters).map(
@@ -154,7 +200,7 @@ function MenuBar() {
                         key={key}
                         className="px-2 py-1 bg-light-blue text-dark-blue rounded text-sm font-medium capitalize"
                       >
-                        {key}: {value}
+                        {filterLabels[key] || key}: {value}
                       </span>
                     )
                 )}
@@ -162,7 +208,7 @@ function MenuBar() {
               <DarkButtom
                 onClick={clearFilters}
                 className="whitespace-nowrap ml-4"
-                text="Limpiar todo"
+                text="Clean filters"
               ></DarkButtom>
             </div>
           )}
@@ -171,21 +217,21 @@ function MenuBar() {
 
       <div className="max-w-6xl mx-auto p-6">
         <div className="rounded-lg p-4">
-          <h3 className="text-xl font-bold mb-6 text-gray-800">
-            Resaults ({filteredProducts.length} to {mockProducts.length})
+          <h3 className="text-xl font-bold mb-6 text-custume-gray">
+            Resultados ({filteredProducts.length} de {mockProducts.length})
           </h3>
 
           {filteredProducts.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg mb-5">
-                No vehicles found with that caracteristic
+              <p className="text-custume-gray text-lg mb-5">
+                No vehicles found{" "}
               </p>
-              <div className="flex justify-center items-center ">
-                <LightButton
+              <div className="flex justify-center items-center">
+                <DarkButtom
                   onClick={clearFilters}
                   size="md"
-                  text="Delete filters"
-                ></LightButton>
+                  text="Clean filters"
+                ></DarkButtom>
               </div>
             </div>
           ) : (
