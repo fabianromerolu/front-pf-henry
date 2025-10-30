@@ -139,14 +139,6 @@ async function safeJson<T>(res: Response): Promise<T | null> {
   }
 }
 
-function destByRole(role?: UserRole | null): string {
-  return role === "admin"
-    ? "/dashboard/admin"
-    : role === "renter"
-    ? "/dashboard/renter"
-    : "/dashboard";
-}
-
 /* ============== resolutores de usuario ============== */
 // 1) /auth/me/jwt (con Bearer); 2) /auth/me (cookie OIDC); 3) /users/:id (si sub en JWT)
 export async function resolveUserFromToken(accessToken: string): Promise<AuthUser | null> {
@@ -296,10 +288,11 @@ export function loginWithAuth0(): void {
     process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "") ||
     "http://localhost:3000";
 
-  // puedes cambiar returnTo a window.location.pathname si quieres volver a la misma página
-  const returnTo = "/";
+  // tras el login vamos a /auth/sso para recoger ?token o tirar de cookies
+  const returnTo = "/auth/sso";
   window.location.href = `${apiBase}/login?returnTo=${encodeURIComponent(returnTo)}`;
 }
+
 
 /* ============= Guardar token desde ?token=... ============= */
 export async function saveTokenFromQueryAndHydrateAuth(
@@ -309,31 +302,43 @@ export async function saveTokenFromQueryAndHydrateAuth(
   const url = new URL(window.location.href);
   const token = url.searchParams.get("token");
 
-  // Caso moderno: el back NO pasa token por query (usa cookie httpOnly).
+  // Caso moderno: NO llega ?token= (solo cookie httpOnly del back)
   if (!token) {
     const me = await getMe();
     if (me) {
+      // 🔹 Marca sesión en el FRONT para que el middleware te deje pasar
+      document.cookie = `auth_token=1; Path=/; Max-Age=${60 * 15}; SameSite=Lax`;
+      document.cookie = `role=${me.role ?? "user"}; Path=/; Max-Age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+
       setAuth(me, null);
-      window.location.replace(destByRole(me.role));
+      window.location.replace(
+        me.role === "admin" ? "/dashboard/admin" :
+        me.role === "renter" ? "/dashboard/renter" : "/dashboard"
+      );
     }
     return;
   }
 
-  // Compat: soporte si viene ?token=
+  // Compat: llegó ?token=
   const user = await resolveUserFromToken(token);
-
   localStorage.setItem("auth:token", token);
   if (user) localStorage.setItem("auth:user", JSON.stringify(user));
-  setAuthCookies(token, user?.role);
+  // Cookies legibles por el front
+  const maxAge = 60 * 60 * 24 * 7;
+  document.cookie = `auth_token=${encodeURIComponent(token)}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
+  if (user?.role) document.cookie = `role=${user.role}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
+
   setAuth(user ?? null, token);
 
-  // Limpia el query param
   url.searchParams.delete("token");
   window.history.replaceState({}, document.title, url.toString());
 
-  // Redirige por rol
-  window.location.replace(destByRole(user?.role));
+  window.location.replace(
+    user?.role === "admin" ? "/dashboard/admin" :
+    user?.role === "renter" ? "/dashboard/renter" : "/dashboard"
+  );
 }
+
 
 /* ============= getMe() (hook useUser) ============= */
 export async function getMe(): Promise<AuthUser | null> {

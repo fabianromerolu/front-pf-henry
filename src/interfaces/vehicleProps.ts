@@ -1,4 +1,53 @@
-export default interface vehicleProps {
+// ✅ Enums exportados como strings (más seguros y legibles)
+export enum BodyType {
+  Sedan = "Sedan",
+  Hatchback = "Hatchback",
+  Suv = "Suv",
+  Pickup = "Pickup",
+  Van = "Van",
+  Coupe = "Coupe",
+  Convertible = "Convertible",
+}
+
+export enum Transmition {
+  Manual = "Manual",
+  Automatic = "Automatic",
+}
+
+export enum Category {
+  Economy = "Economy",
+  Compact = "Compact",
+  Modsize = "Modsize",
+  Suv = "Suv",
+  Pickup = "Pickup",
+  Van = "Van",
+  Premium = "Premium",
+  Electric = "Electric",
+}
+
+export enum Fuel {
+  Gasoline = "Gasoline",
+  Diesel = "Diesel",
+  Hybrid = "Hybrid",
+  Electric = "Electric",
+}
+
+export enum DriveTrain {
+  FWD = "FWD",
+  RWD = "RWD",
+  AWD = "AWD",
+  WD4 = "WD4",
+}
+
+export enum Status {
+  borrador = "borrador",
+  publicado = "publicado",
+  pausado = "pausado",
+  bloqueado = "bloqueado",
+}
+
+// ✅ Interfaz unificada (nombre estándar PascalCase)
+export default interface VehicleProps {
   id: number;
   title: string;
   make: string;
@@ -30,51 +79,4 @@ export default interface vehicleProps {
   description?: string;
   photo: string;
   status?: Status;
-}
-
-enum BodyType {
-  Sedan,
-  Hatchback,
-  Suv,
-  Pickup,
-  Van,
-  Coupe,
-  Convertible,
-}
-
-enum Category {
-  Economy,
-  Compact,
-  Modsize,
-  Suv,
-  Pickup,
-  Van,
-  Premium,
-  Electric,
-}
-
-enum Transmition {
-  Manual,
-  Automatic,
-}
-
-enum Fuel {
-  Gasoline,
-  Diesel,
-  Hybrid,
-  Electric,
-}
-
-enum DriveTrain {
-  FWD,
-  RWD,
-  AWD,
-  WD4,
-}
-
-enum Status {
-  borrador,
-  publicado,
-  pausado,
-  bloqueado,
 }

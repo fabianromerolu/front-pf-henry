@@ -6,6 +6,7 @@ import DarkButtom from "../Buttoms/DarkButtom";
 import LightButtom from "../Buttoms/LightButtom";
 import vehicleProps from "@/interfaces/vehicleProps";
 
+
 interface CardProps {
   vehicle: vehicleProps;
 }
