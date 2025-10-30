@@ -20,7 +20,7 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
 
   return (
     
-    <main className="grid md:grid-cols-3 text-custume-light  max-w-7xl mx-auto shadow-xl min-h-[50rem]">
+    <main className="grid md:grid-cols-3 text-custume-light  max-w-7xl mx-auto shadow-xl min-h-[50rem] mt-18">
     
       <section className="md:col-span-2 bg-dark-blue font-montserrat text-custume-light grid grid-rows-[50%_50%] h-full">
         

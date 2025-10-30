@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 export default async function Page(props: {
   params: Promise<{ idVehicle: string }>;
 }) {
-  // ✅ Esperar la promesa antes de usarla
+  
   const { idVehicle } = await props.params;
 
   const vehicleId = Number(idVehicle);
