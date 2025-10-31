@@ -3,6 +3,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+
 
 
 // Icons
@@ -49,13 +51,15 @@ export default function Navbar() {
   return (
     <header className="fixed z-60 top-0 left-0 w-full flex justify-between items-center h-18 px-4 md:px-8 bg-light-blue shadow-md">
       <div className="flex items-center mt-2">
-        <Image
-          src={Logo}
-          alt="VOLANTIA Logo"
-          width={120}
-          height={40}
-          className="h-auto"
-        />
+        <Link href="/home" passHref>
+          <Image
+            src={Logo}
+            alt="VOLANTIA Logo"
+            width={120}
+            height={40}
+            className="h-auto"
+          />
+        </Link>
       </div>
 
       <button

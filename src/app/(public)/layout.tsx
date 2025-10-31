@@ -30,7 +30,6 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    // 🚫 Eliminamos <html> y <body>, solo devolvemos contenido
     <AuthProvider>
       <div
         className={`${geistMontserrat.variable} ${geistTaviraj.variable} ${geistHind.variable} antialiased`}

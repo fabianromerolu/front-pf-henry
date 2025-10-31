@@ -4,7 +4,7 @@ import mockProducts from "@/helpers/mockProducts";
 import { notFound } from "next/navigation";
 
 export const metadata = {
-  title: "Vehicle Detail",  // → mostrará "Vehicle Detail | Volantia"
+  title: "Vehicle Detail",  
 };
 
 export default async function Page(props: {
