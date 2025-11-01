@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import DarkButtom from "@/components/buttoms/DarkButtom";
 import LightButtom from "@/components/buttoms/LightButtom";
+=======
+import DarkButtom from "@/components/Buttoms/DarkButtom";
+import LightButtom from "@/components/Buttoms/LightButtom";
+>>>>>>> develop
 import MenuBar from "@/components/menuBar/MenuBar";
 import React from "react";
 

@@ -1,10 +1,35 @@
 "use client";
 
 import React, { useState } from "react";
-import DarkButtom from "../Buttoms/DarkButtom";
-import LightButton from "../Buttoms/LightButtom";
 import VehicleCard from "../cards/vehicleCard";
+<<<<<<< HEAD
 import { useVehicles } from "@/context/VehiclesContext";
+=======
+import LightButton from "../Buttoms/LightButtom";
+import DarkButton from "../Buttoms/DarkButtom";
+
+enum BodyType {
+  Sedan,
+  Hatchback,
+  Suv,
+  Pickup,
+  Van,
+  Coupe,
+  Convertible,
+}
+
+enum Transmition {
+  Manual,
+  Automatic,
+}
+
+enum Fuel {
+  Gasoline,
+  Diesel,
+  Hybrid,
+  Electric,
+}
+>>>>>>> develop
 
 const filterOptions = {
   transmission: ["Automatico", "Manual"],
@@ -213,11 +238,16 @@ function MenuBar() {
                     )
                 )}
               </div>
-              <DarkButtom
+              <DarkButton
                 onClick={clearFilters}
                 className="whitespace-nowrap ml-4"
+<<<<<<< HEAD
                 text="Limpiar filtros"
               />
+=======
+                text="Clean filters"
+              ></DarkButton>
+>>>>>>> develop
             </div>
           )}
         </div>
@@ -235,11 +265,16 @@ function MenuBar() {
                 No se han encontrado vehiculos con dichos filtros
               </p>
               <div className="flex justify-center items-center">
-                <DarkButtom
+                <DarkButton
                   onClick={clearFilters}
                   size="md"
+<<<<<<< HEAD
                   text="Limpiar filtros"
                 />
+=======
+                  text="Clean filters"
+                ></DarkButton>
+>>>>>>> develop
               </div>
             </div>
           ) : (
