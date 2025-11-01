@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import VehicleCard from "../cards/vehicleCard";
 import { useVehicles } from "@/context/VehiclesContext";
-import DarkButtom from "@/components/buttoms/DarkButtom";
-import LightButtom from "@/components/buttoms/LightButtom";
+import DarkButtom from "@/components/buttons/DarkButton";
+import LightButtom from "@/components/buttons/LightButton";
 
 const filterOptions = {
   transmission: ["Automatico", "Manual"],
