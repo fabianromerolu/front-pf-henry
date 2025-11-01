@@ -1,15 +1,9 @@
 "use client";
 
 import Link from "next/link";
-<<<<<<< HEAD
 import DarkButtom from "../buttoms/DarkButtom";
 import LightButtom from "../buttoms/LightButtom";
 import vehicleProps from "@/interfaces/vehicleProps";
-=======
-import vehicleProps from "@/interfaces/vehicleProps";
-import DarkButton from "../Buttoms/DarkButtom";
-import LightButton from "../Buttoms/LightButtom";
->>>>>>> develop
 
 interface CardProps {
   vehicle: vehicleProps;
@@ -44,11 +38,11 @@ export const VehicleCard = ({ vehicle }: CardProps) => {
         </div> */}
 
         <div className="flex flex-col gap-3">
-          <DarkButton
+          <DarkButtom
             className="w-full py-4 rounded-full text-xl lowercase"
             text="rent now"
           />
-          <LightButton
+          <LightButtom
             className="w-full py-4 rounded-full text-xl lowercase"
             text="see details"
           />
