@@ -1,16 +1,15 @@
-import VehicleDetail from "@/components/VehicleDetail/VehicleDetail";
 import type VehicleProps from "@/interfaces/vehicleProps";
 import mockProducts from "@/helpers/mockProducts";
 import { notFound } from "next/navigation";
+import VehicleDetail from "@/components/vehicleDetail/VehicleDetail";
 
 export const metadata = {
-  title: "Vehicle Detail",  
+  title: "Vehicle Detail",
 };
 
 export default async function Page(props: {
   params: Promise<{ idVehicle: string }>;
 }) {
-  
   const { idVehicle } = await props.params;
 
   const vehicleId = Number(idVehicle);
