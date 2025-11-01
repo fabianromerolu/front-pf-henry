@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import DarkButtom from "../Buttoms/DarkButtom";
-import LightButton from "../Buttoms/LightButtom";
+import DarkButtom from "../buttoms/DarkButtom";
+import LightButton from "../buttoms/LightButtom";
 import VehicleCard from "../cards/vehicleCard";
 import { useVehicles } from "@/context/VehiclesContext";
 

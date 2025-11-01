@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Montserrat, Taviraj, Hind } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/footer/Footer";
-import Navbar from "@/components/Navbar/Navbar";
+import Navbar from "@/components/navBar/Navbar";
 import { VehicleProvider } from "@/context/VehiclesContext";
 
 const geistMontserrat = Montserrat({
