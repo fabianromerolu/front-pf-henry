@@ -13,7 +13,7 @@ const sizeClasses = {
   xl: "text-xl py-2.5 w-100",
 };
 
-function LightButton({
+function lightButton({
   text,
   size = "md",
   className = "",
@@ -43,4 +43,4 @@ function LightButton({
   );
 }
 
-export default LightButton;
+export default lightButton;

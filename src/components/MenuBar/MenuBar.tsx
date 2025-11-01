@@ -1,52 +1,31 @@
 "use client";
 
-import mockProducts from "@/helpers/mockProducts";
 import React, { useState } from "react";
 import DarkButtom from "../Buttoms/DarkButtom";
 import LightButton from "../Buttoms/LightButtom";
 import VehicleCard from "../cards/vehicleCard";
-
-
-enum BodyType {
-  Sedan,
-  Hatchback,
-  Suv,
-  Pickup,
-  Van,
-  Coupe,
-  Convertible,
-}
-
-enum Transmition {
-  Manual,
-  Automatic,
-}
-
-enum Fuel {
-  Gasoline,
-  Diesel,
-  Hybrid,
-  Electric,
-}
+import { useVehicles } from "@/context/VehiclesContext";
 
 const filterOptions = {
-  bodytype: Object.keys(BodyType).filter((k) => isNaN(Number(k))),
-  state: ["Monterrey", "Guadalajara", "Sonora", "Guerrero"],
-  transmition: Object.keys(Transmition).filter((k) => isNaN(Number(k))),
-  fuel: Object.keys(Fuel).filter((k) => isNaN(Number(k))),
+  transmission: ["Automatico", "Manual"],
+  fuel: ["Disel", "Gasolina", "Electrico", "Hibrido"],
+  seats: ["2", "4", "5", "7", "8"],
+  priceRange: ["0-100", "100-200", "200-300", "300+"],
 };
 
 function MenuBar() {
+  const { vehicles, loading, error } = useVehicles();
+
   const [filters, setFilters] = useState<{
-    bodytype: string | null;
-    state: string | null;
-    transmition: string | null;
+    transmission: string | null;
     fuel: string | null;
+    seats: string | null;
+    priceRange: string | null;
   }>({
-    bodytype: null,
-    state: null,
-    transmition: null,
+    transmission: null,
     fuel: null,
+    seats: null,
+    priceRange: null,
   });
 
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -64,67 +43,93 @@ function MenuBar() {
 
   const clearFilters = () => {
     setFilters({
-      bodytype: null,
-      state: null,
-      transmition: null,
+      transmission: null,
       fuel: null,
+      seats: null,
+      priceRange: null,
     });
   };
 
-  const filteredProducts = mockProducts.filter((product) => {
-    return Object.keys(filters).every((key) => {
-      const filterKey = key as keyof typeof filters;
-      const filterValue = filters[filterKey];
+  const isPriceInRange = (price: number, range: string): boolean => {
+    if (range === "0-100") return price >= 0 && price <= 100;
+    if (range === "100-200") return price > 100 && price <= 200;
+    if (range === "200-300") return price > 200 && price <= 300;
+    if (range === "300+") return price > 300;
+    return true;
+  };
 
-      if (filterValue === null) return true;
-
-      const productValue = product[filterKey as keyof typeof product];
-
-      if (
-        filterKey === "bodytype" ||
-        filterKey === "transmition" ||
-        filterKey === "fuel"
-      ) {
-        if (typeof productValue === "number") {
-          const enumObj =
-            filterKey === "bodytype"
-              ? BodyType
-              : filterKey === "transmition"
-              ? Transmition
-              : Fuel;
-          const enumString = enumObj[productValue as number];
-          return enumString?.toLowerCase() === filterValue.toLowerCase();
+  const filteredProducts = Array.isArray(vehicles)
+    ? vehicles.filter((vehicle) => {
+        if (
+          filters.transmission &&
+          vehicle.transmission?.toUpperCase() !==
+            filters.transmission.toUpperCase()
+        ) {
+          return false;
         }
-      }
 
-      if (typeof productValue === "string") {
-        return productValue.toLowerCase() === filterValue.toLowerCase();
-      }
+        if (
+          filters.fuel &&
+          vehicle.fuel?.toUpperCase() !== filters.fuel.toUpperCase()
+        ) {
+          return false;
+        }
 
-      return false;
-    });
-  });
+        if (filters.seats && vehicle.seats?.toString() !== filters.seats) {
+          return false;
+        }
+
+        if (
+          filters.priceRange &&
+          !isPriceInRange(vehicle.pricePerDay, filters.priceRange)
+        ) {
+          return false;
+        }
+
+        return true;
+      })
+    : [];
 
   const activeFiltersCount = Object.values(filters).filter(
     (v) => v !== null
   ).length;
 
   const filterLabels: Record<string, string> = {
-    bodytype: "Type",
-    state: "State",
-    transmition: "Transmition",
-    fuel: "Fuel",
+    transmission: "Transmisión",
+    fuel: "Combustible",
+    seats: "Asientos",
+    priceRange: "Precio Por Día",
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-2xl text-custume-blue">Cargando vehículos...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-2xl text-red-500">Error: {error}</div>
+      </div>
+    );
+  }
 
   return (
     <div>
       <div className="max-w-6xl mx-auto p-6">
         <h2 className="flex justify-center text-4xl montserrat mb-6 text-custume-red text-bold">
-          What are you looking for?
+          ¿Qué estás buscando?
         </h2>
 
         <div className="flex justify-center mb-10">
-          <LightButton href="/vehicles" size="xl" text="see all our products" />
+          <LightButton
+            href="/vehicles"
+            size="xl"
+            text="ver todos los preoductos"
+          />
         </div>
       </div>
 
@@ -177,7 +182,9 @@ function MenuBar() {
                             : "text-custume-gray"
                         }`}
                       >
-                        {option}
+                        {category === "priceRange"
+                          ? `$${option}`
+                          : option.toLowerCase()}
                       </button>
                     ))}
                   </div>
@@ -209,8 +216,8 @@ function MenuBar() {
               <DarkButtom
                 onClick={clearFilters}
                 className="whitespace-nowrap ml-4"
-                text="Clean filters"
-              ></DarkButtom>
+                text="Limpiar filtros"
+              />
             </div>
           )}
         </div>
@@ -219,20 +226,20 @@ function MenuBar() {
       <div className="max-w-6xl mx-auto p-6">
         <div className="rounded-lg p-4">
           <h3 className="text-xl font-bold mb-6 text-custume-gray">
-            Resultados ({filteredProducts.length} de {mockProducts.length})
+            Resultados ({filteredProducts.length} de {vehicles.length})
           </h3>
 
           {filteredProducts.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-custume-gray text-lg mb-5">
-                No vehicles found{" "}
+                No se han encontrado vehiculos con dichos filtros
               </p>
               <div className="flex justify-center items-center">
                 <DarkButtom
                   onClick={clearFilters}
                   size="md"
-                  text="Clean filters"
-                ></DarkButtom>
+                  text="Limpiar filtros"
+                />
               </div>
             </div>
           ) : (

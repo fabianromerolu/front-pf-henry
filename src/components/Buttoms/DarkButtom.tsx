@@ -12,7 +12,7 @@ const sizeClasses = {
   lg: "text-lg py-1.5 w-70",
   xl: "text-xl py-2.5 w-100",
 };
-function DarkButton({
+function darkButton({
   text,
   size = "md",
   className = "",
@@ -42,4 +42,4 @@ function DarkButton({
   );
 }
 
-export default DarkButton;
+export default darkButton;
