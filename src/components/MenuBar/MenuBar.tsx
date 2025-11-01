@@ -2,10 +2,9 @@
 
 import mockProducts from "@/helpers/mockProducts";
 import React, { useState } from "react";
-import DarkButtom from "../Buttoms/DarkButtom";
-import LightButton from "../Buttoms/LightButtom";
 import VehicleCard from "../cards/vehicleCard";
-
+import LightButton from "../Buttoms/LightButtom";
+import DarkButton from "../Buttoms/DarkButtom";
 
 enum BodyType {
   Sedan,
@@ -206,11 +205,11 @@ function MenuBar() {
                     )
                 )}
               </div>
-              <DarkButtom
+              <DarkButton
                 onClick={clearFilters}
                 className="whitespace-nowrap ml-4"
                 text="Clean filters"
-              ></DarkButtom>
+              ></DarkButton>
             </div>
           )}
         </div>
@@ -228,11 +227,11 @@ function MenuBar() {
                 No vehicles found{" "}
               </p>
               <div className="flex justify-center items-center">
-                <DarkButtom
+                <DarkButton
                   onClick={clearFilters}
                   size="md"
                   text="Clean filters"
-                ></DarkButtom>
+                ></DarkButton>
               </div>
             </div>
           ) : (

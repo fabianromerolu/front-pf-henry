@@ -2,10 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import DarkButtom from "../Buttoms/DarkButtom";
-import LightButtom from "../Buttoms/LightButtom";
 import vehicleProps from "@/interfaces/vehicleProps";
-
+import DarkButton from "../Buttoms/DarkButtom";
+import LightButton from "../Buttoms/LightButtom";
 
 interface CardProps {
   vehicle: vehicleProps;
@@ -44,11 +43,11 @@ export const VehicleCard = ({ vehicle }: CardProps) => {
         </div>
 
         <div className="flex flex-col gap-3">
-          <DarkButtom
+          <DarkButton
             className="w-full py-4 rounded-full text-xl lowercase"
             text="rent now"
           />
-          <LightButtom
+          <LightButton
             className="w-full py-4 rounded-full text-xl lowercase"
             text="see details"
           />
