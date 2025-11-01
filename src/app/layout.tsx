@@ -31,12 +31,19 @@ export const metadata: Metadata = {
     template: "%s | Volantia",
   },
   description: "App de alquiler temporal de autos",
+  title: {
+    default: "Volantia",
+    template: "%s | Volantia",
+  },
+  description: "App de alquiler temporal de autos",
 };
 
 export default function RootLayout({
   children,
 }: {
+}: {
   children: React.ReactNode;
+}) {
 }) {
   return (
 <<<<<<< HEAD
