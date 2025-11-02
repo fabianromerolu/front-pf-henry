@@ -27,88 +27,95 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
                 {vehicle.model}
               </span>
             </h1>
-
-            <p className="text-4xl font-light text-custume-light">
-              ${vehicle.pricePerDay}
-            </p>
           </header>
 
-          <ul className="flex justify-start space-x-12 p-6 text-center mt-auto text-custume-light/70">
+          <ul className="grid md:grid-cols-4 flex justify-center space-x-12 text-center mt-2 text-custume-light/70">
             <li>
-              <div className="text-xl mb-1">
+              <div className="flex flex-col items-center md:col-span-1 text-base mb-1">
                 <Image
                   src={SteeringWheelIcon}
-                  width={60}
-                  height={60}
+                  width={35}
+                  height={35}
                   alt="steering-Wheel"
                 />
               </div>
               {vehicle.bodytype || "SUV"}
             </li>
 
-            <li>
-              <div className="text-xl mb-1">
-                <Image src={SeatsIcon} width={60} height={60} alt="seats" />
-              </div>
-              {vehicle.seats} seats
+            <li className="flex flex-col items-center md:col-span-1 ">
+              <Image src={SeatsIcon} width={35} height={35} alt="seats" />
+              <span className="text-base mt-1">{vehicle.seats} sits </span>
             </li>
 
             <li>
-              <div className="text-xl mb-1">
-                <Image src={PetrolPumpIcon} width={60} height={60} alt="pump" />
+              <div className="flex flex-col items-center md:col-span-1 text-base mb-1">
+                <Image src={PetrolPumpIcon} width={35} height={35} alt="pump" />
               </div>
               {vehicle.fuel || "Gasolina"}
             </li>
 
             <li>
-              <div className="text-xl mb-1">
+              <div className="flex flex-col items-center md:col-span-1 text-base mb-1">
                 <Image
                   src={ElectricCarIcon}
-                  width={60}
-                  height={60}
-                  alt="transmition"
+                  width={35}
+                  height={35}
+                  alt="transmission"
                 />
               </div>
-              {vehicle.transmition || "Automática"}
+              {vehicle.transmission || "Automática"}
             </li>
           </ul>
         </div>
-
+        {/* 
         <figure className="relative w-full h-full overflow-hidden">
           <Image
-            src={vehicle.photo}
+            src={vehicle.thumbnailUrl}
             alt={`Foto del vehículo ${vehicle.make} ${vehicle.model}`}
             sizes="(max-width: 768px) 100vw, 66vw"
             fill
             priority
             className="object-cover object-center"
           />
-        </figure>
+        </figure> */}
       </section>
 
-      <section className=" bg-custume-light md:col-span-1  h-full p-6 sm:p-8 text-custume-blue text-lg font-hind flex flex-col justify-between">
+      <section className=" bg-custume-light md:col-span-2  h-full p-6 sm:p-8 text-custume-blue text-lg font-hind flex flex-col justify-between">
         <div className="mb-6 overflow-y-auto">
           <p className="mb-4 text-xl leading-relaxed">{vehicle.description}</p>
 
           <h2 className="text-3xl font-bold mt-6 mb-3 text-custume-blue">
-            rules
+            reglas
           </h2>
           <p className="text-xl leading-relaxed whitespace-pre-line">
             {vehicle.rules}
           </p>
+
+          <p className="text-xl font-light text-custume-blue">
+            Precio por hora ${(vehicle.pricePerDay / 24).toFixed(1)}{" "}
+            <span className="text-sm font-light">USD</span>
+          </p>
+          <p className="text-xl font-light text-custume-blue">
+            Precio por día ${vehicle.pricePerDay}{" "}
+            <span className="text-sm font-light">USD</span>
+          </p>
+          <p className="text-xl font-light text-custume-blue">
+            Precio por semana ${(vehicle.pricePerDay * 7).toFixed(1)}{" "}
+            <span className="text-sm font-light">USD</span>
+          </p>
         </div>
 
-        <div className="flex flex-col space-y-3 mt-auto">
+        <div className="flex flex-raw justify-between space-y-3 mt-auto">
           <DarkButton
             className="hover:cursor-pointer"
-            size="lg"
+            size="xl"
             text="rent now"
           />
           <Link href="/vehicles" passHref>
             <LightButton
               className="hover:cursor-pointer"
-              size="lg"
-              text="back to vehicles"
+              size="xl"
+              text="ver todos los vehículos"
             />
           </Link>
         </div>

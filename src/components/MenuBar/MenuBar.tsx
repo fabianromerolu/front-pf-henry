@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import LightButton from "../Buttoms/LightButtom";
-import DarkButton from "../Buttoms/DarkButtom";
-import VehicleCard from "../Cards/VehicleCard";
+import LightButton from "../Buttons/LightButton";
+import DarkButton from "../Buttons/DarkButton";
+import { useVehicles } from "@/context/VehiclesContext";
+import VehicleCard from "../cards/vehicleCard";
 
 enum BodyType {
   Sedan,
@@ -146,7 +147,7 @@ function MenuBar() {
         </h2>
 
         <div className="flex justify-center mb-10">
-          <LightButtom
+          <LightButton
             href="/vehicles"
             size="xl"
             text="ver todos los preoductos"
@@ -234,7 +235,7 @@ function MenuBar() {
                     )
                 )}
               </div>
-              <DarkButtom
+              <DarkButton
                 onClick={clearFilters}
                 className="whitespace-nowrap ml-4"
                 text="Limpiar filtros"
@@ -256,7 +257,7 @@ function MenuBar() {
                 No se han encontrado vehiculos con dichos filtros
               </p>
               <div className="flex justify-center items-center">
-                <DarkButtom
+                <DarkButton
                   onClick={clearFilters}
                   size="md"
                   text="Limpiar filtros"

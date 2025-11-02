@@ -1,4 +1,3 @@
-// ✅ Enums exportados como strings (más seguros y legibles)
 export enum BodyType {
   Sedan = "Sedan",
   Hatchback = "Hatchback",
@@ -16,13 +15,7 @@ export enum Transmition {
 
 export enum Category {
   Economy = "Economy",
-  Compact = "Compact",
-  Modsize = "Modsize",
-  Suv = "Suv",
-  Pickup = "Pickup",
-  Van = "Van",
   Premium = "Premium",
-  Electric = "Electric",
 }
 
 export enum Fuel {
@@ -46,7 +39,6 @@ export enum Status {
   bloqueado = "bloqueado",
 }
 
-// ✅ Interfaz unificada (nombre estándar PascalCase)
 export default interface VehicleProps {
   id: number;
   title: string;
@@ -56,19 +48,17 @@ export default interface VehicleProps {
   trim?: string;
   bodytype?: BodyType;
   category?: Category;
-  transmition?: Transmition;
+  transmission?: Transmition;
   fuel?: Fuel;
   drivetrain?: DriveTrain;
-  color: string;
+  color?: string;
   seats: number;
   country?: string;
-  city?: string;
-  state: string;
+  city: string;
+  state?: string;
   lat: number;
   lng: number;
-  pricePerHour: number;
   pricePerDay: number;
-  pricePerWeek: number;
   deposit: number;
   kmIncludedPerDay: number;
   pricePerExtraKm: number;
@@ -77,6 +67,6 @@ export default interface VehicleProps {
   insuranceIncluded: boolean;
   rules: string;
   description?: string;
-  photo: string;
+  thumbnailUrl: string;
   status?: Status;
 }
