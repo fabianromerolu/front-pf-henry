@@ -120,7 +120,7 @@ export const deleteVehicle = async (
   } catch (error) {
     throw new Error(
       `Error to delete vehicle: ${
-        error instanceof Error ? error.message : "Error not found"
+        error instanceof Error ? error.message : "Error no encontrado"
       }`
     );
   }
