@@ -15,11 +15,9 @@ export default function PrivateLayout({
 }) {
   return (
     <AuthProvider>
-        <Navbar />
-        <main className="pt-18">
-        {children}
-        </main>
-        <Footer />
+      <Navbar />
+      <main className="pt-18">{children}</main>
+      <Footer />
     </AuthProvider>
   );
 }
