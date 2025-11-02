@@ -15,7 +15,7 @@ export default function Home() {
 
       <div className="flex justify-center items-center gap-6 mt-10 mb-16">
         <DarkButtom href="/register" size="xl" text="registro" />
-        <LightButton href="/login" size="xl" text="iniciar sesión" />
+        <LightButtom href="/login" size="xl" text="iniciar sesión" />
       </div>
 
       <MenuBar />
