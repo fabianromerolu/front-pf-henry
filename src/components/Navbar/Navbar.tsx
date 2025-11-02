@@ -5,8 +5,6 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-
-
 // Icons
 const VehicleIcon = "/icons/vehicles.svg";
 const OfferIcon = "/icons/offer.svg";
@@ -26,7 +24,6 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
 
-
   const AuthLinks = [{ name: "profile", href: "/profile", icon: ProfileIcon }];
 
   const allNavLinks = isLoggedIn
@@ -44,8 +41,6 @@ export default function Navbar() {
     setIsLoggedIn(true);
     setIsOpen(false);
   };
-
-  
 
   return (
     <header className="fixed z-60 top-0 left-0 w-full flex justify-between items-center h-18 px-4 md:px-8 bg-light-blue shadow-md">
