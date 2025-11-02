@@ -1,10 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import DarkButtom from "../Buttons/DarkButton";
+import LightButtom from "../Buttons/LightButton";
 import vehicleProps from "@/interfaces/vehicleProps";
-import DarkButton from "../Buttoms/DarkButtom";
-import LightButton from "../Buttoms/LightButtom";
 
 interface CardProps {
   vehicle: vehicleProps;
@@ -20,34 +19,30 @@ export const VehicleCard = ({ vehicle }: CardProps) => {
               {vehicle.make}
             </h4>
             <h3 className="text-dark-blue montserrat text-3xl font-medium lowercase mb-0">
-              {vehicle.model}
+              {vehicle.title}
             </h3>
           </div>
           <div className="text-gray-400 montserrat text-3xl">
-            ${vehicle.pricePerHour}
+            ${vehicle.pricePerDay}
           </div>
         </div>
 
-        <div className="relative w-full h-[240px] overflow-hidden mb-6 bg-gray-50">
+        {/* <div className="relative w-full h-[240px] overflow-hidden mb-6 bg-gray-50">
           <Image
             fill
-            src={vehicle.photo}
+            src={vehicle.thumbnailUrl}
             alt={vehicle.title}
             className="object-cover transition-all duration-500 group-hover:scale-105"
             sizes="(max-width: 380px) 100vw, 380px"
           />
-        </div>
-
-        <div className="flex justify-around items-center mb-8">
-          {/* Aquí van los iconos */}
-        </div>
+        </div> */}
 
         <div className="flex flex-col gap-3">
-          <DarkButton
+          <DarkButtom
             className="w-full py-4 rounded-full text-xl lowercase"
             text="rent now"
           />
-          <LightButton
+          <LightButtom
             className="w-full py-4 rounded-full text-xl lowercase"
             text="see details"
           />
