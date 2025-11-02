@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import DarkButtom from "../Buttons/DarkButton";
-import LightButtom from "../Buttons/LightButton";
+import DarkButtom from "../Buttoms/DarkButtom";
+import LightButtom from "../Buttoms/LightButtom";
 import vehicleProps from "@/interfaces/vehicleProps";
 
 interface CardProps {

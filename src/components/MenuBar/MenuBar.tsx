@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import LightButton from "../Buttons/LightButton";
-import DarkButton from "../Buttons/DarkButton";
+import LightButtom from "../Buttoms/LightButtom";
+import DarkButtom from "../Buttoms/DarkButtom";
+
 import { useVehicles } from "@/context/VehiclesContext";
 import VehicleCard from "../cards/vehicleCard";
 
@@ -147,7 +148,7 @@ function MenuBar() {
         </h2>
 
         <div className="flex justify-center mb-10">
-          <LightButton
+          <LightButtom
             href="/vehicles"
             size="xl"
             text="ver todos los preoductos"
@@ -235,7 +236,7 @@ function MenuBar() {
                     )
                 )}
               </div>
-              <DarkButton
+              <DarkButtom
                 onClick={clearFilters}
                 className="whitespace-nowrap ml-4"
                 text="Limpiar filtros"
@@ -257,7 +258,7 @@ function MenuBar() {
                 No se han encontrado vehiculos con dichos filtros
               </p>
               <div className="flex justify-center items-center">
-                <DarkButton
+                <DarkButtom
                   onClick={clearFilters}
                   size="md"
                   text="Limpiar filtros"

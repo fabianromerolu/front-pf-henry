@@ -1,5 +1,6 @@
-import DarkButton from "@/components/Buttons/DarkButton";
-import LightButton from "@/components/Buttons/LightButton";
+import LightButtom from "@/components/Buttoms/LightButtom";
+import DarkButtom from "@/components/Buttoms/DarkButtom";
+
 import MenuBar from "@/components/MenuBar/MenuBar";
 import React from "react";
 
@@ -13,7 +14,7 @@ export default function Home() {
       </div>
 
       <div className="flex justify-center items-center gap-6 mt-10 mb-16">
-        <DarkButton href="/register" size="xl" text="registro" />
+        <DarkButtom href="/register" size="xl" text="registro" />
         <LightButton href="/login" size="xl" text="iniciar sesión" />
       </div>
 
