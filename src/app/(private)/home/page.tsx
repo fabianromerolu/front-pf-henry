@@ -1,5 +1,5 @@
-import DarkButtom from "@/components/Buttoms/DarkButtom";
-import LightButtom from "@/components/Buttoms/LightButtom";
+import DarkButton from "@/components/Buttons/DarkButton";
+import LightButton from "@/components/Buttons/LightButton";
 import MenuBar from "@/components/MenuBar/MenuBar";
 import React from "react";
 

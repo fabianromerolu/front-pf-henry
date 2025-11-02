@@ -2,8 +2,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import VehicleProps from "@/interfaces/vehicleProps";
-import DarkButton from "../Buttoms/DarkButtom";
-import LightButton from "../Buttoms/LightButtom";
+import DarkButton from "../Buttons/DarkButton";
+import LightButton from "../Buttons/LightButton";
 
 interface VehicleDetailProps {
   vehicle: VehicleProps;
