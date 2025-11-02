@@ -1,4 +1,3 @@
-// ✅ Enums exportados como strings (más seguros y legibles)
 export enum BodyType {
   Sedan = "Sedan",
   Hatchback = "Hatchback",
@@ -46,7 +45,6 @@ export enum Status {
   bloqueado = "bloqueado",
 }
 
-// ✅ Interfaz unificada (nombre estándar PascalCase)
 export default interface VehicleProps {
   id: number;
   title: string;
@@ -56,7 +54,7 @@ export default interface VehicleProps {
   trim?: string;
   bodytype?: BodyType;
   category?: Category;
-  transmition?: Transmition;
+  transmission?: Transmition;
   fuel?: Fuel;
   drivetrain?: DriveTrain;
   color: string;
