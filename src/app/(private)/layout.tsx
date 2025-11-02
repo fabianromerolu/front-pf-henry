@@ -1,7 +1,7 @@
 import { AuthProvider } from "@/context/AuthContext";
 import Footer from "@/components/footer/Footer";
 import "../globals.css";
-import Navbar from "@/components/navBar/Navbar";
+import Navbar from "@/components/NavBar/NavBar";
 
 export const metadata = {
   title: "App Private Layout",

@@ -1,7 +1,7 @@
 import type VehicleProps from "@/interfaces/vehicleProps";
 import mockProducts from "@/helpers/mockProducts";
 import { notFound } from "next/navigation";
-import VehicleDetail from "@/components/vehicledetail/VehicleDetail";
+import VehicleDetail from "@/components/VehicleDetail/VehicleDetail";
 
 export const metadata = {
   title: "Vehicle Detail",
