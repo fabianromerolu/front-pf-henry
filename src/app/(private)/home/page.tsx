@@ -8,7 +8,7 @@ export default function Home() {
     <div>
       <div className="bg-light-blue w-full h-30">
         <h2 className="flex justify-center text-4xl montserrat mb-6 text-dark-blue text-bold">
-          Convierte cada viaje en una experiencia nueva{" "}
+          Convierte cada viaje en una experiencia{" "}
         </h2>
       </div>
 
