@@ -3,9 +3,6 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
-
-
 
 // Icons
 const VehicleIcon = "/icons/vehicles.svg";
@@ -23,10 +20,8 @@ const NavLinksBase = [
 ];
 
 export default function Navbar() {
-
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
-
 
   const AuthLinks = [{ name: "profile", href: "/profile", icon: ProfileIcon }];
 
@@ -46,20 +41,16 @@ export default function Navbar() {
     setIsOpen(false);
   };
 
-  
-
   return (
-    <header className="fixed z-60 top-0 left-0 w-full flex justify-between items-center h-18 px-4 md:px-8 bg-light-blue shadow-md">
+    <header className="flex justify-between items-center h-18 px-4 md:px-8 bg-light-blue shadow-md">
       <div className="flex items-center mt-2">
-        <Link href="/home" passHref>
-          <Image
-            src={Logo}
-            alt="VOLANTIA Logo"
-            width={120}
-            height={40}
-            className="h-auto"
-          />
-        </Link>
+        <Image
+          src={Logo}
+          alt="VOLANTIA Logo"
+          width={120}
+          height={40}
+          className="h-auto"
+        />
       </div>
 
       <button
