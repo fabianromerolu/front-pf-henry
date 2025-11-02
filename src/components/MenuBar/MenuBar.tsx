@@ -4,7 +4,7 @@ import mockProducts from "@/helpers/mockProducts";
 import React, { useState } from "react";
 import LightButton from "../Buttoms/LightButtom";
 import DarkButton from "../Buttoms/DarkButtom";
-import VehicleCard from "../Cards/vehicleCard";
+import VehicleCard from "../Cards/VehicleCard";
 
 enum BodyType {
   Sedan,
