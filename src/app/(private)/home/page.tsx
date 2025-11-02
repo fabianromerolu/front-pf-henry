@@ -1,6 +1,6 @@
 import DarkButton from "@/components/buttons/DarkButton";
 import LightButton from "@/components/buttons/LightButton";
-import MenuBar from "@/components/menubar/MenuBar";
+import MenuBar from "@/components/menubar/menubar";
 import React from "react";
 
 export default function Home() {

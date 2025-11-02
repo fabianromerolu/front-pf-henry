@@ -1,4 +1,4 @@
-import MenuBar from "@/components/menubar/MenuBar";
+import MenuBar from "@/components/menubar/menubar";
 
 export default function VehiclesPage() {
   return (
