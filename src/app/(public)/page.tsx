@@ -1,4 +1,4 @@
-import LightButton from "@/components/buttons/LightButton";
+import LightButton from "@/components/buttons/lightbutton";
 import React from "react";
 
 function page() {
