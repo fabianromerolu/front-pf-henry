@@ -76,7 +76,7 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
               <div className="text-xl mb-1">
                 <Image src={ElectricCarIcon} width={60} height={60} alt="transmition" />
               </div>
-              {vehicle.transmition || "Automática"}
+              {vehicle.transmission || "Automática"}
             </li>
             
           </ul>
@@ -85,7 +85,7 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
         
         <figure className="relative w-full h-full overflow-hidden">
           <Image
-            src={vehicle.photo} 
+            src={vehicle.thumbnailUr} 
             alt={`Foto del vehículo ${vehicle.make} ${vehicle.model}`}
             sizes="(max-width: 768px) 100vw, 66vw" 
             fill
