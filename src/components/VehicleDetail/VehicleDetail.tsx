@@ -20,12 +20,13 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
 
   return (
     
-    <main className="grid md:grid-cols-3 text-custume-light  max-w-7xl mx-auto shadow-xl min-h-[50rem]">
+    <main className="grid grid-cols-[40%_60%] min-h-[60rem] shadow-xl text-custume-light">
+
     
-      <section className="md:col-span-2 bg-dark-blue font-montserrat text-custume-light grid grid-rows-[50%_50%] h-full">
+      <section className="bg-dark-blue font-montserrat text-custume-light grid grid-rows-[40%_60%] h-full">
         
         
-        <div className="flex flex-col  text-custume-light p-6 sm:p-8">
+        <div className="flex flex-col text-custume-light p-6 sm:p-8">
           
           <header className="flex justify-between items-start mb-6 p-6">
       
@@ -95,25 +96,25 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
       </section>
 
       
-      <section className=" bg-custume-light md:col-span-1  h-full p-6 sm:p-8 text-custume-blue text-lg font-hind flex flex-col justify-between">
+      <section className=" bg-custume-light h-full p-6 sm:p-8 text-custume-blue text-lg font-hind flex flex-col justify-evenly items-center">
         
         <div className="mb-6 overflow-y-auto">
           
-          <p className="mb-4 text-xl leading-relaxed">
+          <p className="mb-4 text-2xl leading-relaxed">
             {vehicle.description}
           </p>
 
-          <h2 className="text-3xl font-bold mt-6 mb-3 text-custume-blue">rules</h2>
-          <p className="text-xl leading-relaxed whitespace-pre-line">
+          <h2 className="text-3xl font-bold mt-20 mb-3 text-custume-blue">rules</h2>
+          <p className="text-2xl leading-relaxed whitespace-pre-line">
             {vehicle.rules}
           </p>
         </div>
 
         
-        <div className="flex flex-col space-y-3 mt-auto">
-          <DarkButton className="hover:cursor-pointer" size="lg" text="rent now" />
+        <div className="flex flex-col space-y-3 mt-8">
+          <DarkButton className="hover:cursor-pointer" size="xl" text="rent now" />
           <Link href="/vehicles" passHref>
-            <LightButton className="hover:cursor-pointer" size="lg" text="back to vehicles"/>
+            <LightButton className="hover:cursor-pointer" size="xl" text="back to vehicles"/>
           </Link>
         </div>
   </section>
