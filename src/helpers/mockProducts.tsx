@@ -18,7 +18,7 @@ const mockProducts: VehicleProps[] = [
     trim: "LE",
     bodytype: BodyType.Sedan,
     category: Category.Compact,
-    transmition: Transmition.Automatic,
+    transmission: Transmition.Automatic,
     fuel: Fuel.Gasoline,
     drivetrain: DriveTrain.FWD,
     color: "Blanco",
@@ -39,7 +39,7 @@ const mockProducts: VehicleProps[] = [
     insuranceIncluded: true,
     rules: "No fumar, no mascotas",
     description: "Sedán compacto confiable y económico",
-    photo:
+    thumbnailUr:
       "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=800&auto=format&fit=crop",
     status: Status.publicado,
   },
@@ -52,7 +52,7 @@ const mockProducts: VehicleProps[] = [
     trim: "EX",
     bodytype: BodyType.Suv,
     category: Category.Suv,
-    transmition: Transmition.Automatic,
+    transmission: Transmition.Automatic,
     fuel: Fuel.Hybrid,
     drivetrain: DriveTrain.AWD,
     color: "Negro",
@@ -73,7 +73,7 @@ const mockProducts: VehicleProps[] = [
     insuranceIncluded: true,
     rules: "No fumar",
     description: "SUV híbrida espaciosa y eficiente",
-    photo:
+    thumbnailUr:
       "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=800&auto=format&fit=crop",
     status: Status.publicado,
   },
@@ -86,7 +86,7 @@ const mockProducts: VehicleProps[] = [
     trim: "Sense",
     bodytype: BodyType.Sedan,
     category: Category.Economy,
-    transmition: Transmition.Manual,
+    transmission: Transmition.Manual,
     fuel: Fuel.Gasoline,
     drivetrain: DriveTrain.FWD,
     color: "Rojo",
@@ -107,7 +107,7 @@ const mockProducts: VehicleProps[] = [
     insuranceIncluded: true,
     rules: "No fumar, no mascotas",
     description: "Sedán económico ideal para ciudad",
-    photo:
+    thumbnailUr:
       "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&auto=format&fit=crop",
     status: Status.publicado,
   },
@@ -120,7 +120,7 @@ const mockProducts: VehicleProps[] = [
     trim: "Touring",
     bodytype: BodyType.Suv,
     category: Category.Suv,
-    transmition: Transmition.Automatic,
+    transmission: Transmition.Automatic,
     fuel: Fuel.Gasoline,
     drivetrain: DriveTrain.AWD,
     color: "Azul",
@@ -141,7 +141,7 @@ const mockProducts: VehicleProps[] = [
     insuranceIncluded: true,
     rules: "No fumar",
     description: "SUV elegante con excelente manejo",
-    photo:
+    thumbnailUr:
       "https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=800&auto=format&fit=crop",
     status: Status.publicado,
   },
@@ -154,7 +154,7 @@ const mockProducts: VehicleProps[] = [
     trim: "Long Range",
     bodytype: BodyType.Sedan,
     category: Category.Electric,
-    transmition: Transmition.Automatic,
+    transmission: Transmition.Automatic,
     fuel: Fuel.Electric,
     drivetrain: DriveTrain.AWD,
     color: "Blanco Perla",
@@ -175,7 +175,7 @@ const mockProducts: VehicleProps[] = [
     insuranceIncluded: true,
     rules: "Cargo completo requerido al regresar",
     description: "Sedán eléctrico de lujo con autopilot",
-    photo:
+    thumbnailUr:
       "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=800&auto=format&fit=crop",
     status: Status.publicado,
   },
@@ -188,7 +188,7 @@ const mockProducts: VehicleProps[] = [
     trim: "LT",
     bodytype: BodyType.Pickup,
     category: Category.Pickup,
-    transmition: Transmition.Automatic,
+    transmission: Transmition.Automatic,
     fuel: Fuel.Diesel,
     drivetrain: DriveTrain.WD4,
     color: "Negro",
@@ -209,7 +209,7 @@ const mockProducts: VehicleProps[] = [
     insuranceIncluded: true,
     rules: "Experiencia con pickups requerida",
     description: "Pickup diesel para trabajo pesado",
-    photo:
+    thumbnailUr:
       "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop",
     status: Status.publicado,
   },
@@ -222,7 +222,7 @@ const mockProducts: VehicleProps[] = [
     trim: "LX",
     bodytype: BodyType.Sedan,
     category: Category.Compact,
-    transmition: Transmition.Automatic,
+    transmission: Transmition.Automatic,
     fuel: Fuel.Gasoline,
     drivetrain: DriveTrain.FWD,
     color: "Plata",
@@ -243,7 +243,7 @@ const mockProducts: VehicleProps[] = [
     insuranceIncluded: true,
     rules: "No fumar",
     description: "Sedán moderno con garantía extendida",
-    photo:
+    thumbnailUr:
       "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?w=800&auto=format&fit=crop",
     status: Status.publicado,
   },
@@ -256,7 +256,7 @@ const mockProducts: VehicleProps[] = [
     trim: "SEL",
     bodytype: BodyType.Suv,
     category: Category.Suv,
-    transmition: Transmition.Automatic,
+    transmission: Transmition.Automatic,
     fuel: Fuel.Gasoline,
     drivetrain: DriveTrain.AWD,
     color: "Rojo",
@@ -277,7 +277,7 @@ const mockProducts: VehicleProps[] = [
     insuranceIncluded: true,
     rules: "No fumar, no mascotas",
     description: "SUV compacta con diseño moderno",
-    photo:
+    thumbnailUr:
       "https://images.unsplash.com/photo-1619682817481-e994891cd1f5?w=800&auto=format&fit=crop",
     status: Status.publicado,
   },
@@ -290,7 +290,7 @@ const mockProducts: VehicleProps[] = [
     trim: "Sport",
     bodytype: BodyType.Hatchback,
     category: Category.Compact,
-    transmition: Transmition.Manual,
+    transmission: Transmition.Manual,
     fuel: Fuel.Gasoline,
     drivetrain: DriveTrain.FWD,
     color: "Azul Deportivo",
@@ -311,7 +311,7 @@ const mockProducts: VehicleProps[] = [
     insuranceIncluded: true,
     rules: "No fumar",
     description: "Hatchback deportivo y eficiente",
-    photo:
+    thumbnailUr:
       "https://images.unsplash.com/photo-1590362891991-f776e747a588?w=800&auto=format&fit=crop",
     status: Status.publicado,
   },
@@ -324,7 +324,7 @@ const mockProducts: VehicleProps[] = [
     trim: "M Sport",
     bodytype: BodyType.Sedan,
     category: Category.Premium,
-    transmition: Transmition.Automatic,
+    transmission: Transmition.Automatic,
     fuel: Fuel.Gasoline,
     drivetrain: DriveTrain.RWD,
     color: "Negro",
@@ -345,7 +345,7 @@ const mockProducts: VehicleProps[] = [
     insuranceIncluded: true,
     rules: "Licencia con 5 años de antigüedad, no fumar",
     description: "Sedán de lujo con desempeño deportivo",
-    photo:
+    thumbnailUr:
       "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&auto=format&fit=crop",
     status: Status.publicado,
   },
@@ -358,7 +358,7 @@ const mockProducts: VehicleProps[] = [
     trim: "Advance",
     bodytype: BodyType.Suv,
     category: Category.Compact,
-    transmition: Transmition.Automatic,
+    transmission: Transmition.Automatic,
     fuel: Fuel.Gasoline,
     drivetrain: DriveTrain.FWD,
     color: "Naranja",
@@ -379,7 +379,7 @@ const mockProducts: VehicleProps[] = [
     insuranceIncluded: true,
     rules: "No fumar, no mascotas",
     description: "Crossover urbana ideal para la ciudad",
-    photo:
+    thumbnailUr:
       "https://images.unsplash.com/photo-1609521263047-f8f205293f24?w=800&auto=format&fit=crop",
     status: Status.publicado,
   },
@@ -392,7 +392,7 @@ const mockProducts: VehicleProps[] = [
     trim: "Kombi",
     bodytype: BodyType.Van,
     category: Category.Van,
-    transmition: Transmition.Manual,
+    transmission: Transmition.Manual,
     fuel: Fuel.Diesel,
     drivetrain: DriveTrain.RWD,
     color: "Blanco",
@@ -413,7 +413,7 @@ const mockProducts: VehicleProps[] = [
     insuranceIncluded: true,
     rules: "No fumar, licencia tipo A",
     description: "Van espaciosa para grupos",
-    photo:
+    thumbnailUr:
       "https://images.unsplash.com/photo-1527786356703-4b100091cd2c?w=800&auto=format&fit=crop",
     status: Status.publicado,
   },
@@ -426,7 +426,7 @@ const mockProducts: VehicleProps[] = [
     trim: "i Grand Touring",
     bodytype: BodyType.Hatchback,
     category: Category.Compact,
-    transmition: Transmition.Automatic,
+    transmission: Transmition.Automatic,
     fuel: Fuel.Gasoline,
     drivetrain: DriveTrain.FWD,
     color: "Gris Titanio",
@@ -447,7 +447,7 @@ const mockProducts: VehicleProps[] = [
     insuranceIncluded: true,
     rules: "No fumar",
     description: "Hatchback premium con diseño elegante",
-    photo:
+    thumbnailUr:
       "https://images.unsplash.com/photo-1607853202273-797f1c22a38e?w=800&auto=format&fit=crop",
     status: Status.publicado,
   },
@@ -460,7 +460,7 @@ const mockProducts: VehicleProps[] = [
     trim: "Sahara",
     bodytype: BodyType.Suv,
     category: Category.Suv,
-    transmition: Transmition.Automatic,
+    transmission: Transmition.Automatic,
     fuel: Fuel.Gasoline,
     drivetrain: DriveTrain.WD4,
     color: "Verde Olivo",
@@ -481,7 +481,7 @@ const mockProducts: VehicleProps[] = [
     insuranceIncluded: true,
     rules: "Experiencia con 4x4 recomendada",
     description: "SUV todoterreno legendaria",
-    photo:
+    thumbnailUr:
       "https://images.unsplash.com/photo-1606220838315-056192d5e927?w=800&auto=format&fit=crop",
     status: Status.publicado,
   },
@@ -494,7 +494,7 @@ const mockProducts: VehicleProps[] = [
     trim: "Premium Plus",
     bodytype: BodyType.Sedan,
     category: Category.Premium,
-    transmition: Transmition.Automatic,
+    transmission: Transmition.Automatic,
     fuel: Fuel.Gasoline,
     drivetrain: DriveTrain.AWD,
     color: "Plata",
@@ -515,7 +515,7 @@ const mockProducts: VehicleProps[] = [
     insuranceIncluded: true,
     rules: "Licencia con antigüedad, no fumar",
     description: "Sedán alemán de lujo con tecnología",
-    photo:
+    thumbnailUr:
       "https://images.unsplash.com/photo-1606152421802-db97b9c7a11b?w=800&auto=format&fit=crop",
     status: Status.publicado,
   },
@@ -528,7 +528,7 @@ const mockProducts: VehicleProps[] = [
     trim: "SR5",
     bodytype: BodyType.Pickup,
     category: Category.Pickup,
-    transmition: Transmition.Manual,
+    transmission: Transmition.Manual,
     fuel: Fuel.Diesel,
     drivetrain: DriveTrain.WD4,
     color: "Plata",
@@ -549,7 +549,7 @@ const mockProducts: VehicleProps[] = [
     insuranceIncluded: true,
     rules: "Licencia vigente, experiencia con manuales",
     description: "Pickup diesel confiable y duradera",
-    photo:
+    thumbnailUr:
       "https://images.unsplash.com/photo-1559416523-140ddc3d238c?w=800&auto=format&fit=crop",
     status: Status.publicado,
   },
