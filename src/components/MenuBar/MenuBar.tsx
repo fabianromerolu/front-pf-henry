@@ -59,41 +59,44 @@ function MenuBar() {
     return true;
   };
 
-  const filteredProducts = Array.isArray(vehicles)
-    ? vehicles.filter((vehicle) => {
-        if (
-          filters.transmission &&
-          vehicle.transmission?.toUpperCase() !==
-            filters.transmission.toUpperCase()
-        ) {
-          return false;
-        }
-
-        if (
-          filters.fuel &&
-          vehicle.fuel?.toUpperCase() !== filters.fuel.toUpperCase()
-        ) {
-          return false;
-        }
-
-        if (filters.seats && vehicle.seats?.toString() !== filters.seats) {
-          return false;
-        }
-
-        if (
-          filters.priceRange &&
-          !isPriceInRange(vehicle.pricePerDay, filters.priceRange)
-        ) {
-          return false;
-        }
-
-        return true;
-      })
-    : [];
-
   const activeFiltersCount = Object.values(filters).filter(
     (v) => v !== null
   ).length;
+
+  const hasActiveFilters = activeFiltersCount > 0;
+
+  const filteredProducts =
+    Array.isArray(vehicles) && hasActiveFilters
+      ? vehicles.filter((vehicle) => {
+          if (
+            filters.transmission &&
+            vehicle.transmission?.toUpperCase() !==
+              filters.transmission.toUpperCase()
+          ) {
+            return false;
+          }
+
+          if (
+            filters.fuel &&
+            vehicle.fuel?.toUpperCase() !== filters.fuel.toUpperCase()
+          ) {
+            return false;
+          }
+
+          if (filters.seats && vehicle.seats?.toString() !== filters.seats) {
+            return false;
+          }
+
+          if (
+            filters.priceRange &&
+            !isPriceInRange(vehicle.pricePerDay, filters.priceRange)
+          ) {
+            return false;
+          }
+
+          return true;
+        })
+      : [];
 
   const filterLabels: Record<string, string> = {
     transmission: "Transmisión",
@@ -120,8 +123,8 @@ function MenuBar() {
 
   return (
     <div>
-      <div className="max-w-6xl mx-auto p-6">
-        <h2 className="flex justify-center text-4xl montserrat mb-6 text-custume-red text-bold">
+      <div className="max-w-6xl mx-auto pt-0 p-6">
+        <h2 className="flex justify-center text-4xl taviraj font-semibold  text-custume-red mb-6">
           ¿Qué estás buscando?
         </h2>
 
@@ -135,8 +138,8 @@ function MenuBar() {
       </div>
 
       <div className="sticky top-0 z-50 bg-custume-light py-4 p-b2">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        <div className="max-w-6xl mx-auto px-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-0">
             {(
               Object.keys(filterOptions) as Array<keyof typeof filterOptions>
             ).map((category) => (
@@ -224,31 +227,37 @@ function MenuBar() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="rounded-lg p-4">
-          <h3 className="text-xl font-bold mb-6 text-custume-gray">
-            Resultados ({filteredProducts.length} de {vehicles.length})
-          </h3>
-
-          {filteredProducts.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-custume-gray text-lg mb-5">
-                No se han encontrado vehiculos con dichos filtros
-              </p>
-              <div className="flex justify-center items-center">
-                <DarkButtom
-                  onClick={clearFilters}
-                  size="md"
-                  text="Limpiar filtros"
-                />
-              </div>
-            </div>
+      <div className="max-w-6xl mx-auto p-0">
+        <div className="rounded-lg p-4 pt-0">
+          {!hasActiveFilters ? (
+            <div className="text-center py-0"></div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts.map((vehicle) => (
-                <VehicleCard key={vehicle.id} vehicle={vehicle} />
-              ))}
-            </div>
+            <>
+              <h3 className="text-xl font-bold mb-6 text-custume-gray">
+                Resultados ({filteredProducts.length} de {vehicles.length})
+              </h3>
+
+              {filteredProducts.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-custume-gray text-lg mb-5">
+                    No se han encontrado vehiculos con dichos filtros
+                  </p>
+                  <div className="flex justify-center items-center">
+                    <DarkButtom
+                      onClick={clearFilters}
+                      size="md"
+                      text="Limpiar filtros"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredProducts.map((vehicle) => (
+                    <VehicleCard key={vehicle.id} vehicle={vehicle} />
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
