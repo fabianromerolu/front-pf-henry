@@ -25,7 +25,7 @@ export default function VehiclesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-custume-light">
+    <div className="min-h-screen bg-custume-light mt-18">
       <div className="bg-custume-light py-6">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-center justify-center gap-4">
@@ -47,7 +47,7 @@ export default function VehiclesPage() {
           </div>
         </div>
         <div className="mb-8">
-          <h1 className="text-4xl text-4xl taviraj font-semibold text-custume-red mb-2 text-center">
+          <h1 className="text-4xl taviraj font-semibold text-custume-red mb-2 text-center">
             Todos nuestros vehículos
           </h1>
           <p className="text-custume-blue text-center text-lg">

@@ -3,9 +3,9 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useAuth } from "@/context/AuthContext"; // 👈 Importá tu contexto real
+import { usePathname } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
-// Icons
 const VehicleIcon = "/icons/vehicles.svg";
 const OfferIcon = "/icons/offer.svg";
 const ContactIcon = "/icons/contact.svg";
@@ -13,18 +13,23 @@ const ProfileIcon = "/icons/profile.svg";
 const LogoutIcon = "/icons/logout.svg";
 const Logo = "/logo.svg";
 
-// Enlaces base (públicos)
 const NavLinksBase = [
-  { name: "vehicles", href: "/vehicles", icon: VehicleIcon },
-  { name: "offer", href: "/offer", icon: OfferIcon },
-  { name: "contact", href: "/contact", icon: ContactIcon },
+  { name: "vehiculos", href: "/vehicles", icon: VehicleIcon },
+  { name: "Ofertas", href: "/offer", icon: OfferIcon },
+  { name: "Contacto", href: "/contact", icon: ContactIcon },
 ];
 
 export default function Navbar() {
+
+  const pathname = usePathname();
+
   const [isOpen, setIsOpen] = useState(false);
   const { isAuthenticated, logout, isChecking } = useAuth(); 
 
-  const AuthLinks = [{ name: "profile", href: "/profile", icon: ProfileIcon }];
+  if (typeof window === "undefined") return null;
+  if (["/", "/login", "/register", "/home"].includes(pathname)) return null;
+
+  const AuthLinks = [{ name: "Perfil", href: "/profile", icon: ProfileIcon }];
   const allNavLinks = isAuthenticated
     ? [...NavLinksBase, ...AuthLinks]
     : NavLinksBase;
@@ -34,7 +39,7 @@ export default function Navbar() {
 
   return (
     <header className="fixed z-60 top-0 left-0 w-full flex justify-between items-center h-18 px-4 md:px-8 bg-light-blue shadow-md">
-      {/* LOGO */}
+      
       <div className="flex items-center mt-2">
         <Link href="/home">
           <Image
@@ -47,7 +52,6 @@ export default function Navbar() {
         </Link>
       </div>
 
-      
       <button
         onClick={() => setIsOpen(true)}
         className="text-blue-900 focus:outline-none hover:cursor-pointer"
@@ -66,7 +70,7 @@ export default function Navbar() {
         onClick={() => setIsOpen(false)}
       />
 
-      {/* PANEL LATERAL */}
+      
       <nav
         className={`fixed top-0 right-0 w-72 h-full bg-custume-light p-8 z-50 transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
@@ -97,7 +101,7 @@ export default function Navbar() {
         
         <ul className="space-y-4">
           {allNavLinks.map((link) => (
-            <li key={link.name}>
+            <li key={link.href}>
               <Link
                 href={link.href}
                 onClick={() => setIsOpen(false)}

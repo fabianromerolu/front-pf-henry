@@ -13,7 +13,7 @@ import {
   getVehicleById,
   updateVehicle,
   deleteVehicle,
-} from "@/services/vehicleService";
+} from "@/services/vehicleService.service";
 
 interface VehicleContextType {
   vehicles: VehicleProps[];
