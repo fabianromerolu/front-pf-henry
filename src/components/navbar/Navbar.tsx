@@ -1,11 +1,9 @@
-// src/components/navbar/Navbar.tsx
 "use client";
 
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-
-
+import { useAuth } from "@/context/AuthContext"; // 👈 Importá tu contexto real
 
 // Icons
 const VehicleIcon = "/icons/vehicles.svg";
@@ -23,35 +21,22 @@ const NavLinksBase = [
 ];
 
 export default function Navbar() {
-
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
-
+  const { isAuthenticated, logout, isChecking } = useAuth(); 
 
   const AuthLinks = [{ name: "profile", href: "/profile", icon: ProfileIcon }];
-
-  const allNavLinks = isLoggedIn
+  const allNavLinks = isAuthenticated
     ? [...NavLinksBase, ...AuthLinks]
     : NavLinksBase;
 
-  const handleLogout = () => {
-    console.log("Usuario deslogueado");
-    setIsLoggedIn(false);
-    setIsOpen(false);
-  };
-
-  const handleLogin = () => {
-    console.log("Usuario logueado");
-    setIsLoggedIn(true);
-    setIsOpen(false);
-  };
-
   
+  if (isChecking) return null;
 
   return (
     <header className="fixed z-60 top-0 left-0 w-full flex justify-between items-center h-18 px-4 md:px-8 bg-light-blue shadow-md">
+      {/* LOGO */}
       <div className="flex items-center mt-2">
-        <Link href="/home" passHref>
+        <Link href="/home">
           <Image
             src={Logo}
             alt="VOLANTIA Logo"
@@ -62,6 +47,7 @@ export default function Navbar() {
         </Link>
       </div>
 
+      
       <button
         onClick={() => setIsOpen(true)}
         className="text-blue-900 focus:outline-none hover:cursor-pointer"
@@ -72,6 +58,7 @@ export default function Navbar() {
         </svg>
       </button>
 
+      
       <div
         className={`fixed inset-0 bg-white/50 z-40 transition-opacity duration-300 ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -79,13 +66,13 @@ export default function Navbar() {
         onClick={() => setIsOpen(false)}
       />
 
+      {/* PANEL LATERAL */}
       <nav
         className={`fixed top-0 right-0 w-72 h-full bg-custume-light p-8 z-50 transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
-        aria-labelledby="mobile-menu-heading"
       >
-        {/* BOTÓN CERRAR */}
+        
         <div className="flex justify-end mb-8">
           <button
             onClick={() => setIsOpen(false)}
@@ -107,17 +94,16 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* ENLACES */}
+        
         <ul className="space-y-4">
           {allNavLinks.map((link) => (
             <li key={link.name}>
-              <a
+              <Link
                 href={link.href}
                 onClick={() => setIsOpen(false)}
                 className="group relative flex items-center gap-4 pl-6 pr-6 py-3 text-[#787A91] text-lg capitalize transition-all duration-200 hover:text-[#0F044C] hover:bg-white hover:shadow-md w-full rounded-md"
               >
                 <span className="absolute left-0 top-0 h-full w-[4px] bg-[#0F044C] opacity-0 group-hover:opacity-100 rounded-r-sm"></span>
-
                 <Image
                   src={link.icon}
                   alt={`${link.name} icon`}
@@ -125,20 +111,22 @@ export default function Navbar() {
                   height={26}
                   className="opacity-80 group-hover:opacity-100 transition-opacity duration-150"
                 />
-
                 <span>{link.name}</span>
-              </a>
+              </Link>
             </li>
           ))}
 
-          {isLoggedIn ? (
+          
+          {isAuthenticated ? (
             <li className="pt-6">
               <button
-                onClick={handleLogout}
+                onClick={() => {
+                  logout(); 
+                  setIsOpen(false);
+                }}
                 className="group relative flex items-center gap-4 pl-6 pr-6 py-3 text-[#787A91] text-lg capitalize transition-all duration-200 hover:text-red-600 hover:bg-white hover:shadow-md w-full rounded-md"
               >
                 <span className="absolute left-0 top-0 h-full w-[4px] bg-red-600 opacity-0 group-hover:opacity-100 rounded-r-sm"></span>
-
                 <Image
                   src={LogoutIcon}
                   alt="Log out icon"
@@ -146,14 +134,14 @@ export default function Navbar() {
                   height={26}
                   className="opacity-80 group-hover:opacity-100 transition-opacity duration-150"
                 />
-
                 <span>log out</span>
               </button>
             </li>
           ) : (
             <li className="pt-6">
-              <button
-                onClick={handleLogin}
+              <Link
+                href="/login" 
+                onClick={() => setIsOpen(false)}
                 className="flex items-center gap-4 text-green-500 hover:text-green-700 text-lg capitalize px-4 py-3 rounded-lg transition-all duration-200 hover:shadow-md w-full"
               >
                 <Image
@@ -164,7 +152,7 @@ export default function Navbar() {
                   className="opacity-80"
                 />
                 <span>log in</span>
-              </button>
+              </Link>
             </li>
           )}
         </ul>
