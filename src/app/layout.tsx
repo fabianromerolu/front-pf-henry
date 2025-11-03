@@ -4,6 +4,7 @@ import { Montserrat, Taviraj, Hind } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar/Navbar";
 import Footer from "@/components/footer/Footer"
+import { VehicleProvider } from "@/context/VehicleContext";
 
 const geistMontserrat = Montserrat({
   variable: "--font-montserrat",
@@ -40,7 +41,9 @@ export default function RootLayout({
       >
         <AuthProvider>
         <Navbar />
+        <VehicleProvider>
         {children}
+        </VehicleProvider>
         <Footer/>
         </AuthProvider>
       </body>
