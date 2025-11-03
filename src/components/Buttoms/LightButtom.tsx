@@ -8,9 +8,9 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const sizeClasses = {
-  md: "text-base py-1 w-50",
-  lg: "text-lg py-1.5 w-70",
-  xl: "text-xl py-2.5 w-100",
+  md: "text-base px-6 py-2.5 min-w-[300px]",
+  lg: "text-lg px-8 py-3 min-w-[350px]",
+  xl: "text-xl px-10 py-3.5 min-w-[400px]",
 };
 
 function LightButton({
@@ -21,7 +21,14 @@ function LightButton({
   ...props
 }: ButtonProps) {
   const buttonClasses = `
-    flex justify-center taviraj rounded-4xl bg-light-blue text-dark-blue hover:bg-custume-blue hover:text-light-blue
+    inline-flex items-center justify-center taviraj
+    rounded-full shadow-lg
+    bg-light-blue text-dark-blue 
+    hover:bg-custume-blue hover:text-light-blue
+    border-2 border-light-blue hover:border-light-blue
+    transition-all duration-300 ease-in-out
+    transform hover:scale-105 hover:shadow-xl
+    active:scale-95
     ${sizeClasses[size]}
     ${className}
   `
