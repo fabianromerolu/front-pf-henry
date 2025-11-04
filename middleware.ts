@@ -5,7 +5,7 @@ const PUBLIC_PATHS = new Set<string>([
   "/", "/home",
   "/login", "/register",
   "/forgot-password",
-  "/auth/sso", // 👈 puente SSO debe ser público
+  "/auth/sso",
 ]);
 
 function isPublic(pathname: string) {
@@ -24,10 +24,9 @@ export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   if (isPublic(pathname)) return NextResponse.next();
 
-  // ✅ Acepta "marcador" de sesión del FRONT
-  const hasFrontSession =
-    Boolean(req.cookies.get("auth_token")?.value) ||
-    Boolean(req.cookies.get("role")?.value);
+  const raw = req.cookies.get("auth_token")?.value ?? "";
+  const hasJwtShape = /^[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+$/.test(raw);
+  const hasFrontSession = hasJwtShape; // role solo no alcanza
 
   if (pathname.startsWith("/dashboard")) {
     if (!hasFrontSession) {
@@ -35,9 +34,18 @@ export function middleware(req: NextRequest) {
       url.searchParams.set("returnTo", pathname);
       return NextResponse.redirect(url);
     }
+
+    // Redirección opcional por rol
+    if ((pathname === "/dashboard" || pathname === "/dashboard/") && hasJwtShape) {
+      const role = req.cookies.get("role")?.value;
+      if (role === "admin" || role === "renter" || role === "user") {
+        return NextResponse.redirect(new URL(`/dashboard/${role}`, req.url));
+      }
+    }
   }
   return NextResponse.next();
 }
+
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico|images|assets).*)"],

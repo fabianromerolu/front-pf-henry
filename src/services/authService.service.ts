@@ -306,13 +306,10 @@ export async function saveTokenFromQueryAndHydrateAuth(
   if (!token) {
     const me = await getMe();
     if (me) {
-      // 🔹 Marca sesión en el FRONT para que el middleware te deje pasar
-      document.cookie = `auth_token=1; Path=/; Max-Age=${60 * 15}; SameSite=Lax`;
-      document.cookie = `role=${me.role ?? "user"}; Path=/; Max-Age=${60 * 60 * 24 * 7}; SameSite=Lax`;
-
+      // ✅ Sólo setea estado en memoria/localStorage; NO cookies que usen el middleware
       setAuth(me, null);
       window.location.replace(
-        me.role === "admin" ? "/dashboard/admin" :
+       me.role === "admin" ? "/dashboard/admin" :
         me.role === "renter" ? "/dashboard/renter" : "/dashboard"
       );
     }

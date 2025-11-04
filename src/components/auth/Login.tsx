@@ -72,13 +72,6 @@ export default function FormLogin() {
       try {
         const ok = await login(values);
         if (ok) {
-          const token = localStorage.getItem("auth:token");
-          const role = roleFromToken(token);
-          const dest =
-            role === "admin" ? "/dashboard/admin" :
-            role === "renter" ? "/dashboard/renter" :
-            "/dashboard";
-          window.location.replace(dest);
           return;
         }
         console.log("[LOGIN] failed");

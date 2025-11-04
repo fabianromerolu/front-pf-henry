@@ -1,4 +1,4 @@
-// ❌ Nada de "use client" aquí
+// src/app/auth/sso/page.tsx
 
 // Estas segment options DEBEN estar en un Server Component:
 export const dynamic = "force-dynamic";

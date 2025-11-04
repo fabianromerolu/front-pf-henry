@@ -12,6 +12,7 @@ import { FiArrowLeft, FiEye, FiEyeOff } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import { useAuth } from "@/context/AuthContext";
 import { loginWithAuth0 } from "@/services/authService.service";
+import { meApi } from "@/services/userRenter.service"; // ⬅️ import para leer el rol real
 
 /* ===== utils fuerza contraseña ===== */
 function scorePassword(pw: string): number {
@@ -52,14 +53,30 @@ export default function FormRegister() {
 
   const formik = useFormik<ExtendedValues>({
     initialValues: { ...RegisterInitialValues, phone: "", role: "USER" },
-    // Evita `any` usando unknown → esquema de Yup
     validationSchema: RegisterValidationSchema as unknown as import("yup").AnyObjectSchema,
     onSubmit: async (values, { setSubmitting }) => {
       try {
         const ok = await registerAction(values);
+
+        // Si se creó y tenemos token, leemos el perfil para conocer el rol real
         const hasToken = typeof window !== "undefined" && !!localStorage.getItem("auth:token");
-        if (ok && hasToken) router.push("/dashboard");
-        else if (ok) router.push("/login?registered=1");
+        if (ok && hasToken) {
+          try {
+            const me = await meApi.getMe(); // { role?: "ADMIN" | "RENTER" | "USER" }
+            const role = me.role ?? "USER";
+            // Redirección por rol (fuente de verdad = backend)
+            if (role === "ADMIN") router.push("/dashboard/admin");
+            else if (role === "RENTER") router.push("/dashboard/renter");
+            else router.push("/dashboard/user");
+          } catch {
+            // Si falla /users/me, fallback según selección del form; si no, /dashboard/user
+            const fallback = values.role === "RENTER" ? "/dashboard/renter" : "/dashboard/user";
+            router.push(fallback);
+          }
+        } else if (ok) {
+          // Sin token (flujos con verificación de email, etc.)
+          router.push("/login?registered=1");
+        }
       } finally {
         setSubmitting(false);
       }
@@ -113,7 +130,6 @@ export default function FormRegister() {
 
   const nextFrom = async (fields: (keyof ExtendedValues)[], toStep: 2 | 3) => {
     const errors = await formik.validateForm();
-    // Construimos touched tipado (sin any)
     const touchedObj = fields.reduce<Partial<Record<keyof ExtendedValues, boolean>>>((acc, k) => {
       acc[k] = true;
       return acc;
@@ -173,16 +189,14 @@ export default function FormRegister() {
     >
       {/* === Capa de fondo con imagen + blur + opacidad variables === */}
       <div aria-hidden className="absolute inset-0 -z-10">
-        {/* Imagen */}
         <div
           className="absolute inset-0 bg-[url('/register.jpg')] bg-cover bg-center will-change-transform"
           style={{
             opacity: "var(--bg-opacity)",
             filter: "blur(var(--bg-blur))",
-            transform: "scale(1.06)", // evita bordes al aplicar blur
+            transform: "scale(1.06)",
           }}
         />
-        {/* Tinte/gradiente de marca encima de la imagen */}
         <div
           className="
             absolute inset-0
@@ -309,43 +323,106 @@ export default function FormRegister() {
 
                 {/* PASO 2 */}
                 {step === 2 && (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label htmlFor="phone" className={labelBase}>Teléfono (opcional)</label>
-                        <input
-                          id="phone"
-                          name="phone"
-                          type="tel"
-                          autoComplete="tel"
-                          value={formik.values.phone ?? ""}
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          placeholder="+573001112233"
-                          className={inputBase}
-                        />
-                        {isTouched("phone") && getErr("phone") && (
-                          <p className={errorText}>{getErr("phone")}</p>
-                        )}
-                      </div>
+                  <div className="space-y-6">
+                    <div>
+                      <label htmlFor="phone" className={labelBase}>Teléfono (opcional)</label>
+                      <input
+                        id="phone"
+                        name="phone"
+                        type="tel"
+                        autoComplete="tel"
+                        value={formik.values.phone ?? ""}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        placeholder="+573001112233"
+                        className={inputBase}
+                      />
+                      {isTouched("phone") && getErr("phone") && (
+                        <p className={errorText}>{getErr("phone")}</p>
+                      )}
+                    </div>
 
-                      <div>
-                        <label htmlFor="role" className={labelBase}>Tipo de cuenta</label>
-                        <select
-                          id="role"
-                          name="role"
-                          value={formik.values.role ?? "USER"}
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          className={`${inputBase} pr-10 appearance-none`}
-                        >
-                          <option value="USER">Usuario</option>
-                          <option value="RENTER">Arrendador (RENTER)</option>
-                        </select>
-                        {isTouched("role") && getErr("role") && (
-                          <p className={errorText}>{getErr("role")}</p>
-                        )}
-                      </div>
+                    <div>
+                      <span id="role-label" className={labelBase}>Tipo de cuenta</span>
+
+                      <fieldset aria-labelledby="role-label" className="mt-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {([
+                            {
+                              value: "USER" as const,
+                              title: "Quiero rentar un auto",
+                              hint: "Busca y reserva vehículos",
+                            },
+                            {
+                              value: "RENTER" as const,
+                              title: "Quiero rentar mi auto",
+                              hint: "Publica y gestiona tus vehículos",
+                            },
+                          ]).map((opt) => {
+                            const selected = (formik.values.role ?? "USER") === opt.value;
+
+                            return (
+                              <label
+                                key={opt.value}
+                                className={[
+                                  "cursor-pointer select-none rounded-xl border p-3 transition",
+                                  "flex items-start gap-3",
+                                  selected
+                                    ? "bg-[var(--color-light-blue)]/90 border-[var(--color-light-blue)] shadow"
+                                    : "bg-white/90 border-[var(--color-custume-light)] hover:bg-white",
+                                ].join(" ")}
+                              >
+                                <input
+                                  type="radio"
+                                  name="role"
+                                  value={opt.value}
+                                  checked={selected}
+                                  onChange={() => formik.setFieldValue("role", opt.value)}
+                                  onBlur={formik.handleBlur}
+                                  className="sr-only"
+                                />
+
+                                <span
+                                  aria-hidden
+                                  className={[
+                                    "mt-1 inline-block h-3 w-3 rounded-full border",
+                                    selected
+                                      ? "bg-[var(--color-custume-blue)] border-[var(--color-custume-blue)]"
+                                      : "bg-transparent border-[var(--color-custume-gray)]",
+                                  ].join(" ")}
+                                />
+
+                                <span className="flex flex-col">
+                                  <span
+                                    className={[
+                                      "taviraj text-sm font-semibold",
+                                      selected
+                                        ? "text-[var(--color-custume-blue)]"
+                                        : "text-[var(--color-dark-blue)]",
+                                    ].join(" ")}
+                                  >
+                                    {opt.title}
+                                  </span>
+                                  <span
+                                    className={[
+                                      "text-xs",
+                                      selected
+                                        ? "text-[var(--color-custume-blue)]/80"
+                                        : "text-[var(--color-custume-gray)]",
+                                    ].join(" ")}
+                                  >
+                                    {opt.hint}
+                                  </span>
+                                </span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </fieldset>
+
+                      {isTouched("role") && getErr("role") && (
+                        <p className={errorText}>{getErr("role")}</p>
+                      )}
                     </div>
 
                     <p className="text-xs text-white/80">
