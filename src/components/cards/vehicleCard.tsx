@@ -12,7 +12,7 @@ interface CardProps {
 
 export const VehicleCard = ({ vehicle }: CardProps) => {
   return (
-    <Link href={`/vehicle/${vehicle.id}`} className="block">
+    <Link href={`/vehicles/${vehicle.id}`} className="block">
       <div className="group relative w-full max-w-[380px] h-auto bg-white overflow-hidden transition-all duration-300 hover:shadow-2xl rounded-2xl shadow-lg p-4 cursor-pointer mx-auto">
         <div className="flex justify-between items-start mb-4">
           <div>
