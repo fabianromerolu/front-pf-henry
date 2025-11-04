@@ -8,7 +8,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const sizeClasses = {
-  sm: "text-sm px-2 py-2.5 min-w-[200px]",
+  sm: "text-sm px-3 py-1.5 min-w-[auto]",
   md: "text-base px-6 py-2.5 min-w-[300px]",
   lg: "text-lg px-8 py-3 min-w-[350px]",
   xl: "text-xl px-10 py-3.5 min-w-[400px]",

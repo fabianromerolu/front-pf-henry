@@ -1,4 +1,4 @@
-//src/context/AuthContext.tsx
+// src/context/AuthContext.tsx
 "use client";
 import { logout as apiLogout } from "@/services/authService.service";
 import {
@@ -46,6 +46,42 @@ type JwtPayload = {
   isAdmin?: boolean;
 };
 
+/** Ayudante de tipado: asegura que la string sea un rol válido */
+function asRole(
+  v: string
+): "admin" | "renter" | "user" | undefined {
+  if (v === "admin" || v === "renter" || v === "user") return v;
+  return undefined;
+}
+
+/** Normaliza valores del backend a minúsculas esperadas por la app-router */
+function normalizeRole(
+  v?: string | null
+): "admin" | "renter" | "user" | undefined {
+  if (!v) return undefined;
+  const up = v.toUpperCase();
+  if (up === "ADMIN") return "admin";
+  if (up === "RENTER") return "renter";
+  if (up === "USER") return "user";
+  // por si ya viene en minúsculas
+  const low = v.toLowerCase();
+  return asRole(low);
+}
+
+/** Combina rol del user y del token: nunca degradar “renter” a “user”. */
+function mergeRole({
+  userRole,
+  tokenIsAdmin,
+}: {
+  userRole?: string | null;
+  tokenIsAdmin?: boolean;
+}): "admin" | "renter" | "user" | undefined {
+  const ur = normalizeRole(userRole);
+  if (tokenIsAdmin) return "admin"; // el token puede elevar a admin
+  if (ur) return ur;                // si user ya trae rol, respetar (incluye renter)
+  return "user";                    // fallback
+}
+
 function decodeJwt<T = Record<string, unknown>>(token: string): T | null {
   try {
     const [, payload] = token.split(".");
@@ -62,7 +98,6 @@ function decodeJwt<T = Record<string, unknown>>(token: string): T | null {
     return null;
   }
 }
-
 
 function readStorage(): AuthState {
   if (typeof window === "undefined") return { user: null, token: null };
@@ -90,31 +125,22 @@ function writeStorage(next: AuthState) {
 function writeCookies(user: AuthUser | null, token: string | null) {
   if (typeof document === "undefined") return;
   const maxAge = 60 * 60 * 24 * 30; // 30 días
-  const attrs = `Path=/; Max-Age=${maxAge}; SameSite=Lax${typeof location !== "undefined" && location.protocol === "https:" ? "; Secure" : ""}`;
+  const baseAttrs = `Path=/; Max-Age=${maxAge}; SameSite=Lax${
+    typeof location !== "undefined" && location.protocol === "https:" ? "; Secure" : ""
+  }`;
 
-  // auth_token (solo señal de sesión para el middleware)
-  if (token) {
-    document.cookie = `auth_token=${encodeURIComponent(token)}; ${attrs}`;
-  } else {
-    document.cookie = `auth_token=; Path=/; Max-Age=0; SameSite=Lax`;
-  }
+  // auth_token (señal de sesión p/ middleware)
+  if (token) document.cookie = `auth_token=${encodeURIComponent(token)}; ${baseAttrs}`;
+  else document.cookie = `auth_token=; Path=/; Max-Age=0; SameSite=Lax`;
 
- 
-  
-  let role: "admin" | "renter" | "user" | "" = "";
-  if (user?.role) {
-    role = user.role;
-  } else if (token) {
-    const payload = decodeJwt<JwtPayload>(token) ?? {};
-    role = payload?.isAdmin ? "admin" : "user";
-  }
+  // Derivar rol sin degradar renter a user
+  const payload = token ? (decodeJwt<JwtPayload>(token) ?? {}) : {};
+  const role = mergeRole({ userRole: user?.role, tokenIsAdmin: !!payload?.isAdmin });
 
-  if (role) {
-    document.cookie = `role=${role}; ${attrs}`;
-  } else {
-    document.cookie = `role=; Path=/; Max-Age=0; SameSite=Lax`;
-  }
-   console.log("[AUTHCTX] writeCookies -> token?", !!token, "roleCookie:", role);
+  if (role) document.cookie = `role=${role}; ${baseAttrs}`;
+  else document.cookie = `role=; Path=/; Max-Age=0; SameSite=Lax`;
+
+  console.log("[AUTHCTX] writeCookies -> token?", !!token, "roleCookie:", role);
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -143,14 +169,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const setAuth = useCallback((user: AuthUser | null, token: string | null) => {
-    setState({ user, token });
-    writeStorage({ user, token });
-    writeCookies(user, token); // 👉 clave para el middleware
+    const payload = token ? decodeJwt<JwtPayload>(token) ?? {} : {};
+    const mergedRole = mergeRole({ userRole: user?.role, tokenIsAdmin: !!payload?.isAdmin });
+    const normalizedUser = user
+      ? { ...user, role: mergedRole ?? normalizeRole(user?.role) ?? "user" }
+      : null;
+
+    setState({ user: normalizedUser, token });
+    writeStorage({ user: normalizedUser, token });
+    writeCookies(normalizedUser, token);
   }, []);
 
-  // ✅ Bootstrap de sesión:
-  // 1) Captura ?token=... (Auth0 callback) y setea contexto (y cookies)
-  // 2) Si no hay token ni user, intenta /auth/me (sesión por cookie backend) y setea user
+  // ✅ Bootstrap de sesión
   useEffect(() => {
     if (!isHydrated) return;
 
@@ -165,7 +195,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!hasUser && !hasToken) {
           const me = await getMe();
           if (!cancelled && me) {
-            // no hay token guardado, pero hay sesión en backend -> setea user
+            me.role = normalizeRole(me.role) ?? "user";
             setAuth(me, null);
           }
         }
@@ -181,22 +211,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [isHydrated, setAuth]);
 
-  // Asegura que el rol del usuario respete lo que diga el token (si lo hay)
-  const extractTokenAndUser = (res: unknown): { token: string | null; user: AuthUser | null } => {
+  // Extrae token y user sin usar any
+  const extractTokenAndUser = (
+    res: unknown
+  ): { token: string | null; user: AuthUser | null } => {
+    if (!res || typeof res !== "object") return { token: null, user: null };
     const anyRes = res as Record<string, unknown>;
     const token =
-      (anyRes?.token as string | undefined) ??
-      (anyRes?.accessToken as string | undefined) ??
+      (typeof anyRes.token === "string" ? anyRes.token : undefined) ??
+      (typeof anyRes.accessToken === "string" ? anyRes.accessToken : undefined) ??
+      (typeof anyRes.access_token === "string" ? anyRes.access_token : undefined) ?? // <--
+      (typeof anyRes.jwt === "string" ? anyRes.jwt : undefined) ??                   // <--
+      (typeof anyRes.id_token === "string" ? anyRes.id_token : undefined) ??         // <--
       null;
 
-    const user = (anyRes?.user as AuthUser | undefined) ?? null;
+    const rawUser = anyRes.user as unknown;
+    let user: AuthUser | null =
+      rawUser && typeof rawUser === "object" ? (rawUser as AuthUser) : null;
 
     const payload = token ? decodeJwt<JwtPayload>(token) ?? {} : {};
-    if (user && typeof payload.isAdmin === "boolean") {
-      const expected = payload.isAdmin ? "admin" : "user";
-      if (user.role !== expected) {
-        user.role = expected; // el token manda
-      }
+
+    // No degradar renter a user. Si el token trae admin, se eleva a admin.
+    if (user) {
+      user = {
+        ...user,
+        role:
+          mergeRole({ userRole: user.role, tokenIsAdmin: !!payload.isAdmin }) ??
+          normalizeRole(user.role) ??
+          "user",
+      };
     }
 
     return { token, user };
@@ -235,7 +278,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const authFetch = useCallback(
     async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
       const headers = new Headers(init?.headers ?? {});
-      const token = typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
+      const token =
+        typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
       if (token && !headers.has("Authorization")) {
         headers.set("Authorization", `Bearer ${token}`);
       }

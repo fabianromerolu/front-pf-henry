@@ -1,6 +1,7 @@
+// src/components/navbar/Navbar.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -9,158 +10,202 @@ import { useAuth } from "@/context/AuthContext";
 const VehicleIcon = "/icons/vehicles.svg";
 const OfferIcon = "/icons/offer.svg";
 const ContactIcon = "/icons/contact.svg";
-const ProfileIcon = "/icons/profile.svg";
-const LogoutIcon = "/icons/logout.svg";
+const ProfileIcon = "/icons/profile.svg"; // solo para el botón "Iniciar sesión"
 const Logo = "/logo.svg";
 
-const NavLinksBase = [
-  { name: "vehiculos", href: "/vehicles", icon: VehicleIcon },
-  { name: "Ofertas", href: "/offer", icon: OfferIcon },
-  { name: "Contacto", href: "/contact", icon: ContactIcon },
-];
+const HIDDEN_ROUTES = new Set<string>(["/", "/login", "/register", "/home"]);
 
 export default function Navbar() {
-
   const pathname = usePathname();
+  const { isAuthenticated, isChecking, user } = useAuth(); // ← sin logout
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
-  const [isOpen, setIsOpen] = useState(false);
-  const { isAuthenticated, logout, isChecking } = useAuth(); 
+  useEffect(() => setOpen(false), [pathname]);
 
-  if (typeof window === "undefined") return null;
-  if (["/", "/login", "/register", "/home"].includes(pathname)) return null;
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
-  const AuthLinks = [{ name: "Perfil", href: "/profile", icon: ProfileIcon }];
-  const allNavLinks = isAuthenticated
-    ? [...NavLinksBase, ...AuthLinks]
-    : NavLinksBase;
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 4);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-  
-  if (isChecking) return null;
+  const baseLinks = useMemo(
+    () => [
+      { name: "Vehículos", href: "/vehicles", icon: VehicleIcon },
+      { name: "Ofertas", href: "/offer", icon: OfferIcon },
+      { name: "Contacto", href: "/contact", icon: ContactIcon },
+    ],
+    []
+  );
+
+  const dashboardHref = useMemo(() => {
+    const role = user?.role;
+    if (role === "admin") return "/dashboard/admin";
+    if (role === "renter") return "/dashboard/renter";
+    return "/dashboard";
+  }, [user?.role]);
+
+  // 🔸 Sin “Perfil”. Si está logueado, solo “Dashboard”.
+  const authLinks = useMemo(() => {
+    if (!isAuthenticated) return [];
+    return [{ name: "Dashboard", href: dashboardHref, icon: ProfileIcon }];
+  }, [isAuthenticated, dashboardHref]);
+
+  const navLinks = useMemo(() => [...baseLinks, ...authLinks], [baseLinks, authLinks]);
+
+  const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
+
+  if (HIDDEN_ROUTES.has(pathname) || isChecking) return null;
 
   return (
-    <header className="fixed z-60 top-0 left-0 w-full flex justify-between items-center h-18 px-4 md:px-8 bg-light-blue shadow-md">
-      
-      <div className="flex items-center mt-2">
-        <Link href="/home">
-          <Image
-            src={Logo}
-            alt="VOLANTIA Logo"
-            width={120}
-            height={40}
-            className="h-auto"
-          />
-        </Link>
+    <header
+      className={[
+        "sticky top-0 z-50 transition-colors",
+        scrolled
+          ? "bg-light-blue/95 backdrop-blur border-b border-white/30 shadow-sm"
+          : "bg-transparent border-b border-transparent",
+      ].join(" ")}
+    >
+      <div className="mx-auto max-w-6xl px-4 md:px-6">
+        {/* Más alto, más presencia */}
+        <div className="h-15 md:h-17 flex items-center justify-between">
+          {/* Logo MÁS grande */}
+          <Link href="/home" className="inline-flex items-center gap-1">
+            <Image
+              src={Logo}
+              alt="VOLANTIA"
+              width={250}   // ↑ antes 160
+              height={104}   // ↑ antes 48
+              priority
+              className="h-auto w-auto"
+            />
+          </Link>
+
+          {/* Desktop nav */}
+          <nav className="hidden md:flex items-center gap-2">
+            {navLinks.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className={[
+                  "inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition",
+                  isActive(l.href)
+                    ? "bg-white text-[var(--color-dark-blue)] shadow border border-white/50"
+                    : "text-[var(--color-custume-blue)] hover:bg-white/70 hover:text-[var(--color-dark-blue)]",
+                ].join(" ")}
+              >
+                <Image src={l.icon} alt="" width={24} height={24} /> {/* ↑ antes 22 */}
+                {l.name}
+              </Link>
+            ))}
+
+            <span className="mx-2 h-6 w-px bg-white/40" />
+
+            {/* 🔸 Sin “Cerrar sesión”. Si no está logueado → botón Login */}
+            {!isAuthenticated && (
+              <Link
+                href="/login"
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm bg-white text-[var(--color-dark-blue)] border border-white/60 hover:shadow transition"
+              >
+                <Image src={ProfileIcon} alt="" width={24} height={24} />
+                Iniciar sesión
+              </Link>
+            )}
+          </nav>
+
+          {/* Hamburguesa */}
+          <button
+            onClick={() => setOpen(true)}
+            className="md:hidden inline-flex items-center justify-center h-11 w-11 rounded-md text-[var(--color-custume-blue)] hover:bg-white/70 focus:outline-none"
+            aria-label="Abrir menú"
+            aria-controls="mobile-menu"
+            aria-expanded={open}
+          >
+            <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 6h18v2H3zM3 11h18v2H3zM3 16h18v2H3z" />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      <button
-        onClick={() => setIsOpen(true)}
-        className="text-blue-900 focus:outline-none hover:cursor-pointer"
-        aria-label="Open Menu"
-      >
-        <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M3 18h18v-2H3v2zM3 13h18v-2H3v2zM3 6v2h18V6H3z" />
-        </svg>
-      </button>
-
-      
+      {/* Mobile overlay */}
       <div
-        className={`fixed inset-0 bg-white/50 z-40 transition-opacity duration-300 ${
-          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        } md:hidden`}
-        onClick={() => setIsOpen(false)}
+        className={[
+          "fixed inset-0 z-40 bg-black/40 transition-opacity md:hidden",
+          open ? "opacity-100" : "opacity-0 pointer-events-none",
+        ].join(" ")}
+        onClick={() => setOpen(false)}
       />
 
-      
-      <nav
-        className={`fixed top-0 right-0 w-72 h-full bg-custume-light p-8 z-50 transform transition-transform duration-300 ease-in-out ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+      {/* Mobile drawer */}
+      <aside
+        id="mobile-menu"
+        className={[
+          "fixed right-0 top-0 bottom-0 z-50 w-80 bg-white shadow-xl md:hidden", // ↑ ancho y más presencia
+          "transform transition-transform duration-300 ease-in-out",
+          open ? "translate-x-0" : "translate-x-full",
+        ].join(" ")}
+        role="dialog"
+        aria-modal="true"
       >
-        
-        <div className="flex justify-end mb-8">
+        <div className="flex items-center justify-between h-18 px-4 border-b">
+          <Link href="/home" onClick={() => setOpen(false)} className="inline-flex items-center gap-2">
+            <Image src={Logo} alt="VOLANTIA" width={170} height={56} /> {/* ↑ antes 140/44 */}
+          </Link>
           <button
-            onClick={() => setIsOpen(false)}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            onClick={() => setOpen(false)}
+            className="h-10 w-10 grid place-items-center rounded-md text-gray-600 hover:bg-gray-100"
+            aria-label="Cerrar menú"
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
+            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        
-        <ul className="space-y-4">
-          {allNavLinks.map((link) => (
-            <li key={link.href}>
-              <Link
-                href={link.href}
-                onClick={() => setIsOpen(false)}
-                className="group relative flex items-center gap-4 pl-6 pr-6 py-3 text-[#787A91] text-lg capitalize transition-all duration-200 hover:text-[#0F044C] hover:bg-white hover:shadow-md w-full rounded-md"
-              >
-                <span className="absolute left-0 top-0 h-full w-[4px] bg-[#0F044C] opacity-0 group-hover:opacity-100 rounded-r-sm"></span>
-                <Image
-                  src={link.icon}
-                  alt={`${link.name} icon`}
-                  width={26}
-                  height={26}
-                  className="opacity-80 group-hover:opacity-100 transition-opacity duration-150"
-                />
-                <span>{link.name}</span>
-              </Link>
-            </li>
-          ))}
+        <nav className="px-2 py-3">
+          <ul className="space-y-1">
+            {navLinks.map((l) => (
+              <li key={l.href}>
+                <Link
+                  href={l.href}
+                  onClick={() => setOpen(false)}
+                  className={[
+                    "group flex items-center gap-3 px-4 py-3 rounded-lg transition",
+                    isActive(l.href)
+                      ? "bg-[var(--color-light-blue)] text-[var(--color-dark-blue)]"
+                      : "text-[var(--color-custume-blue)] hover:bg-gray-100",
+                  ].join(" ")}
+                >
+                  <Image src={l.icon} alt="" width={26} height={26} className="opacity-80 group-hover:opacity-100" />
+                  <span className="text-base">{l.name}</span>
+                </Link>
+              </li>
+            ))}
 
-          
-          {isAuthenticated ? (
-            <li className="pt-6">
-              <button
-                onClick={() => {
-                  logout(); 
-                  setIsOpen(false);
-                }}
-                className="group relative flex items-center gap-4 pl-6 pr-6 py-3 text-[#787A91] text-lg capitalize transition-all duration-200 hover:text-red-600 hover:bg-white hover:shadow-md w-full rounded-md"
-              >
-                <span className="absolute left-0 top-0 h-full w-[4px] bg-red-600 opacity-0 group-hover:opacity-100 rounded-r-sm"></span>
-                <Image
-                  src={LogoutIcon}
-                  alt="Log out icon"
-                  width={26}
-                  height={26}
-                  className="opacity-80 group-hover:opacity-100 transition-opacity duration-150"
-                />
-                <span>log out</span>
-              </button>
-            </li>
-          ) : (
-            <li className="pt-6">
-              <Link
-                href="/login" 
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-4 text-green-500 hover:text-green-700 text-lg capitalize px-4 py-3 rounded-lg transition-all duration-200 hover:shadow-md w-full"
-              >
-                <Image
-                  src={ProfileIcon}
-                  alt="Log in icon"
-                  width={26}
-                  height={26}
-                  className="opacity-80"
-                />
-                <span>log in</span>
-              </Link>
-            </li>
-          )}
-        </ul>
-      </nav>
+            {/* 🔸 Sin “Cerrar sesión”. Solo mostramos Login si no está autenticado */}
+            {!isAuthenticated && (
+              <li className="pt-2">
+                <Link
+                  href="/login"
+                  onClick={() => setOpen(false)}
+                  className="group flex items-center gap-3 px-4 py-3 rounded-lg text-green-700 hover:bg-green-50 transition"
+                >
+                  <Image src={ProfileIcon} alt="" width={26} height={26} />
+                  <span className="text-base">Iniciar sesión</span>
+                </Link>
+              </li>
+            )}
+          </ul>
+        </nav>
+      </aside>
     </header>
   );
 }
