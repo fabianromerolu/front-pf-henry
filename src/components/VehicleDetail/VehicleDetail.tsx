@@ -1,10 +1,10 @@
 "use client";
 import Image from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 import DarkButton from "@/components/Buttoms/DarkButtom";
 import LightButton from "@/components/Buttoms/LightButtom";
 import VehicleProps from "@/interfaces/vehicleProps";
-import ReviewCard from "../cards/reviewCard";
 import ReviewCard from "../cards/reviewCard";
 
 interface VehicleDetailProps {
@@ -24,9 +24,7 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
           <header className="flex justify-between items-start p-6">
             <h1 className="font-normal tracking-tight">
               <span className="text-4xl font-light block">{vehicle.title}</span>
-              <span className="text-4xl font-light block">{vehicle.title}</span>
 
-              {/* <span className="text-4xl font-normal block">
               {/* <span className="text-4xl font-normal block">
                 {vehicle.model}
               </span> */}
@@ -49,26 +47,44 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
                   height={60}
                   alt="steering-Wheel"
                 />
+                <Image
+                  src={SteeringWheelIcon}
+                  width={60}
+                  height={60}
+                  alt="steering-Wheel"
+                />
               </div>
               {vehicle.bodytype || "SUV"}
+              {vehicle.bodytype || "SUV"}
             </li>
+
 
             <li>
               <div className="text-xl mb-1">
                 <Image src={SeatsIcon} width={60} height={60} alt="seats" />
               </div>
               {vehicle.seats} seats
+              {vehicle.seats} seats
             </li>
+
 
             <li>
               <div className="text-xl mb-1">
                 <Image src={PetrolPumpIcon} width={60} height={60} alt="pump" />
               </div>
               {vehicle.fuel || "Gasolina"}
+              {vehicle.fuel || "Gasolina"}
             </li>
+
 
             <li>
               <div className="text-xl mb-1">
+                <Image
+                  src={ElectricCarIcon}
+                  width={60}
+                  height={60}
+                  alt="transmition"
+                />
                 <Image
                   src={ElectricCarIcon}
                   width={60}
@@ -81,12 +97,16 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
           </ul>
         </div>
 
+
         <figure className="relative w-full h-full overflow-hidden">
           <Image
             src={vehicle.thumbnailUr}
+            src={vehicle.thumbnailUr}
             alt={`Foto del vehículo ${vehicle.make} ${vehicle.model}`}
             sizes="(max-width: 768px) 100vw, 66vw"
+            sizes="(max-width: 768px) 100vw, 66vw"
             fill
+            priority
             priority
             className="object-cover object-center"
           />
@@ -95,18 +115,6 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
 
       <section className=" bg-custume-light h-full p-6 sm:p-8 text-custume-blue text-lg font-hind flex flex-col">
         <div className="mb-6 overflow-y-auto">
-          <p className="mb-4 text-xl leading-relaxed">
-            {vehicle.description} El Toyota Corolla es un sedán que combina
-            elegancia, eficiencia y confiabilidad, ideal para todo tipo de
-            trayectos, desde viajes urbanos hasta recorridos largos por
-            carretera. Su diseño moderno destaca por líneas aerodinámicas y
-            detalles refinados que transmiten un estilo sofisticado. En el
-            interior, ofrece un ambiente cómodo y silencioso con asientos
-            ergonómicos, materiales de alta calidad y un amplio espacio para
-            pasajeros y equipaje. Su tecnología intuitiva incluye pantalla
-            táctil, conectividad con Apple CarPlay y Android Auto, y un sistema
-            de sonido envolvente que mejora la experiencia de conducción.
-          </p>
           <p className="mb-4 text-xl leading-relaxed">
             {vehicle.description} El Toyota Corolla es un sedán que combina
             elegancia, eficiencia y confiabilidad, ideal para todo tipo de
@@ -159,9 +167,17 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
               size="xl"
               text="back to vehicles"
             />
+            <LightButton
+              className="hover:cursor-pointer"
+              size="xl"
+              text="back to vehicles"
+            />
           </Link>
         </div>
       </section>
     </main>
+      </section>
+    </main>
   );
 }
+
