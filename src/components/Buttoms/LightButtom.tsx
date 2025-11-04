@@ -3,11 +3,12 @@ import React from "react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   text: string;
-  size?: "md" | "lg" | "xl";
+  size?: "sm" | "md" | "lg" | "xl";
   href?: string;
 }
 
 const sizeClasses = {
+  sm: "text-sm px-2 py-2.5 min-w-[200px]",
   md: "text-base px-6 py-2.5 min-w-[300px]",
   lg: "text-lg px-8 py-3 min-w-[350px]",
   xl: "text-xl px-10 py-3.5 min-w-[400px]",

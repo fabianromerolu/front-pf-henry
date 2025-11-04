@@ -3,7 +3,8 @@ import React from "react";
 interface ReviewProps {
   userName: string;
   comment: string;
-  rating: number;
+  rating: number; // 1-5
+  userImage?: string;
 }
 
 function ReviewCard({ userName, comment, rating }: ReviewProps) {
@@ -32,7 +33,7 @@ function ReviewCard({ userName, comment, rating }: ReviewProps) {
             <p className="text-dark-blue font-semibold">{userName}</p>
           </div>
         </div>
-        <div className="flex gap-2">{renderStars(rating)}</div>
+        <div className="flex gap-0.5">{renderStars(rating)}</div>
       </div>
 
       <div className="mt-4">

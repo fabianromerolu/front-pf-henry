@@ -5,6 +5,7 @@ import DarkButton from "@/components/Buttoms/DarkButtom";
 import LightButton from "@/components/Buttoms/LightButtom";
 import VehicleProps from "@/interfaces/vehicleProps";
 import ReviewCard from "../cards/reviewCard";
+import ReviewCard from "../cards/reviewCard";
 
 interface VehicleDetailProps {
   vehicle: VehicleProps;
@@ -23,10 +24,15 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
           <header className="flex justify-between items-start p-6">
             <h1 className="font-normal tracking-tight">
               <span className="text-4xl font-light block">{vehicle.title}</span>
+              <span className="text-4xl font-light block">{vehicle.title}</span>
 
+              {/* <span className="text-4xl font-normal block">
               {/* <span className="text-4xl font-normal block">
                 {vehicle.model}
               </span> */}
+              <p className="mt-6 text-2xl font-light text-custume-gray">
+                Precio por día ${vehicle.pricePerDay}
+              </p>
             </h1>
           </header>
           <span />
@@ -34,7 +40,7 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
             Precio por día ${vehicle.pricePerDay}
           </p>
 
-          <ul className="flex justify-start space-x-12 p-6 text-center mt-auto text-custume-light/70">
+          <ul className="flex justify-start space-x-8 p-6 text-center mt-auto text-custume-light/70">
             <li>
               <div className="text-xl mb-1">
                 <Image
@@ -87,7 +93,7 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
         </figure>
       </section>
 
-      <section className=" bg-custume-light h-full mt-10 p-6 sm:p-8 text-custume-blue text-lg font-hind flex flex-col justify-evenly items-center">
+      <section className=" bg-custume-light h-full p-6 sm:p-8 text-custume-blue text-lg font-hind flex flex-col">
         <div className="mb-6 overflow-y-auto">
           <p className="mb-4 text-xl leading-relaxed">
             {vehicle.description} El Toyota Corolla es un sedán que combina
@@ -101,33 +107,47 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
             táctil, conectividad con Apple CarPlay y Android Auto, y un sistema
             de sonido envolvente que mejora la experiencia de conducción.
           </p>
+          <p className="mb-4 text-xl leading-relaxed">
+            {vehicle.description} El Toyota Corolla es un sedán que combina
+            elegancia, eficiencia y confiabilidad, ideal para todo tipo de
+            trayectos, desde viajes urbanos hasta recorridos largos por
+            carretera. Su diseño moderno destaca por líneas aerodinámicas y
+            detalles refinados que transmiten un estilo sofisticado. En el
+            interior, ofrece un ambiente cómodo y silencioso con asientos
+            ergonómicos, materiales de alta calidad y un amplio espacio para
+            pasajeros y equipaje. Su tecnología intuitiva incluye pantalla
+            táctil, conectividad con Apple CarPlay y Android Auto, y un sistema
+            de sonido envolvente que mejora la experiencia de conducción.
+          </p>
 
-          <h2 className="text-3xl font-bold mt-6 mb-3 text-custume-blue">
+          <h2 className="text-3xl font-bold mt-5 mb-3 text-custume-blue">
             rules
           </h2>
           <p className="text-xl leading-relaxed whitespace-pre-line">
             {/* {vehicle.rules} */}
-            <p>ºProhibido fumar dentro del vehículo.</p>
-            <span />
-            <p>Devolver el auto con el mismo nivel de combustible.</p>
-            <span /> <p>ºCumplir con los horarios de entrega y devolución.</p>
-            <span /> <p>ºMantener el vehículo en buenas condiciones.</p>
-            <span />
+            <span> º Prohibido fumar dentro del vehículo.</span>
+            <br />
+            <span> º Devolver el auto con el mismo nivel de combustible.</span>
+            <br />
+            <span> º Cumplir con los horarios de entrega y devolución.</span>
           </p>
         </div>
-        <div className="flex flex-row justify-between gap-6 mb-8">
+
+        <div className="flex flex raw">
           <ReviewCard
             userName="Juan Pérez"
             comment="Excelente servicio, el auto estaba en perfectas condiciones y la atención fue de primera. Definitivamente volveré a rentar aquí."
             rating={5}
           />
+
           <ReviewCard
-            userName="María González"
-            comment="El vehículo tenía algunos rayones que no se mencionaron al momento de la entrega. Además, el proceso de devolución fue más lento de lo esperado. El precio es justo pero esperaba mejor mantenimiento."
-            rating={2}
+            userName="Carlos Ramírez"
+            comment="La experiencia fue regular. El auto funcionó bien pero llegó con el tanque casi vacío y tuve que cargar gasolina de inmediato. La atención al cliente podría mejorar, tardaron en responder mis mensajes."
+            rating={3}
           />
         </div>
-        <div className="flex flex-row justify-between space-y-3 mt-8">
+
+        <div className="flex flex-raw content-around space-y-3 mt-8">
           <DarkButton
             className="hover:cursor-pointer"
             size="xl"
