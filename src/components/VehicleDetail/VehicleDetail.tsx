@@ -1,6 +1,5 @@
 "use client";
 import Image from "next/image";
-import Image from "next/image";
 import Link from "next/link";
 import DarkButton from "@/components/Buttoms/DarkButtom";
 import LightButton from "@/components/Buttoms/LightButtom";
@@ -19,24 +18,18 @@ const SeatsIcon = "/icons/seats.svg";
 export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
   return (
     <main className="grid grid-cols-[40%_60%] min-h-[60rem] shadow-xl text-custume-light">
-      <section className="mt-18 bg-dark-blue font-montserrat text-custume-light grid grid-rows-[40%_60%] h-full">
+      <section className=" bg-dark-blue font-montserrat text-custume-light grid grid-rows-[40%_60%] h-full">
         <div className="flex flex-col text-custume-light p-6 sm:p-8">
           <header className="flex justify-between items-start p-6">
             <h1 className="font-normal tracking-tight">
-              <span className="text-4xl font-light block">{vehicle.title}</span>
+              <span className="text-4xl font-light block">{vehicle.make}</span>
+              <span className="text-2xl font-light block">{vehicle.model}</span>
 
-              {/* <span className="text-4xl font-normal block">
-                {vehicle.model}
-              </span> */}
               <p className="mt-6 text-2xl font-light text-custume-gray">
                 Precio por día ${vehicle.pricePerDay}
               </p>
             </h1>
           </header>
-          <span />
-          <p className="items-start text-2xl font-light text-custume-gray">
-            Precio por día ${vehicle.pricePerDay}
-          </p>
 
           <ul className="flex justify-start space-x-8 p-6 text-center mt-auto text-custume-light/70">
             <li>
@@ -47,44 +40,26 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
                   height={60}
                   alt="steering-Wheel"
                 />
-                <Image
-                  src={SteeringWheelIcon}
-                  width={60}
-                  height={60}
-                  alt="steering-Wheel"
-                />
               </div>
               {vehicle.bodytype || "SUV"}
-              {vehicle.bodytype || "SUV"}
             </li>
-
 
             <li>
               <div className="text-xl mb-1">
                 <Image src={SeatsIcon} width={60} height={60} alt="seats" />
               </div>
               {vehicle.seats} seats
-              {vehicle.seats} seats
             </li>
-
 
             <li>
               <div className="text-xl mb-1">
                 <Image src={PetrolPumpIcon} width={60} height={60} alt="pump" />
               </div>
               {vehicle.fuel || "Gasolina"}
-              {vehicle.fuel || "Gasolina"}
             </li>
-
 
             <li>
               <div className="text-xl mb-1">
-                <Image
-                  src={ElectricCarIcon}
-                  width={60}
-                  height={60}
-                  alt="transmition"
-                />
                 <Image
                   src={ElectricCarIcon}
                   width={60}
@@ -97,23 +72,19 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
           </ul>
         </div>
 
-
         <figure className="relative w-full h-full overflow-hidden">
           <Image
             src={vehicle.thumbnailUr}
-            src={vehicle.thumbnailUr}
             alt={`Foto del vehículo ${vehicle.make} ${vehicle.model}`}
             sizes="(max-width: 768px) 100vw, 66vw"
-            sizes="(max-width: 768px) 100vw, 66vw"
             fill
-            priority
             priority
             className="object-cover object-center"
           />
         </figure>
       </section>
 
-      <section className=" bg-custume-light h-full p-6 sm:p-8 text-custume-blue text-lg font-hind flex flex-col">
+      <section className="bg-custume-light h-full p-6 sm:p-8 text-custume-blue text-lg font-hind flex flex-col">
         <div className="mb-6 overflow-y-auto">
           <p className="mb-4 text-xl leading-relaxed">
             {vehicle.description} El Toyota Corolla es un sedán que combina
@@ -129,19 +100,18 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
           </p>
 
           <h2 className="text-3xl font-bold mt-5 mb-3 text-custume-blue">
-            rules
+            Reglas
           </h2>
           <p className="text-xl leading-relaxed whitespace-pre-line">
-            {/* {vehicle.rules} */}
-            <span> º Prohibido fumar dentro del vehículo.</span>
+            <span>º Prohibido fumar dentro del vehículo.</span>
             <br />
-            <span> º Devolver el auto con el mismo nivel de combustible.</span>
+            <span>º Devolver el auto con el mismo nivel de combustible.</span>
             <br />
-            <span> º Cumplir con los horarios de entrega y devolución.</span>
+            <span>º Cumplir con los horarios de entrega y devolución.</span>
           </p>
         </div>
 
-        <div className="flex flex raw">
+        <div className="flex flex-row gap-4">
           <ReviewCard
             userName="Juan Pérez"
             comment="Excelente servicio, el auto estaba en perfectas condiciones y la atención fue de primera. Definitivamente volveré a rentar aquí."
@@ -155,7 +125,7 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
           />
         </div>
 
-        <div className="flex flex-raw content-around space-y-3 mt-8">
+        <div className="flex flex-row gap-4 mt-8">
           <DarkButton
             className="hover:cursor-pointer"
             size="xl"
@@ -167,17 +137,9 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
               size="xl"
               text="back to vehicles"
             />
-            <LightButton
-              className="hover:cursor-pointer"
-              size="xl"
-              text="back to vehicles"
-            />
           </Link>
         </div>
       </section>
     </main>
-      </section>
-    </main>
   );
 }
-
