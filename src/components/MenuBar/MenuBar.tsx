@@ -8,8 +8,8 @@ import VehicleCard from "../cards/vehicleCard";
 import { useVehicles } from "@/context/VehicleContext";
 
 const filterOptions = {
-  transmission: ["Automatico", "Manual"],
-  fuel: ["Disel", "Gasolina", "Electrico", "Hibrido"],
+  transmission: ["AUTOMATIC", "MANUAL"],
+  fuel: ["DISEL", "GASOLINE", "ELECTRIC", "HYBRID"],
   seats: ["2", "4", "5", "7", "8"],
   priceRange: ["0-100", "100-200", "200-300", "300+"],
 };
@@ -139,7 +139,7 @@ function MenuBar() {
 
       <div className="sticky top-0 z-50 bg-custume-light py-4 p-b2">
         <div className="max-w-6xl mx-auto px-3">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-0">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
             {(
               Object.keys(filterOptions) as Array<keyof typeof filterOptions>
             ).map((category) => (
@@ -198,7 +198,7 @@ function MenuBar() {
           </div>
 
           {activeFiltersCount > 0 && (
-            <div className="flex items-center justify-between p-3 bg-custume-light border-2 border-custume-blue rounded-lg">
+            <div className="flex items-center justify-between mt-6 p-3 bg-custume-light border-2 border-custume-blue rounded-lg">
               <div className="flex flex-wrap gap-2">
                 <span className="text-dark-blue">
                   <strong>{activeFiltersCount}</strong> filtro
