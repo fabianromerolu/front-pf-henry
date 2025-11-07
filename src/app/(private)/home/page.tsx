@@ -7,10 +7,10 @@ import MenuBar from "@/components/MenuBar/MenuBar";
 import React from "react";
 
 const features = [
-  "Experience luxury, comfort, and freedom in every ride.",
-  "Our cars, your style; always ready for your next adventure.",
-  "Premium service, transparent prices, zero stress.",
-  "Drive with confidence. Travel with class.",
+  "Experimenta lujo, comodidad y libertad en cada viaje.",
+  "Nuestros autos, tu estilo; siempre listos para tu próxima aventura.",
+  "Servicio premium, precios transparentes, cero estrés.",
+  "Conduce con confianza. Viaja con clase.",
 ];
 
 export default function Home() {

@@ -5,6 +5,7 @@ import React, {
   useContext,
   useState,
   useEffect,
+  useCallback,
   ReactNode,
 } from "react";
 import VehicleProps from "@/interfaces/vehicleProps";
@@ -19,7 +20,11 @@ interface VehicleContextType {
   vehicles: VehicleProps[];
   loading: boolean;
   error: string | null;
-  fetchVehicles: () => Promise<void>;
+  page: number;
+  limit: number;
+  total: number;
+  hasNextPage: boolean;
+  fetchVehicles: (pageNum?: number) => Promise<void>;
   getVehicle: (id: string) => Promise<VehicleProps | undefined>;
   updateVehicleData: (
     id: string,
@@ -27,6 +32,9 @@ interface VehicleContextType {
     token?: string
   ) => Promise<void>;
   deleteVehicleData: (id: string, token?: string) => Promise<void>;
+  nextPage: () => void;
+  prevPage: () => void;
+  goToPage: (pageNum: number) => void;
 }
 
 const VehicleContext = createContext<VehicleContextType | undefined>(undefined);
@@ -36,19 +44,51 @@ export const VehicleProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchVehicles = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getAllVehicles();
-      setVehicles(Array.isArray(data) ? data : []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido");
-      setVehicles([]);
-    } finally {
-      setLoading(false);
+  const [page, setPage] = useState<number>(1);
+  const [limit] = useState<number>(12);
+  const [total, setTotal] = useState<number>(0);
+  const [hasNextPage, setHasNextPage] = useState<boolean>(false);
+
+  const fetchVehicles = useCallback(
+    async (pageNum: number = 1) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await getAllVehicles({ page: pageNum, limit });
+        setVehicles(Array.isArray(response.data) ? response.data : []);
+        setPage(response.page);
+        setTotal(response.total);
+        setHasNextPage(response.hasNextPage);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Error desconocido");
+        setVehicles([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [limit]
+  );
+
+  const nextPage = useCallback(() => {
+    if (hasNextPage) {
+      const newPage = page + 1;
+      fetchVehicles(newPage);
     }
-  };
+  }, [hasNextPage, page, fetchVehicles]);
+
+  const prevPage = useCallback(() => {
+    if (page > 1) {
+      const newPage = page - 1;
+      fetchVehicles(newPage);
+    }
+  }, [page, fetchVehicles]);
+
+  const goToPage = useCallback(
+    (pageNum: number) => {
+      fetchVehicles(pageNum);
+    },
+    [fetchVehicles]
+  );
 
   const getVehicle = async (id: string): Promise<VehicleProps | undefined> => {
     try {
@@ -100,7 +140,7 @@ export const VehicleProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     fetchVehicles();
-  }, []);
+  }, [fetchVehicles]);
 
   return (
     <VehicleContext.Provider
@@ -108,10 +148,17 @@ export const VehicleProvider = ({ children }: { children: ReactNode }) => {
         vehicles,
         loading,
         error,
+        page,
+        limit,
+        total,
+        hasNextPage,
         fetchVehicles,
         getVehicle,
         updateVehicleData,
         deleteVehicleData,
+        nextPage,
+        prevPage,
+        goToPage,
       }}
     >
       {children}

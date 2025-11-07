@@ -4,9 +4,21 @@ import React from "react";
 import VehicleCard from "@/components/cards/vehicleCard";
 import { useVehicles } from "@/context/VehicleContext";
 import MenuBar from "@/components/MenuBar/MenuBar";
+import Pagination from "@/components/pagination/Pagination";
 
 export default function VehiclesPage() {
-  const { vehicles, loading, error } = useVehicles();
+  const {
+    vehicles,
+    loading,
+    error,
+    page,
+    limit,
+    total,
+    hasNextPage,
+    nextPage,
+    prevPage,
+    goToPage,
+  } = useVehicles();
 
   if (loading) {
     return (
@@ -69,6 +81,16 @@ export default function VehiclesPage() {
             ))}
           </div>
         )}
+
+        <Pagination
+          currentPage={page}
+          totalItems={total}
+          itemsPerPage={limit}
+          hasNextPage={hasNextPage}
+          onNextPage={nextPage}
+          onPrevPage={prevPage}
+          onGoToPage={goToPage}
+        />
       </div>
     </div>
   );

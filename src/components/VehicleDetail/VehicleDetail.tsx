@@ -16,6 +16,7 @@ const PetrolPumpIcon = "/icons/petrolPump.svg";
 const SeatsIcon = "/icons/seats.svg";
 
 export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
+  console.log(vehicle);
   return (
     <main className="grid grid-cols-[40%_60%] min-h-[60rem] shadow-xl text-custume-light">
       <section className=" bg-dark-blue font-montserrat text-custume-light grid grid-rows-[40%_60%] h-full">
@@ -86,28 +87,14 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
 
       <section className="bg-custume-light h-full p-6 sm:p-8 text-custume-blue text-lg font-hind flex flex-col">
         <div className="mb-6 overflow-y-auto">
-          <p className="mb-4 text-xl leading-relaxed">
-            {vehicle.description} El Toyota Corolla es un sedán que combina
-            elegancia, eficiencia y confiabilidad, ideal para todo tipo de
-            trayectos, desde viajes urbanos hasta recorridos largos por
-            carretera. Su diseño moderno destaca por líneas aerodinámicas y
-            detalles refinados que transmiten un estilo sofisticado. En el
-            interior, ofrece un ambiente cómodo y silencioso con asientos
-            ergonómicos, materiales de alta calidad y un amplio espacio para
-            pasajeros y equipaje. Su tecnología intuitiva incluye pantalla
-            táctil, conectividad con Apple CarPlay y Android Auto, y un sistema
-            de sonido envolvente que mejora la experiencia de conducción.
-          </p>
+          <p className="mb-4 text-xl leading-relaxed">{vehicle.description}</p>
 
           <h2 className="text-3xl font-bold mt-5 mb-3 text-custume-blue">
             Reglas
           </h2>
           <p className="text-xl leading-relaxed whitespace-pre-line">
-            <span>º Prohibido fumar dentro del vehículo.</span>
-            <br />
-            <span>º Devolver el auto con el mismo nivel de combustible.</span>
-            <br />
-            <span>º Cumplir con los horarios de entrega y devolución.</span>
+            {" "}
+            {vehicle.rules}
           </p>
         </div>
 
@@ -125,16 +112,16 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
           />
         </div>
 
-        <div className="flex flex-row gap-4 mt-8">
+        <div className="flex justify-center flex-row gap-4 mt-8">
           <DarkButton
             className="hover:cursor-pointer"
-            size="xl"
+            size="lg"
             text="rent now"
           />
           <Link href="/vehicles" passHref>
             <LightButton
               className="hover:cursor-pointer"
-              size="xl"
+              size="lg"
               text="back to vehicles"
             />
           </Link>
