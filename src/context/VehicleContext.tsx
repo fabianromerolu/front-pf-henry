@@ -19,6 +19,13 @@ interface VehicleContextType {
   vehicles: VehicleProps[];
   loading: boolean;
   error: string | null;
+  page: number;
+  limit: number;
+  total: number;
+  hasNextPage: boolean;
+  nextPage: () => void;
+  prevPage: () => void;
+  goToPage: (page: number) => void;
   fetchVehicles: () => Promise<void>;
   getVehicle: (id: string) => Promise<VehicleProps | undefined>;
   updateVehicleData: (
@@ -36,15 +43,26 @@ export const VehicleProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Estados de paginación
+  const [page, setPage] = useState<number>(1);
+  const [limit] = useState<number>(10);
+  const [total, setTotal] = useState<number>(0);
+
+  // Calcular si hay página siguiente
+  const hasNextPage = page * limit < total;
+
   const fetchVehicles = async () => {
     setLoading(true);
     setError(null);
     try {
       const data = await getAllVehicles();
-      setVehicles(Array.isArray(data) ? data : []);
+      const vehiclesArray = Array.isArray(data) ? data : [];
+      setVehicles(vehiclesArray);
+      setTotal(vehiclesArray.length);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error desconocido");
       setVehicles([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
@@ -90,11 +108,38 @@ export const VehicleProvider = ({ children }: { children: ReactNode }) => {
       setVehicles((prev) =>
         prev.filter((vehicle) => vehicle.id.toString() !== id)
       );
+      setTotal((prev) => prev - 1);
+
+      // Si eliminamos el último vehículo de la página actual, volver a la anterior
+      const totalPages = Math.ceil((total - 1) / limit);
+      if (page > totalPages && page > 1) {
+        setPage(page - 1);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error desconocido");
       throw err;
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Funciones de paginación
+  const nextPage = () => {
+    if (hasNextPage) {
+      setPage((prev) => prev + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (page > 1) {
+      setPage((prev) => prev - 1);
+    }
+  };
+
+  const goToPage = (newPage: number) => {
+    const totalPages = Math.ceil(total / limit);
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPage(newPage);
     }
   };
 
@@ -108,6 +153,13 @@ export const VehicleProvider = ({ children }: { children: ReactNode }) => {
         vehicles,
         loading,
         error,
+        page,
+        limit,
+        total,
+        hasNextPage,
+        nextPage,
+        prevPage,
+        goToPage,
         fetchVehicles,
         getVehicle,
         updateVehicleData,
