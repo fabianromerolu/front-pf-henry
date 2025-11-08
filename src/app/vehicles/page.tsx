@@ -1,12 +1,32 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import VehicleCard from "@/components/cards/vehicleCard";
 import { useVehicles } from "@/context/VehicleContext";
 import MenuBar from "@/components/MenuBar/MenuBar";
+import Pagination from "@/components/pagination/Pagination";
 
 export default function VehiclesPage() {
-  const { vehicles, loading, error } = useVehicles();
+  const {
+    vehicles,
+    loading,
+    error,
+    page,
+    limit,
+    total,
+    hasNextPage,
+    nextPage,
+    prevPage,
+    goToPage,
+  } = useVehicles();
+
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const paginatedVehicles = vehicles.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [page]);
 
   if (loading) {
     return (
@@ -51,8 +71,7 @@ export default function VehiclesPage() {
             Todos nuestros vehículos
           </h1>
           <p className="text-custume-blue text-center text-lg">
-            Explora nuestra flota completa de {vehicles.length} vehículos
-            disponibles
+            Explora nuestra flota completa de {total} vehículos disponibles
           </p>
         </div>
 
@@ -63,11 +82,30 @@ export default function VehiclesPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {vehicles.map((vehicle) => (
-              <VehicleCard key={vehicle.id} vehicle={vehicle} />
-            ))}
-          </div>
+          <>
+            <div className="mb-4 text-center">
+              <p className="text-custume-blue text-sm">
+                Mostrando {startIndex + 1} - {Math.min(endIndex, total)} de{" "}
+                {total} vehículos
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {paginatedVehicles.map((vehicle) => (
+                <VehicleCard key={vehicle.id} vehicle={vehicle} />
+              ))}
+            </div>
+
+            <Pagination
+              currentPage={page}
+              totalItems={total}
+              itemsPerPage={limit}
+              hasNextPage={hasNextPage}
+              onNextPage={nextPage}
+              onPrevPage={prevPage}
+              onGoToPage={goToPage}
+            />
+          </>
         )}
       </div>
     </div>

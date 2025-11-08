@@ -43,11 +43,11 @@ export const VehicleCard = ({ vehicle }: CardProps) => {
         <div className="flex flex-col gap-3">
           <DarkButtom
             className="w-full py-4 rounded-full text-xl lowercase"
-            text="rent now"
+            text="rentar ahora"
           />
           <LightButtom
             className="w-full py-4 rounded-full text-xl lowercase"
-            text="see details"
+            text="ver detalles"
           />
         </div>
       </div>

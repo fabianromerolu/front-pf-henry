@@ -132,7 +132,7 @@ function MenuBar() {
           <LightButtom
             href="/vehicles"
             size="xl"
-            text="ver todos los preoductos"
+            text="Vehículos disponibles"
           />
         </div>
       </div>
