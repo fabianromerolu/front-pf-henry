@@ -41,7 +41,7 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
                   alt="steering-Wheel"
                 />
               </div>
-              {vehicle.bodytype || "SUV"}
+              {vehicle.bodyType || "SUV"}
             </li>
 
             <li>
