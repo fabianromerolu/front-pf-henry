@@ -52,13 +52,15 @@ export default interface VehicleProps {
   model: string;
   year: number;
   trim?: string;
-  bodytype?: BodyType;
+  bodyType?: BodyType;
   category?: Category;
   transmission?: Transmition;
   fuel?: Fuel;
   drivetrain?: DriveTrain;
   color: string;
   seats: number;
+  licensePlate: string;
+  vin: string;
   country?: string;
   city?: string;
   state: string;

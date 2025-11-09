@@ -42,7 +42,6 @@ export default function Home() {
       </div>
 
       <MenuBar />
-
       <div className="bg-custume-light py-10">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-center justify-center gap-4">
