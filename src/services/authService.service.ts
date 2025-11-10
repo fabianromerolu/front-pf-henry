@@ -42,8 +42,12 @@ type APIUser = {
 
 function messageFrom(data: unknown): string | undefined {
   if (data && typeof data === "object") {
-    const v = (data as Record<string, unknown>)["message"];
-    return typeof v === "string" ? v : undefined;
+    const rec = data as Record<string, unknown>;
+    const v = rec["message"];
+    if (typeof v === "string") return v;
+    if (Array.isArray(v)) return v.filter((s) => typeof s === "string").join(" · ");
+    const err = rec["error"]; 
+    if (typeof err === "string") return err;
   }
   return undefined;
 }
@@ -139,6 +143,64 @@ async function safeJson<T>(res: Response): Promise<T | null> {
   }
 }
 
+async function readBody<T>(res: Response): Promise<{ data: T | null; raw: string }> {
+  const text = await res.text();
+  let parsed: T | null = null;
+  try {
+    parsed = text ? (JSON.parse(text) as T) : null;
+  } catch {
+    parsed = null; // cuerpo no-JSON: igual devolvemos raw para log
+  }
+  return { data: parsed, raw: text };
+}
+
+function logHttpError(ctx: string, res: Response, payload: unknown, raw: string) {
+  const rid = res.headers.get("x-request-id") || res.headers.get("x-correlation-id");
+  const msg = messageFrom(payload) ?? res.statusText ?? "Unknown error";
+  const preview = raw?.slice(0, 2000);
+
+  __lastAuthError = {
+    ctx,
+    status: res.status,
+    statusText: res.statusText,
+    url: res.url,
+    requestId: rid,
+    message: msg,
+    bodyPreview: preview,
+  };
+
+  console.error(`[AUTH] ${ctx} FAILED`, {
+    status: res.status,
+    statusText: res.statusText,
+    url: res.url,
+    requestId: rid ?? undefined,
+    message: msg,
+    body: preview,
+  });
+}
+
+
+// ===== Error bridge para UI =====
+export type AuthError = {
+  ctx: string;          // ej: "POST /auth/login"
+  status: number;
+  statusText: string;
+  url: string;
+  requestId?: string | null;
+  message?: string;
+  bodyPreview?: string;
+};
+
+let __lastAuthError: AuthError | null = null;
+
+export function getLastAuthError(): AuthError | null {
+  return __lastAuthError;
+}
+
+export function clearLastAuthError() {
+  __lastAuthError = null;
+}
+
 /* ============== resolutores de usuario ============== */
 // 1) /auth/me/jwt (con Bearer); 2) /auth/me (cookie OIDC); 3) /users/:id (si sub en JWT)
 export async function resolveUserFromToken(accessToken: string): Promise<AuthUser | null> {
@@ -202,11 +264,16 @@ export async function RegisterUser(userData: {
       body: JSON.stringify(userData),
       credentials: "include",
     });
-    const data = await safeJson<LoginResponse>(res);
+
+    // 👇 ahora podemos inspeccionar JSON o texto plano
+    const { data, raw } = await readBody<LoginResponse>(res);
+
     if (!res.ok) {
+      logHttpError("POST /auth/register", res, data, raw);
       toast.error(messageFrom(data) ?? res.statusText ?? "Registration failed");
       return null;
     }
+
     const accessToken = pickToken(data);
     const user = accessToken ? await resolveUserFromToken(accessToken) : data?.user ?? null;
 
@@ -217,10 +284,12 @@ export async function RegisterUser(userData: {
     toast.success("User registered successfully!");
     return { token: accessToken, user: user ?? undefined };
   } catch (err: unknown) {
+    console.error("[AUTH] Register exception:", err);
     toast.error(errorMessage(err, "Registration error"));
     return null;
   }
 }
+
 
 export async function LoginUser(userData: { email: string; password: string }) {
   const res = await fetch(`${API_BASE}/auth/login`, {
@@ -229,12 +298,18 @@ export async function LoginUser(userData: { email: string; password: string }) {
     body: JSON.stringify(userData),
     credentials: "include",
   });
+
   console.log("[SVC] /auth/login status:", res.status, "ok?", res.ok);
-  const data = await safeJson<LoginResponse>(res);
+
+  // 👇 leer JSON o texto
+  const { data, raw } = await readBody<LoginResponse>(res);
+
   if (!res.ok) {
+    logHttpError("POST /auth/login", res, data, raw);
     toast.error(messageFrom(data) ?? res.statusText ?? "Login failed");
     return null;
   }
+
   const accessToken = pickToken(data);
   console.log("[SVC] picked token?", !!accessToken);
 
@@ -263,9 +338,11 @@ export async function LoginUser(userData: { email: string; password: string }) {
     if (user) localStorage.setItem("auth:user", JSON.stringify(user));
     setAuthCookies(accessToken ?? null, user?.role);
   }
+
   toast.success("User logged successfully!");
   return { token: accessToken, user: user ?? undefined } as LoginResponse;
 }
+
 
 export async function logout() {
   try {

@@ -13,6 +13,7 @@ export interface RegisterFormValues {
   password: string;
   confirmPassword: string;
 }
+const PASS_RX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).+$/;
 
 // Valores iniciales
 export const RegisterInitialValues: RegisterFormValues = {
@@ -43,7 +44,6 @@ export const RegisterValidationSchema = Yup.object({
     .transform((v) => (v ?? "").trim().replace(/\s+/g, " "))
     .min(2, "Name must be at least 2 characters long")
     .max(60, "Name cannot exceed 60 characters")
-    // Letras unicode + espacios/apóstrofos/guiones (José Luis, O’Connor, Ana-María)
     .matches(/^\p{L}+(?:[ '\-]\p{L}+)*$/u, "Name can only contain letters and spaces")
     .required("Name is required"),
 
@@ -51,7 +51,6 @@ export const RegisterValidationSchema = Yup.object({
     .transform((v) => (v ?? "").trim().toLowerCase())
     .min(4, "Username must be at least 4 characters long")
     .max(20, "Username cannot exceed 20 characters")
-    // Empieza/termina alfanumérico; puede llevar _ en medio; sin '__'; sin espacios
     .matches(
       /^(?!.*__)[a-z0-9](?:[a-z0-9_]{2,18})[a-z0-9]$/,
       "Only lowercase letters, numbers, and underscores; no consecutive '__', cannot start or end with _"
@@ -65,17 +64,14 @@ export const RegisterValidationSchema = Yup.object({
     .max(254, "Email is too long")
     .required("Email is required"),
 
-  // Teléfono opcional. Si viene, valida formato básico internacional.
   phone: Yup.string()
     .transform((v) => (v ?? "").trim())
     .optional()
     .test("phone-format", "Invalid phone", (v) => {
-      if (!v) return true; // vacío es válido
-      // +, dígitos, espacios, paréntesis y guiones. Longitud 7-20 aprox.
+      if (!v) return true;
       return /^[+()\-\s\d]{7,20}$/.test(v);
     }),
 
-  // Rol opcional: USER o RENTER (ADMIN lo forzará el back según dominio)
   role: Yup.string<AppRole>()
     .oneOf(["USER", "RENTER"])
     .optional(),
@@ -83,12 +79,8 @@ export const RegisterValidationSchema = Yup.object({
   password: Yup.string()
     .min(8, "Password must be at least 8 characters long")
     .max(64, "Password cannot exceed 64 characters")
-    .matches(/[A-Z]/, "Must contain at least one uppercase letter (A-Z)")
-    .matches(/[a-z]/, "Must contain at least one lowercase letter (a-z)")
-    .matches(/\d/, "Must contain at least one number (0-9)")
-    .matches(/[^\w\s]/, "Must contain at least one special character")
+    .matches(PASS_RX, "Must include uppercase, lowercase, number and symbol (!@#$%^&*).")
     .matches(/^\S+$/, "Spaces are not allowed in the password")
-    // No debe contener name/username/email prefix
     .test(
       "no-personal-data",
       "Password must not contain your name, username, or email prefix",
@@ -109,5 +101,6 @@ export const RegisterValidationSchema = Yup.object({
 
   confirmPassword: Yup.string()
     .oneOf([Yup.ref("password")], "Passwords must match")
+    .matches(PASS_RX, "Must include uppercase, lowercase, number and symbol (!@#$%^&*).")
     .required("Confirm password is required"),
 });

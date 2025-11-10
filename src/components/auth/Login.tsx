@@ -7,7 +7,7 @@ import { LoginInitialValues, LoginValidationSchema } from "@/validators/LoginSch
 import { FcGoogle } from "react-icons/fc";
 import { FiArrowLeft, FiEye, FiEyeOff } from "react-icons/fi";
 import { useAuth } from "@/context/AuthContext";
-import { loginWithAuth0 } from "@/services/authService.service";
+import { clearLastAuthError, getLastAuthError, loginWithAuth0 } from "@/services/authService.service";
 import { toast } from "react-toastify";
 
 /* ===== util: detectar rol desde token ===== */
@@ -44,7 +44,7 @@ type CSSVars = CSSProperties & {
 export default function FormLogin() {
   const router = useRouter();
   const { login, isHydrated, isAuthenticated, user } = useAuth();
-
+  const [alert, setAlert] = useState<null | { title: string; detail?: string; rid?: string }>(null);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -55,6 +55,7 @@ export default function FormLogin() {
     if (typeof window === "undefined") return;
     const url = new URL(window.location.href);
     if (url.searchParams.get("registered") === "1") {
+      clearLastAuthError()
       toast.success("Cuenta creada. Inicia sesión para continuar.");
       url.searchParams.delete("registered");
       window.history.replaceState({}, document.title, url.toString());
@@ -71,10 +72,17 @@ export default function FormLogin() {
     onSubmit: async (values, { setSubmitting }) => {
       try {
         const ok = await login(values);
-        if (ok) {
+        if (!ok) {
+          const err = getLastAuthError();
+          setAlert({
+            title: err?.message || "No pudimos iniciar sesión.",
+            detail: err ? `${err.ctx} • ${err.status} ${err.statusText}` : undefined,
+            rid: err?.requestId ?? undefined,
+          });
           return;
         }
-        console.log("[LOGIN] failed");
+        clearLastAuthError();
+        // El redirect ya lo haces en el useEffect por isAuthenticated
       } finally {
         setSubmitting(false);
       }
@@ -143,7 +151,35 @@ export default function FormLogin() {
           style={{ opacity: "var(--bg-tint)" }}
         />
       </div>
-
+        {/* ===== ALERTA ===== */}
+        {alert && (
+          <div
+            role="alert"
+            className="mb-4 rounded-lg border border-red-400/50 bg-red-500/10 px-3 py-2 text-red-200"
+          >
+            <div className="flex items-start gap-3">
+              <div className="flex-1">
+                <p className="font-semibold text-sm">{alert.title}</p>
+                {alert.detail && <p className="text-xs opacity-90 mt-0.5">{alert.detail}</p>}
+                {alert.rid && (
+                  <p className="text-[11px] opacity-70 mt-0.5">
+                    id: <code className="opacity-90">{alert.rid}</code>
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setAlert(null)}
+                className="text-red-200/80 hover:text-red-100 text-sm"
+                aria-label="Cerrar"
+                title="Cerrar"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
+        {/* ===== /ALERTA ===== */}
       {/* Card */}
       <section className="w-full max-w-md">
         <div

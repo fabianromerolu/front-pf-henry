@@ -11,10 +11,11 @@ import {
 import { FiArrowLeft, FiEye, FiEyeOff } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import { useAuth } from "@/context/AuthContext";
-import { loginWithAuth0 } from "@/services/authService.service";
-import { meApi } from "@/services/userRenter.service"; // ⬅️ import para leer el rol real
+import { clearLastAuthError, getLastAuthError, loginWithAuth0 } from "@/services/authService.service";
+import { meApi } from "@/services/userRenter.service";
 
-/* ===== utils fuerza contraseña ===== */
+// ===== utils fuerza contraseña =====
+// 🔧 Alineado con PASS_RX del schema: minúscula, mayúscula, dígito, símbolo (!@#$%^&*)
 function scorePassword(pw: string): number {
   if (!pw) return 0;
   let s = 0;
@@ -23,7 +24,7 @@ function scorePassword(pw: string): number {
   if (/[A-Z]/.test(pw)) s++;
   if (/[a-z]/.test(pw)) s++;
   if (/\d/.test(pw)) s++;
-  if (/[^\w\s]/.test(pw)) s++;
+  if (/[!@#$%^&*]/.test(pw)) s++; // 🔧 símbolo del set permitido
   return Math.min(s, 5);
 }
 function strengthLabel(score: number): string {
@@ -43,7 +44,7 @@ type CSSVars = CSSProperties & {
 export default function FormRegister() {
   const router = useRouter();
   const { isHydrated, register: registerAction } = useAuth();
-
+  const [alert, setAlert] = useState<null | { title: string; detail?: string; rid?: string }>(null);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -58,23 +59,31 @@ export default function FormRegister() {
       try {
         const ok = await registerAction(values);
 
-        // Si se creó y tenemos token, leemos el perfil para conocer el rol real
+        if (!ok) {
+          const err = getLastAuthError();
+          setAlert({
+            title: err?.message || "No se pudo crear la cuenta.",
+            detail: err ? `${err.ctx} • ${err.status} ${err.statusText}` : undefined,
+            rid: err?.requestId ?? undefined,
+          });
+          return;
+        }
+
+        clearLastAuthError();
+
         const hasToken = typeof window !== "undefined" && !!localStorage.getItem("auth:token");
-        if (ok && hasToken) {
+        if (hasToken) {
           try {
-            const me = await meApi.getMe(); // { role?: "ADMIN" | "RENTER" | "USER" }
+            const me = await meApi.getMe();
             const role = me.role ?? "USER";
-            // Redirección por rol (fuente de verdad = backend)
             if (role === "ADMIN") router.push("/dashboard/admin");
             else if (role === "RENTER") router.push("/dashboard/renter");
             else router.push("/dashboard/user");
           } catch {
-            // Si falla /users/me, fallback según selección del form; si no, /dashboard/user
             const fallback = values.role === "RENTER" ? "/dashboard/renter" : "/dashboard/user";
             router.push(fallback);
           }
-        } else if (ok) {
-          // Sin token (flujos con verificación de email, etc.)
+        } else {
           router.push("/login?registered=1");
         }
       } finally {
@@ -93,7 +102,18 @@ export default function FormRegister() {
     return typeof t === "boolean" ? t : false;
   };
 
-  const pwScore = useMemo(() => scorePassword(formik.values.password), [formik.values.password]);
+  // 🔧 Derivados para checklist de password
+  const pw = formik.values.password || "";
+  const pwChecks = {
+    len8: pw.length >= 8,
+    upper: /[A-Z]/.test(pw),
+    lower: /[a-z]/.test(pw),
+    digit: /\d/.test(pw),
+    sym: /[!@#$%^&*]/.test(pw), // 🔧 mismo set
+    noSpaces: /^\S+$/.test(pw) || pw.length === 0,
+  };
+
+  const pwScore = useMemo(() => scorePassword(pw), [pw]);
   const pwPercent = (pwScore / 5) * 100;
   const pwLabel = strengthLabel(pwScore);
 
@@ -169,7 +189,8 @@ export default function FormRegister() {
     }
     return (
       <ul className="list-disc pl-4 space-y-1">
-        <li>Mín. 8 caracteres; mayúscula, minúscula, número y símbolo.</li>
+        {/* 🔧 texto alineado con el backend */}
+        <li>Mín. 8 caracteres; mayúscula, minúscula, número y símbolo (!@#$%^&*).</li>
         <li>No uses tu nombre/usuario/prefijo de email.</li>
         <li>Frase secreta memorable &gt; password random olvidable.</li>
       </ul>
@@ -218,6 +239,37 @@ export default function FormRegister() {
               bg-[linear-gradient(to_right,var(--color-dark-blue)_0%,var(--color-custume-blue)_50%,var(--color-dark-blue)_100%)]
             "
           >
+
+            {/* ===== ALERTA ===== */}
+            {alert && (
+              <div
+                role="alert"
+                className="mb-4 rounded-lg border border-red-400/50 bg-red-500/10 px-3 py-2 text-red-200"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="flex-1">
+                    <p className="font-semibold text-sm">{alert.title}</p>
+                    {alert.detail && <p className="text-xs opacity-90 mt-0.5">{alert.detail}</p>}
+                    {alert.rid && (
+                      <p className="text-[11px] opacity-70 mt-0.5">
+                        id: <code className="opacity-90">{alert.rid}</code>
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setAlert(null)}
+                    className="text-red-200/80 hover:text-red-100 text-sm"
+                    aria-label="Cerrar"
+                    title="Cerrar"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+            )}
+            {/* ===== /ALERTA ===== */}
+
             {/* Header: volver + título + pasos */}
             <header className="mb-6 grid grid-cols-[auto_1fr_auto] items-center gap-2">
               <button
@@ -471,16 +523,13 @@ export default function FormRegister() {
                         <p className={errorText}>{getErr("password")}</p>
                       )}
 
+                      {/* 🔧 Barra de fuerza + checklist alineado al backend */}
                       <div className="mt-2">
                         <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden">
                           <div
                             className="h-2 rounded-full bg-[var(--color-light-blue)] transition-all"
                             style={{ width: `${pwPercent}%` }}
                           />
-                        </div>
-                        <div className="mt-1 text-xs text-white/80 flex items-center justify-between">
-                          <span>Fuerza: {pwLabel}</span>
-                          <span className="opacity-70">Mín. 8, mayúscula, minúscula, número y símbolo</span>
                         </div>
                       </div>
                     </div>
@@ -512,6 +561,20 @@ export default function FormRegister() {
                       {isTouched("confirmPassword") && getErr("confirmPassword") && (
                         <p className={errorText}>{getErr("confirmPassword")}</p>
                       )}
+
+                      {/* 🔧 checklist breve para confirm (coincidencia + mismo set) */}
+                      <ul className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-[12px] text-white/80">
+                        <li className={(formik.values.confirmPassword === formik.values.password && formik.values.password.length > 0) ? "opacity-100" : "opacity-60"}>
+                          <span className="mr-1">
+                            {(formik.values.confirmPassword === formik.values.password && formik.values.password.length > 0) ? "✓" : "•"}
+                          </span>
+                          Coincide con la contraseña
+                        </li>
+                        <li className={/[!@#$%^&*]/.test(formik.values.confirmPassword || "") ? "opacity-100" : "opacity-60"}>
+                          <span className="mr-1">{/[!@#$%^&*]/.test(formik.values.confirmPassword || "") ? "✓" : "•"}</span>
+                          Incluye símbolo (!@#$%^&*)
+                        </li>
+                      </ul>
                     </div>
 
                     <div className="pt-1 flex gap-3">
