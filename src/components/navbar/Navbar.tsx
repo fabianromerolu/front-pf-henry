@@ -11,7 +11,6 @@ const VehicleIcon = "/icons/vehicles.svg";
 const OfferIcon = "/icons/offer.svg";
 const ContactIcon = "/icons/contact.svg";
 const ProfileIcon = "/icons/profile.svg"; // solo para el botón "Iniciar sesión"
-const Logo = "/logo.svg";
 
 const HIDDEN_ROUTES = new Set<string>(["/", "/login", "/register", "/home"]);
 
@@ -47,8 +46,8 @@ export default function Navbar() {
 
   const dashboardHref = useMemo(() => {
     const role = user?.role;
-    if (role === "admin") return "/dashboard/admin";
-    if (role === "renter") return "/dashboard/renter";
+    if (role === "admin" || "ADMIN") return "/dashboard/admin";
+    if (role === "renter" || "RENTER") return "/dashboard/renter";
     return "/dashboard";
   }, [user?.role]);
 
@@ -75,17 +74,23 @@ export default function Navbar() {
     >
       <div className="mx-auto max-w-6xl px-4 md:px-6">
         {/* Más alto, más presencia */}
-        <div className="h-15 md:h-17 flex items-center justify-between">
-          {/* Logo MÁS grande */}
-          <Link href="/home" className="inline-flex items-center gap-1">
-            <Image
-              src={Logo}
-              alt="VOLANTIA"
-              width={250}   // ↑ antes 160
-              height={104}   // ↑ antes 48
-              priority
-              className="h-auto w-auto"
-            />
+        <div className="h-[72px] md:h-[80px] flex items-center justify-between">
+          {/* Logo MÁS grande y responsivo (por clase, no por width/height) */}
+          <Link
+            href="/home"
+            className="inline-flex items-center h-full"
+            aria-label="Volantia Home"
+          >
+            <span className="relative h-[82px] md:h-[90px] w-[180px] md:w-[200px]">
+              <Image
+                src="/logo.svg"
+                alt="Volantia"
+                fill
+                priority
+                sizes="(min-width: 768px) 200px, 180px"
+                className="object-contain object-center"
+              />
+            </span>
           </Link>
 
           {/* Desktop nav */}
@@ -101,7 +106,7 @@ export default function Navbar() {
                     : "text-[var(--color-custume-blue)] hover:bg-white/70 hover:text-[var(--color-dark-blue)]",
                 ].join(" ")}
               >
-                <Image src={l.icon} alt="" width={24} height={24} /> {/* ↑ antes 22 */}
+                <Image src={l.icon} alt="" width={24} height={24} />
                 {l.name}
               </Link>
             ))}
@@ -148,16 +153,24 @@ export default function Navbar() {
       <aside
         id="mobile-menu"
         className={[
-          "fixed right-0 top-0 bottom-0 z-50 w-80 bg-white shadow-xl md:hidden", // ↑ ancho y más presencia
+          "fixed right-0 top-0 bottom-0 z-50 w-80 bg-white shadow-xl md:hidden",
           "transform transition-transform duration-300 ease-in-out",
           open ? "translate-x-0" : "translate-x-full",
         ].join(" ")}
         role="dialog"
         aria-modal="true"
       >
-        <div className="flex items-center justify-between h-18 px-4 border-b">
-          <Link href="/home" onClick={() => setOpen(false)} className="inline-flex items-center gap-2">
-            <Image src={Logo} alt="VOLANTIA" width={170} height={56} /> {/* ↑ antes 140/44 */}
+        <div className="flex items-center justify-between h-[68px] px-4 border-b">
+          <Link href="/home" onClick={() => setOpen(false)} className="inline-flex items-center gap-2" aria-label="Volantia Home">
+            <Image
+              src="/logo.svg"
+              alt="VOLANTIA"
+              width={180}
+              height={180}
+              sizes="160px"
+              priority
+              className="h-auto w-[150px]" // ← más grande en mobile drawer
+            />
           </Link>
           <button
             onClick={() => setOpen(false)}
@@ -190,7 +203,6 @@ export default function Navbar() {
               </li>
             ))}
 
-            {/* 🔸 Sin “Cerrar sesión”. Solo mostramos Login si no está autenticado */}
             {!isAuthenticated && (
               <li className="pt-2">
                 <Link
