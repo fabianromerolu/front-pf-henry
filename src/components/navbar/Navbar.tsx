@@ -83,7 +83,7 @@ export default function Navbar() {
           >
             <span className="relative h-[82px] md:h-[90px] w-[180px] md:w-[200px]">
               <Image
-                src="/logo.svg"
+                src="/Logo.svg"
                 alt="Volantia"
                 fill
                 priority
