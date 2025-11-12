@@ -20,10 +20,6 @@ export default function VehiclesPage() {
     goToPage,
   } = useVehicles();
 
-  const startIndex = (page - 1) * limit;
-  const endIndex = startIndex + limit;
-  const paginatedVehicles = vehicles.slice(startIndex, endIndex);
-
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [page]);
@@ -83,15 +79,8 @@ export default function VehiclesPage() {
           </div>
         ) : (
           <>
-            <div className="mb-4 text-center">
-              <p className="text-custume-blue text-sm">
-                Mostrando {startIndex + 1} - {Math.min(endIndex, total)} de{" "}
-                {total} vehículos
-              </p>
-            </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {paginatedVehicles.map((vehicle) => (
+              {vehicles.map((vehicle) => (
                 <VehicleCard key={vehicle.id} vehicle={vehicle} />
               ))}
             </div>
