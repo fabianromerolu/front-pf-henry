@@ -24,7 +24,6 @@ export default function Pagination({
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const hasPrevPage = currentPage > 1;
 
-  // Generar array de números de página para mostrar
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
     const maxVisible = 5;
@@ -62,7 +61,7 @@ export default function Pagination({
   };
 
   if (totalPages <= 1) {
-    return null; // No mostrar paginación si solo hay una página
+    return null;
   }
 
   return (
@@ -84,7 +83,7 @@ export default function Pagination({
               px-3 py-1 rounded-md hind text-sm font-medium transition-colors
               ${
                 pageNum === currentPage
-                  ? "bg-custume-red text-white"
+                  ? "bg-custume-blue text-white"
                   : pageNum === "..."
                   ? "cursor-default text-custume-gray"
                   : "bg-gray-200 text-custume-blue hover:bg-custume-blue hover:text-white"

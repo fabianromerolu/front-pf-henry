@@ -1,8 +1,9 @@
 import VehicleProps from "@/interfaces/vehicleProps";
 
-const API_URL =
+const API_URL = (
   process.env.NEXT_PUBLIC_API_URL ||
-  "https://back-pf-henry-production-03d3.up.railway.app";
+  "https://back-pf-henry-production-03d3.up.railway.app"
+).replace(/\/+$/, "");
 
 export interface PaginatedResponse {
   data: VehicleProps[];
@@ -15,9 +16,14 @@ export interface PaginatedResponse {
 export interface GetVehiclesParams {
   page?: number;
   limit?: number;
+  brand?: string;
+  model?: string;
+  year?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  status?: string;
 }
 
-// ========== NUEVOS TIPOS PARA LOS ENDPOINTS ==========
 export interface PinStatus {
   status: "published" | "paused" | "blocked";
 }
@@ -27,7 +33,6 @@ export interface SeederResponse {
   created: number;
 }
 
-// ========== ENDPOINTS EXISTENTES ==========
 export const getAllVehicles = async (
   params?: GetVehiclesParams
 ): Promise<PaginatedResponse> => {
@@ -70,7 +75,8 @@ export const getAllVehiclesArray = async (): Promise<VehicleProps[]> => {
     const response = await getAllVehicles();
     return Array.isArray(response.data) ? response.data : [];
   } catch (error) {
-    throw error;
+    console.error("Error fetching vehicles:", error);
+    return [];
   }
 };
 
