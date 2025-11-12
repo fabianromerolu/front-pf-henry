@@ -1,5 +1,5 @@
-import React from "react";
-import Image from "next/image";
+
+import CloudinaryUpload from "@/components/cloudinary/CloudinaryUpload";
 import SectionHeader from "../shared/SectionHeader";
 import VehicleProps from "@/interfaces/vehicleProps";
 import LightButton from "@/components/Buttoms/LightButtom";
@@ -16,7 +16,10 @@ interface RentalConditionsSectionProps {
     e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
   onReset: () => void;
+  handlePhotoUpload: (photo: { url: string; isCover: boolean }) => void;
+  handlePhotoRemove: (url: string) => void;
 }
+
 
 const sectionStyles =
   "bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8 hover:shadow-xl transition-shadow duration-300";
@@ -32,6 +35,8 @@ export default function RentalConditionsSection({
   errors,
   handleInputChange,
   handleBlur,
+  handlePhotoUpload,
+  handlePhotoRemove,
   onReset,
 }: RentalConditionsSectionProps) {
   return (
@@ -134,34 +139,14 @@ export default function RentalConditionsSection({
         />
       </div>
 
-      <input
-        type="text"
-        id="photos"
-        name="photos"
-        value={formData.thumbnailUr ?? ""}
-        onChange={handleInputChange}
-        placeholder="Recibe url de cloudinary"
-        className={inputStyles}
-      />
+      <div className="space-y-2 mb-6">
+  <label htmlFor="photos" className={labelStyles}>
+    Fotos del Vehículo <span className="text-custume-red">*</span>
+  </label>
 
-      {formData.thumbnailUr && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
-          {formData.thumbnailUr
-            .split(",")
-            .map((url) => url.trim())
-            .filter((url) => url.length > 0)
-            .map((url, i) => (
-              <Image
-                key={i}
-                src={url}
-                alt={`Foto ${i + 1}`}
-                width={200}
-                height={128}
-                className="w-full h-32 object-cover rounded-md border border-custume-gray"
-              />
-            ))}
-        </div>
-      )}
+<CloudinaryUpload handlePhotoUpload={handlePhotoUpload} handlePhotoRemove={handlePhotoRemove}/>
+
+</div>
 
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl mt-5 p-5 border-2 border-blue-100">
         <div className="flex items-start gap-4">

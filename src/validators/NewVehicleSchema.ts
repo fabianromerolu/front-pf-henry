@@ -9,16 +9,7 @@ const photoSchema = yup.object().shape({
 });
 
 export const vehicleSchema = yup.object().shape({
-  title: yup
-    .string()
-    .required("El título es requerido")
-    .min(5, "El título debe tener al menos 5 caracteres")
-    .max(100, "El título no puede exceder 100 caracteres")
-    .matches(
-      /^[a-zA-Z0-9\s\-áéíóúÁÉÍÓÚñÑ]+$/,
-      "El título solo puede contener letras, números, espacios y guiones"
-    ),
-
+  
   make: yup
     .string()
     .required("La marca es requerida")
@@ -94,7 +85,7 @@ export const vehicleSchema = yup.object().shape({
     .string()
     .required("La placa es requerida")
     .matches(
-      /^[A-Z0-9]{3,10}$/i,
+      /^[A-Za-z0-9-]{3,10}$/,
       "La placa debe tener entre 3 y 10 caracteres alfanuméricos"
     )
     .transform((value) => value.toUpperCase()),
