@@ -2,8 +2,23 @@
 import { api } from "@/services/api.service";
 
 // === Enums compatibles con tu backend ===
-export type BodyType = "SEDAN" | "HATCHBACK" | "SUV" | "PICKUP" | "VAN" | "COUPE" | "CONVERTIBLE";
-export type VehicleCategory = "ECONOMY" | "COMPACT" | "MIDSIZE" | "SUV" | "PICKUP" | "VAN" | "PREMIUM" | "ELECTRIC";
+export type BodyType =
+  | "SEDAN"
+  | "HATCHBACK"
+  | "SUV"
+  | "PICKUP"
+  | "VAN"
+  | "COUPE"
+  | "CONVERTIBLE";
+export type VehicleCategory =
+  | "ECONOMY"
+  | "COMPACT"
+  | "MIDSIZE"
+  | "SUV"
+  | "PICKUP"
+  | "VAN"
+  | "PREMIUM"
+  | "ELECTRIC";
 export type Transmission = "MANUAL" | "AUTOMATIC";
 export type FuelType = "GASOLINE" | "DIESEL" | "HYBRID" | "ELECTRIC";
 
@@ -46,7 +61,6 @@ export type UpdatePinInput = Partial<{
   rules: string | null;
   photos: { url: string; isCover?: boolean }[];
 }>;
-
 
 /** Utilidades */
 function q(params: Record<string, unknown> = {}) {
@@ -120,7 +134,7 @@ export type Booking = {
   currency?: string;
   pin?: { id: string; title?: string; make?: string; model?: string };
   user?: { id: string; name?: string; email?: string };
-  createdAt?: string; 
+  createdAt?: string;
   updatedAt?: string;
 };
 
@@ -164,7 +178,7 @@ export const renterApi = {
   async getOwnerBookings(params: {
     status?: "active" | "suspended" | "complete";
     from?: string; // ISO
-    to?: string;   // ISO
+    to?: string; // ISO
     page?: number;
     limit?: number;
   }) {
@@ -176,7 +190,9 @@ export const renterApi = {
 
   // Resumen para dashboard (cards: publicados, bloqueados, revenue, etc.)
   async getOverview() {
-    const { data } = await api.get<RenterOverview>(`/renter/dashboard/overview`);
+    const { data } = await api.get<RenterOverview>(
+      `/renter/dashboard/overview`
+    );
     return data;
   },
 
@@ -188,9 +204,10 @@ export const renterApi = {
 
   // Historial de wallet (créditos/débitos)
   async getPayments(page = 1, limit = 20) {
-    const { data } = await api.get<{ data: WalletTransaction[]; meta: PaginationMeta }>(
-      `/renter/payments${q({ page, limit })}`
-    );
+    const { data } = await api.get<{
+      data: WalletTransaction[];
+      meta: PaginationMeta;
+    }>(`/renter/payments${q({ page, limit })}`);
     return data;
   },
 
@@ -243,10 +260,10 @@ export const meApi = {
 export const myVehiclesApi = {
   // Lista paginada de mis vehículos (vista owner)
   async listMine(params: { page?: number; limit?: number; q?: string }) {
-  const { data } = await api.get<PinSummary[]>(`/pins/mine/list${q(params)}`);
-      // Este endpoint devuelve array directo en tu back (no viene meta).
-      return data as PinSummary[];
-    },
+    const { data } = await api.get<PinSummary[]>(`/pins/mine/list${q(params)}`);
+    // Este endpoint devuelve array directo en tu back (no viene meta).
+    return data as PinSummary[];
+  },
 
   // Crear vehículo
   async createPin(payload: {
@@ -279,14 +296,21 @@ export const myVehiclesApi = {
   },
 
   // Actualizar vehículo (owner/admin)
-  async updatePin(id: string, patch: Partial<PinSummary> & { photos?: { url: string; isCover?: boolean }[] }) {
+  async updatePin(
+    id: string,
+    patch: Partial<PinSummary> & {
+      photos?: { url: string; isCover?: boolean }[];
+    }
+  ) {
     const { data } = await api.patch<PinSummary>(`/pins/${id}`, patch);
     return data;
   },
 
   // Cambiar estado (publish/pause/block)
   async setStatus(id: string, status: VehicleStatus) {
-    const { data } = await api.patch<PinSummary>(`/pins/${id}/status`, { status });
+    const { data } = await api.patch<PinSummary>(`/pins/${id}/status`, {
+      status,
+    });
     return data;
   },
 
@@ -318,13 +342,16 @@ export const myBookingsApi = {
     const { data } = await api.get<Booking>(`/bookings/${id}`);
     return data;
   },
-  // Completar / Cancelar (solo owner/admin / renter/owner/admin)
   async completeBooking(id: string) {
-    const { data } = await api.patch<{ success: true }>(`/bookings/${id}/complete`);
+    const { data } = await api.patch<{ success: true }>(
+      `/bookings/${id}/complete`
+    );
     return data;
   },
   async cancelBooking(id: string) {
-    const { data } = await api.patch<{ success: true }>(`/bookings/${id}/cancel`);
+    const { data } = await api.patch<{ success: true }>(
+      `/bookings/${id}/cancel`
+    );
     return data;
   },
 };
