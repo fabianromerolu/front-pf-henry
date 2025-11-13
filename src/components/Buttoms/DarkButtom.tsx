@@ -5,6 +5,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   text: string;
   size?: "sm" | "md" | "lg" | "xl";
   href?: string;
+  onClick?: (e: React.MouseEvent) => void;
 }
 
 const sizeClasses = {
