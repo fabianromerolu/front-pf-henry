@@ -41,19 +41,10 @@ export default function VehiclesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-custume-light mt-18">
-      <div className="bg-custume-light py-6">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="flex items-center justify-center gap-4">
-            <div className="h-px bg-gradient-to-r from-transparent via-custume-blue to-transparent w-full max-w-xs"></div>
-            <div className="w-3 h-3 bg-custume-red rounded-full"></div>
-            <div className="h-px bg-gradient-to-r from-transparent via-custume-blue to-transparent w-full max-w-xs"></div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-custume-light">
       <MenuBar />
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="bg-custume-light py-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="bg-custume-light">
           <div className="max-w-6xl mx-auto px-6">
             <div className="flex items-center justify-center gap-4">
               <div className="h-px bg-gradient-to-r from-transparent via-custume-blue to-transparent w-full max-w-xs"></div>

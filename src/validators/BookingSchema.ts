@@ -34,4 +34,13 @@ export const BookingValidationSchema = Yup.object({
       }
       return true;
     }),
+  street: Yup.string().required("La calle es obligatoria"),
+  exteriorNumber: Yup.string().required("El número exterior es obligatorio"),
+  interiorNumber: Yup.string(),
+  neighborhood: Yup.string().required("La colonia es obligatoria"),
+  municipality: Yup.string().required("El municipio/alcaldía es obligatorio"),
+  state: Yup.string().required("El estado es obligatorio"),
+  postalCode: Yup.string()
+    .required("El código postal es obligatorio")
+    .matches(/^\d{5}$/, "Debe tener 5 dígitos"),
 });

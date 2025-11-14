@@ -138,15 +138,15 @@ export default function RentalConditionsSection({
         type="text"
         id="photos"
         name="photos"
-        value={formData.thumbnailUr ?? ""}
+        value={formData.thumbnailUrl ?? ""}
         onChange={handleInputChange}
         placeholder="Recibe url de cloudinary"
         className={inputStyles}
       />
 
-      {formData.thumbnailUr && (
+      {formData.thumbnailUrl && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
-          {formData.thumbnailUr
+          {formData.thumbnailUrl
             .split(",")
             .map((url) => url.trim())
             .filter((url) => url.length > 0)
