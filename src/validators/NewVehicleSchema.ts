@@ -50,7 +50,7 @@ export const vehicleSchema = yup.object().shape({
     .string()
     .required("La categoría es requerida")
     .oneOf(
-      ["ECONOMY", "STANDARD", "LUXURY", "PREMIUM", "SPORT"],
+      ["ECONOMY", "STANDARD", "PREMIUM", "SPORT"],
       "Categoría no válida"
     ),
 
