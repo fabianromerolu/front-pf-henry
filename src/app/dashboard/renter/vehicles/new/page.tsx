@@ -1,10 +1,9 @@
 
 // src/app/dashboard/renter/vehicles/new/page.tsx
 "use client";
-
-import NewVehicle from "@/components/dashboards/renter/vehicles/[id]/new";
+import NewVehicleForm from "@/components/newVehicle/NewVehicleForm";
 
 
 export default function Page() {
-  return <NewVehicle />;
+  return <NewVehicleForm />;
 }
