@@ -50,6 +50,7 @@ export const VehicleCard = ({ vehicle }: CardProps) => {
             alt={vehicle.model}
             className="object-cover transition-all duration-500 group-hover:scale-105"
             sizes="(max-width: 380px) 100vw, 380px"
+            priority
           />
         </Link>
 

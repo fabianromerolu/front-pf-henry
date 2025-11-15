@@ -48,36 +48,34 @@ export default function LocationSection({
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <InputField
-          label="Ciudad"
-          name="city"
-          value={formData.city}
-          onChange={handleInputChange}
-          onBlur={handleBlur}
-          placeholder="Ej: Montería"
-          required
-          error={errors.city}
-        />
-
-        <InputField
-          label="Departamento"
-          name="state"
-          value={formData.state}
-          onChange={handleInputChange}
-          onBlur={handleBlur}
-          placeholder="Ej: Córdoba"
-          required
-          error={errors.state}
-        />
-
-        <InputField
           label="País"
           name="country"
           value={formData.country}
           onChange={handleInputChange}
           onBlur={handleBlur}
-          placeholder="Ej: Colombia"
+          placeholder="Ej: Mexico"
           required
           error={errors.country}
+        />
+        <InputField
+          label="Estado"
+          name="state"
+          value={formData.state}
+          onChange={handleInputChange}
+          onBlur={handleBlur}
+          placeholder="Ej: Nuevo Leon"
+          required
+          error={errors.state}
+        />
+        <InputField
+          label="Ciudad"
+          name="city"
+          value={formData.city}
+          onChange={handleInputChange}
+          onBlur={handleBlur}
+          placeholder="Ej: Monterrey"
+          required
+          error={errors.city}
         />
       </div>
     </section>

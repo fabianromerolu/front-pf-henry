@@ -9,9 +9,14 @@ import VehicleProps, {
   Fuel,
   Transmition,
 } from "@/interfaces/vehicleProps";
+import { createPin } from "@/services/vehicleService.service"; // 👈 importamos la función POST
+import { useAuth } from "@/context/AuthContext"; // 👈 para obtener el token del usuario
 
-const initialFormData: Partial<VehicleProps> = {
-  title: "",
+type VehicleFormData = Partial<VehicleProps> & {
+  photos?: { url: string; isCover: boolean }[];
+};
+
+const initialFormData: VehicleFormData = {
   make: "",
   model: "",
   year: new Date().getFullYear(),
@@ -26,7 +31,7 @@ const initialFormData: Partial<VehicleProps> = {
   vin: "",
   city: "",
   state: "",
-  country: "Colombia",
+  country: "",
   lat: 0,
   lng: 0,
   pricePerHour: 0,
@@ -40,12 +45,16 @@ const initialFormData: Partial<VehicleProps> = {
   insuranceIncluded: true,
   rules: "",
   description: "",
+  photos: [],
 };
 
 export function useVehicleForm() {
-  const [formData, setFormData] =
-    useState<Partial<VehicleProps>>(initialFormData);
+  const [formData, setFormData] = useState<VehicleFormData>(initialFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false); // 👈 para estado de carga
+  const [success, setSuccess] = useState(false); // 👈 para feedback visual
+
+  const { token } = useAuth(); // 👈 recupera el token del contexto Auth
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -92,35 +101,72 @@ export function useVehicleForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setSuccess(false);
+
     try {
       await vehicleSchema.validate(formData, { abortEarly: false });
-      console.log("Formulario válido:", formData);
-      alert("Vehículo registrado exitosamente!");
-      return true;
+
+      if (!token) {
+        throw new Error("Token no encontrado. Iniciá sesión antes de continuar.");
+      }
+
+      console.log("📤 Enviando datos al backend:", formData);
+
+      const createdVehicle = await createPin(formData, token);
+
+      console.log("✅ Vehículo creado con éxito:", createdVehicle);
+      alert("Vehículo registrado exitosamente ✅");
+
+      setSuccess(true);
+      setFormData(initialFormData);
     } catch (error: any) {
       const validationErrors: Record<string, string> = {};
-      error.inner?.forEach((err: any) => {
-        if (err.path) {
-          validationErrors[err.path] = err.message;
-        }
-      });
-      setErrors(validationErrors);
-      console.error("Errores de validación:", validationErrors);
-      return false;
+      if (error.inner?.length) {
+        error.inner.forEach((err: any) => {
+          if (err.path) validationErrors[err.path] = err.message;
+        });
+        setErrors(validationErrors);
+        console.error("Errores de validación:", validationErrors);
+      } else {
+        console.error("Error en la petición:", error.message);
+        alert(`❌ Error al registrar el vehículo: ${error.message}`);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   const resetForm = () => {
     setFormData(initialFormData);
     setErrors({});
+    setSuccess(false);
+  };
+
+  const handlePhotoUpload = (photo: { url: string; isCover: boolean }) => {
+    setFormData((prev) => ({
+      ...prev,
+      photos: [...(prev.photos || []), photo],
+    }));
+  };
+
+  const handlePhotoRemove = (url: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      photos: (prev.photos || []).filter((p) => p.url !== url),
+    }));
   };
 
   return {
     formData,
     errors,
+    loading,
+    success,
     handleInputChange,
     handleBlur,
     handleSubmit,
     resetForm,
+    handlePhotoUpload,
+    handlePhotoRemove,
   };
 }

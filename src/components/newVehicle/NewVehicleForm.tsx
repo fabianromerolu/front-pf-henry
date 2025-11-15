@@ -16,6 +16,8 @@ export default function NewVehicleForm() {
     handleBlur,
     handleSubmit,
     resetForm,
+    handlePhotoUpload,
+    handlePhotoRemove,
   } = useVehicleForm();
 
   return (
@@ -76,6 +78,8 @@ export default function NewVehicleForm() {
             handleInputChange={handleInputChange}
             handleBlur={handleBlur}
             onReset={resetForm}
+            handlePhotoUpload={handlePhotoUpload} 
+            handlePhotoRemove={handlePhotoRemove}
           />
         </form>
       </div>
