@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import LightButtom from "../Buttoms/LightButtom";
 import DarkButtom from "../Buttoms/DarkButtom";
 
 import VehicleCard from "../cards/vehicleCard";
@@ -123,20 +122,6 @@ function MenuBar() {
 
   return (
     <div>
-      <div className="max-w-6xl mx-auto pt-0 p-6">
-        <h2 className="flex justify-center text-4xl taviraj font-semibold  text-custume-red mb-6">
-          ¿Qué estás buscando?
-        </h2>
-
-        <div className="flex justify-center mb-10">
-          <LightButtom
-            href="/vehicles"
-            size="xl"
-            text="Vehículos disponibles"
-          />
-        </div>
-      </div>
-
       <div className="sticky top-0 z-50 bg-custume-light py-4 p-b2">
         <div className="max-w-6xl mx-auto px-3">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">

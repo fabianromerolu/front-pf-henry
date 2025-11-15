@@ -11,7 +11,7 @@ interface CardProps {
   vehicle: vehicleProps;
 }
 
-export const VehicleCard = ({ vehicle }: CardProps) => {
+export const BookingCard = ({ vehicle }: CardProps) => {
   const router = useRouter();
 
   const handleRentNow = (e: React.MouseEvent) => {
@@ -47,10 +47,9 @@ export const VehicleCard = ({ vehicle }: CardProps) => {
           <Image
             fill
             src={vehicle.thumbnailUrl}
-            alt={vehicle.model}
+            alt={vehicle.title}
             className="object-cover transition-all duration-500 group-hover:scale-105"
             sizes="(max-width: 380px) 100vw, 380px"
-            priority
           />
         </Link>
 
@@ -76,4 +75,4 @@ export const VehicleCard = ({ vehicle }: CardProps) => {
   );
 };
 
-export default VehicleCard;
+export default BookingCard;

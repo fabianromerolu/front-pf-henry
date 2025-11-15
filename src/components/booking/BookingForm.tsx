@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -9,14 +8,12 @@ import {
   createBooking,
   calculateBookingDuration,
 } from "@/services/bookingService.service";
-import DarkButton from "../Buttoms/DarkButtom";
-import LightButton from "../Buttoms/LightButtom";
 import { BookingValidationSchema } from "@/validators/BookingSchema";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { es } from "date-fns/locale";
 import { validateBookingDates } from "@/helpers/booking.helper";
-import { format } from "date-fns";
+import DarkButton from "../Buttoms/DarkButtom";
+import BookingDates from "./BookingDates";
+import PersonalInfoCheckout from "./PersonalInfoCheckout";
 
 interface BookingCheckoutFormProps {
   vehicleId: string;
@@ -34,19 +31,7 @@ export default function BookingForm({
 
   const [isDataConfirmed, setIsDataConfirmed] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [bookingDetails, setBookingDetails] = useState<any>(null);
-
-  const handleRentNow = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    router.push(`/home}`);
-  };
-
-  const handleBackVehicles = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    router.push(`/vehicles`);
-  };
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const parseDDMMYYYYToISO = (dateStr: string): string => {
     const [day, month, year] = dateStr.split("/");
@@ -96,8 +81,16 @@ export default function BookingForm({
 
       if (!token || !userId) {
         alert("Debes iniciar sesión para hacer una reserva");
+        router.push("/login");
         return;
       }
+
+      if (!isDataConfirmed) {
+        alert("Por favor confirma que los datos son correctos");
+        return;
+      }
+
+      setIsSubmitting(true);
 
       try {
         const startISO = parseDDMMYYYYToISO(values.startDate);
@@ -106,10 +99,11 @@ export default function BookingForm({
         const validation = validateBookingDates(startISO, endISO);
         if (!validation.valid) {
           alert(validation.error);
+          setIsSubmitting(false);
           return;
         }
 
-        const booking = await createBooking(
+        await createBooking(
           {
             userId,
             pinId: vehicleId,
@@ -119,7 +113,6 @@ export default function BookingForm({
           token
         );
 
-        setBookingDetails(booking);
         setShowSuccessModal(true);
 
         setTimeout(() => {
@@ -133,19 +126,10 @@ export default function BookingForm({
             ? error.message
             : "Error al procesar la reserva"
         );
+        setIsSubmitting(false);
       }
     },
   });
-
-  // if (!AuthUser?.user) {
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center">
-  //       <div className="text-custume-blue text-xl">
-  //         Debes iniciar sesión para hacer una reserva
-  //       </div>
-  //     </div>
-  //   );
-  // }
 
   const totalPrice = calculateTotalPrice();
   const duration =
@@ -164,130 +148,11 @@ export default function BookingForm({
   return (
     <div className="w-full max-w-4xl mx-auto p-6">
       <form onSubmit={formik.handleSubmit} className="space-y-6">
-        <div className="bg-white rounded-2xl border border-custume-blue p-6 shadow-lg">
-          <h2 className="text-2xl font-bold text-custume-blue mb-4">
-            Reserva tu vehículo
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-custume-blue text-sm font-medium mb-2">
-                Fecha de inicio
-              </label>
-              <DatePicker
-                selected={
-                  formik.values.startDate
-                    ? (() => {
-                        const [day, month, year] =
-                          formik.values.startDate.split("/");
-                        return new Date(
-                          Number(year),
-                          Number(month) - 1,
-                          Number(day)
-                        );
-                      })()
-                    : null
-                }
-                onChange={(date: Date | null) => {
-                  if (date) {
-                    const formatted = format(date, "dd/MM/yyyy");
-                    formik.setFieldValue("startDate", formatted);
-                  } else {
-                    formik.setFieldValue("startDate", "");
-                  }
-                }}
-                onBlur={() => formik.setFieldTouched("startDate", true)}
-                name="startDate"
-                dateFormat="dd/MM/yyyy"
-                placeholderText="DD/MM/AAAA"
-                locale={es}
-                minDate={new Date()}
-                className="w-full px-4 py-3 border border-custume-blue rounded-xl focus:outline-none focus:border-custume-blue focus:ring-2 focus:ring-custume-blue/20"
-                wrapperClassName="w-full"
-                showPopperArrow={false}
-              />
-              {formik.touched.startDate && formik.errors.startDate && (
-                <p className="text-red-500 text-xs mt-1">
-                  {formik.errors.startDate}
-                </p>
-              )}
-            </div>
-            <div>
-              <label className="block text-custume-blue text-sm font-medium mb-2">
-                Fecha de termino
-              </label>
-              <DatePicker
-                selected={
-                  formik.values.endDate
-                    ? (() => {
-                        const [day, month, year] =
-                          formik.values.endDate.split("/");
-                        return new Date(
-                          Number(year),
-                          Number(month) - 1,
-                          Number(day)
-                        );
-                      })()
-                    : null
-                }
-                onChange={(date: Date | null) => {
-                  if (date) {
-                    // Formatear a DD/MM/AAAA
-                    const formatted = format(date, "dd/MM/yyyy");
-                    formik.setFieldValue("endDate", formatted);
-                  } else {
-                    formik.setFieldValue("endDate", "");
-                  }
-                }}
-                onBlur={() => formik.setFieldTouched("endDate", true)}
-                name="endDate"
-                dateFormat="dd/MM/yyyy"
-                placeholderText="DD/MM/AAAA"
-                locale={es}
-                minDate={new Date()}
-                className="w-full px-4 py-3 border border-custume-blue rounded-xl focus:outline-none focus:border-custume-blue focus:ring-2 focus:ring-custume-blue/20"
-                wrapperClassName="w-full"
-                showPopperArrow={false}
-              />
-              {formik.touched.endDate && formik.errors.endDate && (
-                <p className="text-red-500 text-xs mt-1">
-                  {formik.errors.endDate}
-                </p>
-              )}
-            </div>{" "}
-          </div>
-
-          {duration > 0 && (
-            <div className="bg-custume-light p-4 rounded-lg">
-              <div className="flex justify-between text-custume-blue mb-2">
-                <span>Duración:</span>
-                <span className="font-semibold">
-                  {duration} {duration === 1 ? "día" : "días"}
-                </span>
-              </div>
-              <div className="flex justify-between text-custume-blue text-lg font-bold">
-                <span>Total:</span>
-                <span className="text-custume-red">
-                  ${totalPrice.toLocaleString()}
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="bg-white rounded-2xl border border-custume-blue/20 p-6">
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={isDataConfirmed}
-              onChange={(e) => setIsDataConfirmed(e.target.checked)}
-              className="w-5 h-5 text-custume-blue focus:ring-custume-blue"
-            />
-            <span className="text-custume-blue">
-              Confirmo que los datos son correctos
-            </span>
-          </label>
-        </div>
+        <BookingDates
+          formik={formik}
+          duration={duration}
+          totalPrice={totalPrice}
+        />
 
         {isDataConfirmed && (
           <div className="bg-white rounded-2xl border border-custume-blue/20 p-6">
@@ -376,18 +241,13 @@ export default function BookingForm({
             </div>
           </div>
         )}
-        <div className="flex flex-row gap-4 mt-8">
-          <DarkButton
-            className="w-full py-4 rounded-full text-xl lowercase"
-            text="rentar ahora"
-            onClick={handleRentNow}
-          />
-          <LightButton
-            className="w-full py-4 rounded-full text-xl lowercase"
-            text="volver a vehículos"
-            onClick={handleBackVehicles}
-          />
-        </div>
+        <PersonalInfoCheckout />
+
+        <DarkButton
+          text={isSubmitting ? "Procesando..." : "Realizar pago"}
+          type="submit"
+          disabled={isSubmitting || !isDataConfirmed}
+        />
       </form>
 
       {showSuccessModal && (

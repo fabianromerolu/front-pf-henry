@@ -89,7 +89,7 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
 
         <figure className="relative w-full h-full overflow-hidden">
           <Image
-            src={vehicle.thumbnailUr}
+            src={vehicle.thumbnailUrl}
             alt={`Foto del vehículo ${vehicle.make} ${vehicle.model}`}
             sizes="(max-width: 768px) 100vw, 66vw"
             fill

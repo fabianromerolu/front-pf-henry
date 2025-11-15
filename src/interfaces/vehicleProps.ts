@@ -77,7 +77,7 @@ export default interface VehicleProps {
   insuranceIncluded: boolean;
   rules: string;
   description?: string;
-  thumbnailUr: string;
+  thumbnailUrl: string;
   status?: Status;
   photos?: { url: string; isCover: boolean }[];
 }
