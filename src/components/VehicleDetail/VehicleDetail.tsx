@@ -19,6 +19,14 @@ const SeatsIcon = "/icons/seats.svg";
 export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
   const router = useRouter();
 
+  console.log("=== VehicleDetail Debug ===");
+  console.log("Vehicle completo:", vehicle);
+  console.log("thumbnailUrl:", vehicle.thumbnailUrl);
+  console.log("thumbnailUrl type:", typeof vehicle.thumbnailUrl);
+  console.log("thumbnailUrl length:", vehicle.thumbnailUrl?.length);
+  console.log("Es string vacío?:", vehicle.thumbnailUrl === "");
+  console.log("========================");
+
   const handleRentNow = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
