@@ -44,6 +44,11 @@ export default function CloudinaryUpload({
           cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
           resourceType: "image",
           folder: "vehicles",
+          sources: ["local", "camera", "google_drive"],
+          theme:"minimal",
+          singleUploadAutoClose: true,
+          language: "es",
+          multiple:false,
         }}
         onSuccess={handleSuccess}
       >

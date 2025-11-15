@@ -31,7 +31,7 @@ const initialFormData: VehicleFormData = {
   vin: "",
   city: "",
   state: "",
-  country: "Colombia",
+  country: "",
   lat: 0,
   lng: 0,
   pricePerHour: 0,
