@@ -79,4 +79,5 @@ export default interface VehicleProps {
   description?: string;
   thumbnailUrl: string;
   status?: Status;
+  photos?: { url: string; isCover: boolean }[];
 }

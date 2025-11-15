@@ -32,7 +32,6 @@ export default function TechnicalSpecsSection({
   const categoryOptions = [
     { value: "ECONOMY", label: "Económico" },
     { value: "STANDARD", label: "Estándar" },
-    { value: "LUXURY", label: "Lujo" },
     { value: "PREMIUM", label: "Premium" },
     { value: "SPORT", label: "Deportivo" },
   ];
