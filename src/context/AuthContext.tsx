@@ -12,12 +12,44 @@ import {
 import type { LoginFormValues } from "@/validators/LoginSchema";
 import type { RegisterFormValues } from "@/validators/RegisterSchema";
 import {
-  AuthUser,
   LoginUser,
   RegisterUser,
   saveTokenFromQueryAndHydrateAuth,
   getMe,
 } from "@/services/authService.service";
+import type { AuthUser, UserRole } from "@/services/authService.service";
+
+/** Ayudante de tipado: asegura que la string sea un rol válido */
+function asRole(v: string): UserRole | undefined {
+  if (v === "admin" || v === "renter" || v === "user") return v;
+  return undefined;
+}
+
+/** Normaliza valores del backend a minúsculas esperadas por la app-router */
+function normalizeRole(v?: string | null): UserRole | undefined {
+  if (!v) return undefined;
+  const up = v.toUpperCase();
+  if (up === "ADMIN") return "admin";
+  if (up === "RENTER") return "renter";
+  if (up === "USER") return "user";
+  // por si ya viene en minúsculas
+  const low = v.toLowerCase();
+  return asRole(low);
+}
+
+/** Combina rol del user y del token: nunca degradar “renter” a “user”. */
+function mergeRole({
+  userRole,
+  tokenIsAdmin,
+}: {
+  userRole?: string | null;
+  tokenIsAdmin?: boolean;
+}): UserRole | undefined {
+  const ur = normalizeRole(userRole);
+  if (tokenIsAdmin) return "admin"; // el token puede elevar a admin
+  if (ur) return ur;                // si user ya trae rol, respetar (incluye renter)
+  return "user";                    // fallback
+}
 
 export interface AuthState {
   user: AuthUser | null;
@@ -45,42 +77,6 @@ type JwtPayload = {
   name?: string;
   isAdmin?: boolean;
 };
-
-/** Ayudante de tipado: asegura que la string sea un rol válido */
-function asRole(
-  v: string
-): "admin" | "renter" | "user" | undefined {
-  if (v === "admin" || v === "renter" || v === "user") return v;
-  return undefined;
-}
-
-/** Normaliza valores del backend a minúsculas esperadas por la app-router */
-function normalizeRole(
-  v?: string | null
-): "admin" | "renter" | "user" | undefined {
-  if (!v) return undefined;
-  const up = v.toUpperCase();
-  if (up === "ADMIN") return "admin";
-  if (up === "RENTER") return "renter";
-  if (up === "USER") return "user";
-  // por si ya viene en minúsculas
-  const low = v.toLowerCase();
-  return asRole(low);
-}
-
-/** Combina rol del user y del token: nunca degradar “renter” a “user”. */
-function mergeRole({
-  userRole,
-  tokenIsAdmin,
-}: {
-  userRole?: string | null;
-  tokenIsAdmin?: boolean;
-}): "admin" | "renter" | "user" | undefined {
-  const ur = normalizeRole(userRole);
-  if (tokenIsAdmin) return "admin"; // el token puede elevar a admin
-  if (ur) return ur;                // si user ya trae rol, respetar (incluye renter)
-  return "user";                    // fallback
-}
 
 function decodeJwt<T = Record<string, unknown>>(token: string): T | null {
   try {

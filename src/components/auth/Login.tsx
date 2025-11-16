@@ -10,30 +10,6 @@ import { useAuth } from "@/context/AuthContext";
 import { clearLastAuthError, getLastAuthError, loginWithAuth0 } from "@/services/authService.service";
 import { toast } from "react-toastify";
 
-/* ===== util: detectar rol desde token ===== */
-function roleFromToken(t: string | null): "admin" | "renter" | "user" | null {
-  if (!t) return null;
-  try {
-    const base = t.split(".")[1];
-    if (!base) return null;
-    const b64 = base.replace(/-/g, "+").replace(/_/g, "/");
-    const padded = b64.padEnd(b64.length + (4 - (b64.length % 4)) % 4, "=");
-    const json = decodeURIComponent(
-      Array.prototype.map
-        .call(atob(padded), (c: string) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join("")
-    );
-    const payload = JSON.parse(json) as { role?: string; isAdmin?: boolean };
-    const r = (payload.role ?? (payload.isAdmin ? "ADMIN" : "USER"))?.toString().toUpperCase();
-    if (r === "ADMIN") return "admin";
-    if (r === "RENTER") return "renter";
-    return "user";
-  } catch (e) {
-    console.log("[LOGIN] decode token failed:", e);
-    return null;
-  }
-}
-
 /** CSS Vars tipadas (evita any) */
 type CSSVars = CSSProperties & {
   "--bg-opacity"?: string;

@@ -1,3 +1,4 @@
+//src/app/page.tsx
 import LightButton from "@/components/Buttoms/LightButtom";
 import React from "react";
 
