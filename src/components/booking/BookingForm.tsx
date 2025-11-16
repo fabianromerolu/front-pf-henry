@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -8,12 +9,12 @@ import {
   createBooking,
   calculateBookingDuration,
 } from "@/services/bookingService.service";
+import { processPayment } from "@/services/paymentsService.service";
 import { BookingValidationSchema } from "@/validators/BookingSchema";
 import "react-datepicker/dist/react-datepicker.css";
-import { validateBookingDates } from "@/helpers/booking.helper";
-import DarkButton from "../Buttoms/DarkButtom";
 import BookingDates from "./BookingDates";
 import PersonalInfoCheckout from "./PersonalInfoCheckout";
+import DarkButton from "../Buttoms/DarkButtom";
 
 interface BookingCheckoutFormProps {
   vehicleId: string;
@@ -30,27 +31,14 @@ export default function BookingForm({
   const router = useRouter();
 
   const [isDataConfirmed, setIsDataConfirmed] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const parseDDMMYYYYToISO = (dateStr: string): string => {
     const [day, month, year] = dateStr.split("/");
-    const date = new Date(Number(year), Number(month) - 1, Number(day));
-    return date.toISOString();
-  };
-
-  const formatCardNumber = (value: string) => {
-    const cleaned = value.replace(/\s/g, "");
-    const chunks = cleaned.match(/.{1,4}/g) || [];
-    return chunks.join(" ").substr(0, 19);
-  };
-
-  const formatExpirationDate = (value: string) => {
-    const cleaned = value.replace(/\D/g, "");
-    if (cleaned.length >= 2) {
-      return cleaned.substr(0, 2) + "/" + cleaned.substr(2, 2);
+    if (!day || !month || !year) {
+      throw new Error("Formato de fecha inválido. Use DD/MM/AAAA");
     }
-    return cleaned;
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
   };
 
   const calculateTotalPrice = () => {
@@ -70,9 +58,6 @@ export default function BookingForm({
     initialValues: {
       startDate: "",
       endDate: "",
-      cartNumber: "",
-      expirationDate: "",
-      cvv: "",
     },
     validationSchema: BookingValidationSchema,
     onSubmit: async (values) => {
@@ -96,14 +81,25 @@ export default function BookingForm({
         const startISO = parseDDMMYYYYToISO(values.startDate);
         const endISO = parseDDMMYYYYToISO(values.endDate);
 
-        const validation = validateBookingDates(startISO, endISO);
-        if (!validation.valid) {
-          alert(validation.error);
+        // Validar monto mínimo para Mercado Pago
+        const calculatedTotal = calculateTotalPrice();
+        if (calculatedTotal < 1000) {
+          alert(
+            `El monto de la reserva (${calculatedTotal}) es muy bajo para procesarse por Mercado Pago. El mínimo es $1,000 COP.\n\nPor favor, extiende las fechas de tu reserva.`
+          );
           setIsSubmitting(false);
           return;
         }
 
-        await createBooking(
+        console.log("📤 Enviando datos al backend:", {
+          userId,
+          pinId: vehicleId,
+          start_date: startISO,
+          end_date: endISO,
+        });
+
+        // 1. Crear la reserva
+        const response = await createBooking(
           {
             userId,
             pinId: vehicleId,
@@ -113,14 +109,62 @@ export default function BookingForm({
           token
         );
 
-        setShowSuccessModal(true);
+        // 2. Extraer el bookingId de la respuesta
+        const responseAny = response as any;
 
-        setTimeout(() => {
-          setShowSuccessModal(false);
+        if (responseAny && typeof responseAny === "object") {
+          console.log("📦 Respuesta del backend:");
+          for (const [key, value] of Object.entries(responseAny)) {
+            console.log(`  - ${key}:`, value);
+          }
+        }
+
+        let extractedId = null;
+
+        if (response?.id) {
+          extractedId = response.id;
+        } else if (responseAny?._id) {
+          extractedId = responseAny._id;
+        } else if (responseAny?.data?.id) {
+          extractedId = responseAny.data.id;
+        } else if (responseAny?.booking?.id) {
+          extractedId = responseAny.booking.id;
+        } else if (typeof responseAny === "string") {
+          extractedId = responseAny;
+        }
+
+        if (!extractedId) {
+          throw new Error(
+            "No se pudo obtener el ID de la reserva del servidor"
+          );
+        }
+
+        console.log("✅ Reserva creada con ID:", extractedId);
+
+        // 3. Redirigir automáticamente a Mercado Pago
+        console.log("🚀 Redirigiendo a Mercado Pago...");
+
+        try {
+          await processPayment(extractedId);
+          // Si llegamos aquí es porque hubo un error (no debería pasar porque processPayment redirige)
+        } catch (paymentError) {
+          console.error("💥 Error al procesar el pago:", paymentError);
+
+          // Mostrar mensaje más específico
+          const errorMessage =
+            paymentError instanceof Error
+              ? paymentError.message
+              : "Error al conectar con Mercado Pago";
+
+          alert(
+            `La reserva se creó exitosamente (ID: ${extractedId}), pero hubo un problema al procesar el pago:\n\n${errorMessage}\n\nPor favor, contacta al soporte con tu ID de reserva.`
+          );
+
+          // Opcional: redirigir a "mis reservas" para que vea su reserva creada
           router.push("/my-bookings");
-        }, 3000);
+        }
       } catch (error) {
-        console.error("Error al crear reserva:", error);
+        console.error("💥 Error al crear reserva:", error);
         alert(
           error instanceof Error
             ? error.message
@@ -145,141 +189,36 @@ export default function BookingForm({
         })()
       : 0;
 
+  const areDatesValid = formik.values.startDate && formik.values.endDate;
+
   return (
     <div className="w-full max-w-4xl mx-auto p-6">
       <form onSubmit={formik.handleSubmit} className="space-y-6">
+        <PersonalInfoCheckout
+          isDataConfirmed={isDataConfirmed}
+          setIsDataConfirmed={setIsDataConfirmed}
+        />
+
         <BookingDates
           formik={formik}
           duration={duration}
           totalPrice={totalPrice}
         />
 
-        {isDataConfirmed && (
-          <div className="bg-white rounded-2xl border border-custume-blue/20 p-6">
-            <h3 className="text-lg font-semibold text-custume-blue mb-4">
-              Datos de pago
-            </h3>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-custume-blue text-sm font-medium mb-2">
-                  Número de tarjeta
-                </label>
-                <input
-                  type="text"
-                  name="cartNumber"
-                  placeholder="1234 5678 9012 3456"
-                  maxLength={19}
-                  value={formatCardNumber(formik.values.cartNumber)}
-                  onChange={(e) => {
-                    const formatted = e.target.value.replace(/\s/g, "");
-                    formik.setFieldValue("cartNumber", formatted);
-                  }}
-                  onBlur={formik.handleBlur}
-                  className="w-full px-4 py-3 border border-custume-blue/30 rounded-xl focus:outline-none focus:border-custume-blue focus:ring-2 focus:ring-custume-blue/20"
-                />
-                {formik.touched.cartNumber && formik.errors.cartNumber && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {formik.errors.cartNumber}
-                  </p>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-custume-blue text-sm font-medium mb-2">
-                    Expiración
-                  </label>
-                  <input
-                    type="text"
-                    name="expirationDate"
-                    placeholder="MM/AA"
-                    maxLength={5}
-                    value={formatExpirationDate(formik.values.expirationDate)}
-                    onChange={(e) => {
-                      const cleaned = e.target.value.replace(/\D/g, "");
-                      formik.setFieldValue(
-                        "expirationDate",
-                        formatExpirationDate(cleaned)
-                      );
-                    }}
-                    onBlur={formik.handleBlur}
-                    className="w-full px-4 py-3 border border-custume-blue/30 rounded-xl focus:outline-none focus:border-custume-blue focus:ring-2 focus:ring-custume-blue/20"
-                  />
-                  {formik.touched.expirationDate &&
-                    formik.errors.expirationDate && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {formik.errors.expirationDate}
-                      </p>
-                    )}
-                </div>
-
-                <div>
-                  <label className="block text-custume-blue text-sm font-medium mb-2">
-                    CVV
-                  </label>
-                  <input
-                    type="text"
-                    name="cvv"
-                    placeholder="123"
-                    maxLength={4}
-                    value={formik.values.cvv}
-                    onChange={(e) => {
-                      const cleaned = e.target.value.replace(/\D/g, "");
-                      formik.setFieldValue("cvv", cleaned);
-                    }}
-                    onBlur={formik.handleBlur}
-                    className="w-full px-4 py-3 border border-custume-blue/30 rounded-xl focus:outline-none focus:border-custume-blue focus:ring-2 focus:ring-custume-blue/20"
-                  />
-                  {formik.touched.cvv && formik.errors.cvv && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {formik.errors.cvv}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-        <PersonalInfoCheckout />
-
         <DarkButton
-          text={isSubmitting ? "Procesando..." : "Realizar pago"}
-          type="submit"
-          disabled={isSubmitting || !isDataConfirmed}
+          text={isSubmitting ? "Procesando..." : "Crear reserva y pagar"}
+          onClick={() => formik.handleSubmit()}
+          type="button"
+          disabled={isSubmitting || !areDatesValid || !isDataConfirmed}
+          className="w-full"
         />
-      </form>
 
-      {showSuccessModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-8 max-w-md mx-4 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg
-                className="w-8 h-8 text-green-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </div>
-            <h3 className="text-2xl font-bold text-custume-blue mb-2">
-              ¡Reserva Confirmada!
-            </h3>
-            <p className="text-custume-gray mb-4">
-              Tu reserva ha sido procesada exitosamente
-            </p>
-            <p className="text-sm text-custume-blue">
-              Redirigiendo a tus reservas...
-            </p>
-          </div>
-        </div>
-      )}
+        {!isDataConfirmed && areDatesValid && (
+          <p className="text-sm text-custume-red text-center">
+            Por favor confirma que los datos son correctos
+          </p>
+        )}
+      </form>
     </div>
   );
 }

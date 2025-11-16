@@ -2,13 +2,16 @@
 
 import React, { useState } from "react";
 import DarkButtom from "../Buttoms/DarkButtom";
-
 import VehicleCard from "../cards/vehicleCard";
 import { useVehicles } from "@/context/VehicleContext";
+import {
+  translateFuel,
+  translateTransmission,
+} from "@/helpers/translateVehicleData";
 
 const filterOptions = {
   transmission: ["AUTOMATIC", "MANUAL"],
-  fuel: ["DISEL", "GASOLINE", "ELECTRIC", "HYBRID"],
+  fuel: ["DIESEL", "GASOLINE", "ELECTRIC", "HYBRID"],
   seats: ["2", "4", "5", "7", "8"],
   priceRange: ["0-100", "100-200", "200-300", "300+"],
 };
@@ -56,6 +59,19 @@ function MenuBar() {
     if (range === "200-300") return price > 200 && price <= 300;
     if (range === "300+") return price > 300;
     return true;
+  };
+
+  const getTranslatedValue = (category: string, value: string): string => {
+    if (category === "transmission") {
+      return translateTransmission(value);
+    }
+    if (category === "fuel") {
+      return translateFuel(value);
+    }
+    if (category === "priceRange") {
+      return `$${value}`;
+    }
+    return value;
   };
 
   const activeFiltersCount = Object.values(filters).filter(
@@ -140,7 +156,9 @@ function MenuBar() {
                   }`}
                 >
                   <span className="capitalize truncate">
-                    {filters[category] || filterLabels[category] || category}
+                    {filters[category]
+                      ? getTranslatedValue(category, filters[category])
+                      : filterLabels[category] || category}
                   </span>
                   <svg
                     className={`w-5 h-5 transition-transform flex-shrink-0 ml-2 ${
@@ -165,15 +183,13 @@ function MenuBar() {
                       <button
                         key={option}
                         onClick={() => handleFilterChange(category, option)}
-                        className={`w-full px-4 py-2 text-left hover:bg-light-blue transition-colors capitalize first:rounded-t-lg last:rounded-b-lg ${
+                        className={`w-full px-4 py-2 text-left hover:bg-light-blue transition-colors first:rounded-t-lg last:rounded-b-lg ${
                           filters[category] === option
                             ? "bg-light-blue text-dark-blue font-semibold"
                             : "text-custume-gray"
                         }`}
                       >
-                        {category === "priceRange"
-                          ? `$${option}`
-                          : option.toLowerCase()}
+                        {getTranslatedValue(category, option)}
                       </button>
                     ))}
                   </div>
@@ -195,9 +211,10 @@ function MenuBar() {
                     value && (
                       <span
                         key={key}
-                        className="px-2 py-1 bg-light-blue text-dark-blue rounded text-sm font-medium capitalize"
+                        className="px-2 py-1 bg-light-blue text-dark-blue rounded text-sm font-medium"
                       >
-                        {filterLabels[key] || key}: {value}
+                        {filterLabels[key] || key}:{" "}
+                        {getTranslatedValue(key, value)}
                       </span>
                     )
                 )}

@@ -1,11 +1,18 @@
 import VehicleProps from "@/interfaces/vehicleProps";
 import Image from "next/image";
+import {
+  translateFuel,
+  translateTransmission,
+  translateCategory,
+} from "@/helpers/translateVehicleData";
 
 interface RenderVehicleProps {
   vehicle: VehicleProps;
 }
 
 export default function RenderVehicle({ vehicle }: RenderVehicleProps) {
+  console.log("thumbnailUrl:", vehicle.thumbnailUrl); // 👈 Agrega esto
+
   return (
     <div className="bg-white border border-custume-blue/20 rounded-2xl p-6 shadow-xl sticky top-6">
       <h3 className="text-xl font-bold text-custume-blue mb-4">
@@ -41,12 +48,26 @@ export default function RenderVehicle({ vehicle }: RenderVehicleProps) {
       </div>
 
       <div className="space-y-3 mb-4">
-        <h4 className="mb-0 text-2xl font-semibold text-custume-blue">
-          {vehicle.make}
-        </h4>
-        <h4 className="text-xl font-semibold text-custume-blue">
+        <p className="text-2xl text-custume-gray m-1">
+          <span className="font-semibold text-custume-blue">
+            {vehicle.make}
+          </span>{" "}
           {vehicle.model}
-        </h4>
+        </p>
+        <p className="text-2xl text-custume-gray">
+          <span className="font-semibold text-custume-blue">
+            {vehicle.state}
+          </span>{" "}
+          {vehicle.city}
+        </p>
+        <p className="text-xl font-base text-custume-gray">
+          <span>Combustible:</span> {translateFuel(vehicle.fuel)}
+          <br />
+          <span>Transmisión:</span>{" "}
+          {translateTransmission(vehicle.transmission)}
+          <br />
+          <span>Categoría:</span> {translateCategory(vehicle.category)}
+        </p>
       </div>
 
       <div className="border-t border-custume-blue/20 pt-4">
