@@ -1,3 +1,4 @@
+//src/app/auth/sso/SsoBridgeClient.tsx
 "use client";
 
 import { useEffect, useRef } from "react";

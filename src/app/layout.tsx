@@ -1,3 +1,4 @@
+//src/app/layout.tsx
 import { AuthProvider } from "@/context/AuthContext";
 import type { Metadata } from "next";
 import { Montserrat, Taviraj, Hind } from "next/font/google";

@@ -143,7 +143,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center justify-center md:justify-start gap-2">
                 <span className="opacity-90">Location:</span>
-                <span className="opacity-90">Argentina, Colombia and Mexico</span>
+                <span className="opacity-90">Mexico</span>
               </li>
             </ul>
           </div>

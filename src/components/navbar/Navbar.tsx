@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { UserRole } from "@/services/authService.service";
 
 const VehicleIcon = "/icons/vehicles.svg";
 const OfferIcon = "/icons/offer.svg";
@@ -45,11 +46,14 @@ export default function Navbar() {
   );
 
   const dashboardHref = useMemo(() => {
-    const role = user?.role;
-    if (role === "admin" || "ADMIN") return "/dashboard/admin";
-    if (role === "renter" || "RENTER") return "/dashboard/renter";
-    return "/dashboard";
+    const role = (user?.role ?? "user") as UserRole;
+
+    if (role === "admin") return "/dashboard/admin";
+    if (role === "renter") return "/dashboard/renter";
+    return "/dashboard/user";
   }, [user?.role]);
+
+
 
   // 🔸 Sin “Perfil”. Si está logueado, solo “Dashboard”.
   const authLinks = useMemo(() => {
@@ -66,10 +70,8 @@ export default function Navbar() {
   return (
     <header
       className={[
-        "sticky top-0 z-50 transition-colors",
-        scrolled
-          ? "bg-light-blue/95 backdrop-blur border-b border-white/30 shadow-sm"
-          : "bg-transparent border-b border-transparent",
+        "sticky top-0 z-[9999] bg-light-blue/95 backdrop-blur border-b border-white/30 transition-shadow",
+        scrolled ? "shadow-md" : "shadow-sm",
       ].join(" ")}
     >
       <div className="mx-auto max-w-6xl px-4 md:px-6">
@@ -143,7 +145,7 @@ export default function Navbar() {
       {/* Mobile overlay */}
       <div
         className={[
-          "fixed inset-0 z-40 bg-black/40 transition-opacity md:hidden",
+          "fixed inset-0 z-[9998] bg-black/40 transition-opacity md:hidden",
           open ? "opacity-100" : "opacity-0 pointer-events-none",
         ].join(" ")}
         onClick={() => setOpen(false)}
@@ -153,7 +155,7 @@ export default function Navbar() {
       <aside
         id="mobile-menu"
         className={[
-          "fixed right-0 top-0 bottom-0 z-50 w-80 bg-white shadow-xl md:hidden",
+          "fixed right-0 top-0 bottom-0 z-[9999] w-80 bg-white shadow-xl md:hidden",
           "transform transition-transform duration-300 ease-in-out",
           open ? "translate-x-0" : "translate-x-full",
         ].join(" ")}

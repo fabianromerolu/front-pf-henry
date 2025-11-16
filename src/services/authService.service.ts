@@ -85,6 +85,7 @@ function mapRole(input?: string | null, isAdmin?: boolean): UserRole {
   return "user";
 }
 
+
 function roleFromToken(t: string | null): UserRole | null {
   if (!t) return null;
   const p = decodeJwtPayload(t);
