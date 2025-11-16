@@ -1,116 +1,68 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { handlePaymentFailure } from "@/services/paymentsService.service";
+import { useSearchParams, useRouter } from "next/navigation";
+import {
+  handlePaymentFailure,
+  getPaymentParamsFromURL,
+} from "@/services/paymentsService.service";
 
 export default function PaymentFailurePage() {
+  const searchParams = useSearchParams();
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState<"loading" | "failure">("loading");
 
   useEffect(() => {
     const verifyPayment = async () => {
       try {
-        await handlePaymentFailure();
-        setLoading(false);
+        const params = getPaymentParamsFromURL(searchParams);
+        await handlePaymentFailure(params.paymentId);
+        setStatus("failure");
       } catch (error) {
-        console.error("Error verificando pago:", error);
-        setLoading(false);
+        console.error("Error al verificar el pago fallido:", error);
+        setStatus("failure");
       }
     };
 
     verifyPayment();
-  }, []);
-
-  const tryAgain = () => {
-    router.back();
-  };
-
-  const goHome = () => {
-    router.push("/");
-  };
-
-  const goToBookings = () => {
-    router.push("/my-bookings");
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
-          <p className="mt-4 text-custume-blue">Verificando pago...</p>
-        </div>
-      </div>
-    );
-  }
+  }, [searchParams]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center mx-4">
-        <div className="mb-6">
-          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto">
-            <svg
-              className="w-12 h-12 text-red-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
-        </div>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-50">
+      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
+        {status === "loading" && (
+          <>
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600 mx-auto mb-4"></div>
+            <h2 className="text-xl font-semibold mb-2">Verificando pago...</h2>
+          </>
+        )}
 
-        <h1 className="text-3xl font-bold text-custume-blue mb-3">
-          Pago Fallido
-        </h1>
-
-        <p className="text-custume-gray mb-6">
-          No se pudo procesar tu pago. Por favor, verifica tus datos e intenta
-          nuevamente.
-        </p>
-
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
-          <p className="text-sm text-red-800 font-medium mb-2">
-            Posibles causas:
-          </p>
-          <ul className="text-sm text-red-700 text-left space-y-1">
-            <li>• Fondos insuficientes</li>
-            <li>• Datos de tarjeta incorrectos</li>
-            <li>• Límite de compra excedido</li>
-            <li>• Tarjeta bloqueada o vencida</li>
-          </ul>
-        </div>
-
-        <div className="space-y-3">
-          <button
-            onClick={tryAgain}
-            className="w-full px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium"
-          >
-            Intentar nuevamente
-          </button>
-
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={goToBookings}
-              className="px-4 py-2 bg-gray-200 text-custume-blue rounded-xl hover:bg-gray-300 transition-colors font-medium text-sm"
-            >
-              Mis reservas
-            </button>
-
-            <button
-              onClick={goHome}
-              className="px-4 py-2 bg-gray-200 text-custume-blue rounded-xl hover:bg-gray-300 transition-colors font-medium text-sm"
-            >
-              Inicio
-            </button>
-          </div>
-        </div>
+        {status === "failure" && (
+          <>
+            <div className="text-red-500 text-6xl mb-4">✗</div>
+            <h2 className="text-2xl font-bold mb-2 text-red-600">
+              Pago rechazado
+            </h2>
+            <p className="text-gray-700 mb-4">
+              El pago no pudo ser procesado. Por favor, intenta nuevamente o usa
+              otro método de pago.
+            </p>
+            <div className="flex gap-4 justify-center mt-6">
+              <button
+                onClick={() => router.back()}
+                className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition"
+              >
+                Intentar de nuevo
+              </button>
+              <button
+                onClick={() => router.push("/")}
+                className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition"
+              >
+                Volver al inicio
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

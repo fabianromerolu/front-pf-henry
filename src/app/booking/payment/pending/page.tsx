@@ -1,85 +1,60 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { handlePaymentPending } from "@/services/paymentsService.service";
+import { useSearchParams, useRouter } from "next/navigation";
+import {
+  handlePaymentPending,
+  getPaymentParamsFromURL,
+} from "@/services/paymentsService.service";
 
 export default function PaymentPendingPage() {
+  const searchParams = useSearchParams();
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState<"loading" | "pending">("loading");
 
   useEffect(() => {
     const verifyPayment = async () => {
       try {
-        await handlePaymentPending();
-        setLoading(false);
+        const params = getPaymentParamsFromURL(searchParams);
+        await handlePaymentPending(params.paymentId);
+        setStatus("pending");
       } catch (error) {
-        console.error("Error verificando pago:", error);
-        setLoading(false);
+        console.error("Error al verificar el pago pendiente:", error);
+        setStatus("pending");
       }
     };
 
     verifyPayment();
-  }, []);
-
-  const goToBookings = () => {
-    router.push("/my-bookings");
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-600 mx-auto"></div>
-          <p className="mt-4 text-custume-blue">Verificando pago...</p>
-        </div>
-      </div>
-    );
-  }
+  }, [searchParams]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center mx-4">
-        <div className="mb-6">
-          <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto">
-            <svg
-              className="w-12 h-12 text-yellow-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-50">
+      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
+        {status === "loading" && (
+          <>
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-yellow-600 mx-auto mb-4"></div>
+            <h2 className="text-xl font-semibold mb-2">Verificando pago...</h2>
+          </>
+        )}
+
+        {status === "pending" && (
+          <>
+            <div className="text-yellow-500 text-6xl mb-4">⏳</div>
+            <h2 className="text-2xl font-bold mb-2 text-yellow-600">
+              Pago pendiente
+            </h2>
+            <p className="text-gray-700 mb-4">
+              Tu pago está siendo procesado. Te notificaremos cuando se confirme
+              la reserva.
+            </p>
+            <button
+              onClick={() => router.push("/")}
+              className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition mt-4"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
-        </div>
-
-        <h1 className="text-3xl font-bold text-custume-blue mb-3">
-          Pago Pendiente
-        </h1>
-
-        <p className="text-custume-gray mb-6">
-          Tu pago está siendo procesado. Te notificaremos por correo cuando se
-          confirme.
-        </p>
-
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
-          <p className="text-sm text-yellow-800">
-            Esto puede tardar unos minutos. Puedes cerrar esta ventana de forma
-            segura.
-          </p>
-        </div>
-
-        <button
-          onClick={goToBookings}
-          className="w-full px-6 py-3 bg-yellow-600 text-white rounded-xl hover:bg-yellow-700 transition-colors font-medium"
-        >
-          Ver mis reservas
-        </button>
+              Volver al inicio
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

@@ -1,16 +1,21 @@
-// src/services/paymentService.ts
-
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
   "https://back-pf-henry-production-03d3.up.railway.app";
 
 // Tipos para la API de pagos
 export interface CreatePaymentRequest {
-  bookingId: string;
+  propertyId: string;
+  userId: string;
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+  totalPrice: number;
+  // Agrega aquí cualquier otro campo que necesite tu backend
 }
 
 export interface CreatePaymentResponse {
   init_point: string;
+  preferenceId?: string;
 }
 
 export interface PaymentStatus {
@@ -22,17 +27,19 @@ export interface PaymentStatus {
 
 /**
  * Crea una preferencia de pago en Mercado Pago
- * @param bookingId - ID de la reserva
+ * @param bookingData - Datos de la reserva
  * @returns URL de inicio de pago (init_point)
  */
-export const createPayment = async (bookingId: string): Promise<string> => {
+export const createPayment = async (
+  bookingData: CreatePaymentRequest
+): Promise<string> => {
   try {
     const response = await fetch(`${API_URL}/payments`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ bookingId }),
+      body: JSON.stringify(bookingData),
     });
 
     if (!response.ok) {
@@ -59,41 +66,57 @@ export const createPayment = async (bookingId: string): Promise<string> => {
 
 /**
  * Maneja la redirección exitosa del pago
- * @returns Estado del pago exitoso
  */
-export const handlePaymentSuccess = async (): Promise<PaymentStatus> => {
+export const handlePaymentSuccess = async (
+  paymentId?: string,
+  preferenceId?: string
+): Promise<PaymentStatus> => {
   try {
-    const response = await fetch(`${API_URL}/payments/success`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const params = new URLSearchParams();
+    if (paymentId) params.append("payment_id", paymentId);
+    if (preferenceId) params.append("preference_id", preferenceId);
+
+    const response = await fetch(
+      `${API_URL}/payments/success?${params.toString()}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`Error ${response.status}: ${response.statusText}`);
     }
 
+    const data = await response.json();
+
     return {
       status: "success",
       message: "Pago procesado exitosamente",
+      bookingId: data.bookingId,
+      paymentId: data.paymentId,
     };
   } catch (error) {
     console.error("Error al verificar el pago exitoso:", error);
     return {
       status: "success",
-      message: "Pago completado",
+      message: "Pago completado. Verificando reserva...",
     };
   }
 };
 
 /**
  * Maneja la redirección de pago pendiente
- * @returns Estado del pago pendiente
  */
-export const handlePaymentPending = async (): Promise<PaymentStatus> => {
+export const handlePaymentPending = async (
+  paymentId?: string
+): Promise<PaymentStatus> => {
   try {
-    const response = await fetch(`${API_URL}/payments/pending`, {
+    const params = paymentId ? `?payment_id=${paymentId}` : "";
+
+    const response = await fetch(`${API_URL}/payments/pending${params}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -104,9 +127,12 @@ export const handlePaymentPending = async (): Promise<PaymentStatus> => {
       throw new Error(`Error ${response.status}: ${response.statusText}`);
     }
 
+    const data = await response.json();
+
     return {
       status: "pending",
       message: "Pago pendiente de confirmación",
+      paymentId: data.paymentId,
     };
   } catch (error) {
     console.error("Error al verificar el pago pendiente:", error);
@@ -119,11 +145,14 @@ export const handlePaymentPending = async (): Promise<PaymentStatus> => {
 
 /**
  * Maneja la redirección de pago fallido
- * @returns Estado del pago fallido
  */
-export const handlePaymentFailure = async (): Promise<PaymentStatus> => {
+export const handlePaymentFailure = async (
+  paymentId?: string
+): Promise<PaymentStatus> => {
   try {
-    const response = await fetch(`${API_URL}/payments/failure`, {
+    const params = paymentId ? `?payment_id=${paymentId}` : "";
+
+    const response = await fetch(`${API_URL}/payments/failure${params}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -149,13 +178,12 @@ export const handlePaymentFailure = async (): Promise<PaymentStatus> => {
 
 /**
  * Procesa el pago y redirige a Mercado Pago
- * @param bookingId - ID de la reserva
  */
-export const processPayment = async (bookingId: string): Promise<void> => {
+export const processPayment = async (
+  bookingData: CreatePaymentRequest
+): Promise<void> => {
   try {
-    const initPoint = await createPayment(bookingId);
-
-    // Redirigir a la URL de pago de Mercado Pago
+    const initPoint = await createPayment(bookingData);
     window.location.href = initPoint;
   } catch (error) {
     console.error("Error al procesar el pago:", error);
@@ -164,9 +192,7 @@ export const processPayment = async (bookingId: string): Promise<void> => {
 };
 
 /**
- * Obtiene el estado del pago desde los query params de la URL
- * @param searchParams - Parámetros de búsqueda de la URL
- * @returns Estado del pago basado en la ruta
+ * Obtiene el estado del pago desde la URL
  */
 export const getPaymentStatusFromURL = (
   pathname: string
@@ -177,7 +203,25 @@ export const getPaymentStatusFromURL = (
   return null;
 };
 
-// Export default con todas las funciones
+/**
+ * Extrae los parámetros de pago de la URL
+ */
+export const getPaymentParamsFromURL = (
+  searchParams: URLSearchParams
+): {
+  paymentId?: string;
+  preferenceId?: string;
+  status?: string;
+  merchantOrderId?: string;
+} => {
+  return {
+    paymentId: searchParams.get("payment_id") || undefined,
+    preferenceId: searchParams.get("preference_id") || undefined,
+    status: searchParams.get("status") || undefined,
+    merchantOrderId: searchParams.get("merchant_order_id") || undefined,
+  };
+};
+
 const paymentService = {
   createPayment,
   handlePaymentSuccess,
@@ -185,6 +229,7 @@ const paymentService = {
   handlePaymentFailure,
   processPayment,
   getPaymentStatusFromURL,
+  getPaymentParamsFromURL,
 };
 
 export default paymentService;

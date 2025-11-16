@@ -140,7 +140,7 @@ function MenuBar() {
     <div>
       <div className="sticky top-0 z-50 bg-custume-light py-4 p-b2">
         <div className="max-w-6xl mx-auto px-3">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6">
             {(
               Object.keys(filterOptions) as Array<keyof typeof filterOptions>
             ).map((category) => (

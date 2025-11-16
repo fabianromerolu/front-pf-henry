@@ -43,7 +43,8 @@ export default function VehiclesPage() {
   return (
     <div className="min-h-screen bg-custume-light">
       <MenuBar />
-      <div className="max-w-6xl mx-auto">
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="bg-custume-light">
           <div className="max-w-6xl mx-auto px-6">
             <div className="flex items-center justify-center gap-4">
@@ -53,6 +54,7 @@ export default function VehiclesPage() {
             </div>
           </div>
         </div>
+
         <div className="mb-8">
           <h1 className="text-4xl taviraj font-semibold text-custume-red mb-2 text-center">
             Todos nuestros vehículos
