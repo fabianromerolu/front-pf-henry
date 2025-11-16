@@ -7,9 +7,6 @@ import { FormikProps } from "formik";
 interface BookingFormValues {
   startDate: string;
   endDate: string;
-  cartNumber: string;
-  expirationDate: string;
-  cvv: string;
 }
 
 interface BookingDatesProps {
@@ -20,7 +17,7 @@ interface BookingDatesProps {
 
 function BookingDates({ formik, duration, totalPrice }: BookingDatesProps) {
   return (
-    <div className="bg-white rounded-2xl border border-custume-gray p-6 shadow-lg">
+    <div className="bg-white rounded-2xl border border-custume-blue/20 p-6 shadow-lg">
       <h2 className="text-2xl font-bold text-custume-blue mb-4">
         Reserva tu vehículo
       </h2>

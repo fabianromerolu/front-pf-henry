@@ -1,7 +1,12 @@
 export const validateBookingDates = (
   startDate: string,
   endDate: string
-): { valid: boolean; error?: string } => {
+): {
+  valid: boolean;
+  startError?: string;
+  endError?: string;
+  error?: string;
+} => {
   const [startDay, startMonth, startYear] = startDate.split("/");
   const [endDay, endMonth, endYear] = endDate.split("/");
 
@@ -15,24 +20,24 @@ export const validateBookingDates = (
   now.setHours(0, 0, 0, 0);
 
   if (isNaN(start.getTime())) {
-    return { valid: false, error: "Fecha de inicio inválida" };
+    return { valid: false, startError: "Fecha de inicio inválida" };
   }
 
   if (isNaN(end.getTime())) {
-    return { valid: false, error: "Fecha de fin inválida" };
+    return { valid: false, endError: "Fecha de término inválida" };
   }
 
   if (start < now) {
     return {
       valid: false,
-      error: "La fecha de inicio no puede ser en el pasado",
+      startError: "La fecha de inicio no puede ser en el pasado",
     };
   }
 
   if (end <= start) {
     return {
       valid: false,
-      error: "La fecha de fin debe ser posterior a la de inicio",
+      endError: "La fecha de término debe ser posterior a la de inicio",
     };
   }
 

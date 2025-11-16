@@ -7,7 +7,7 @@ import { useState } from "react";
 
 interface CloudinaryUploadProps {
   handlePhotoUpload: (photo: { url: string; isCover: boolean }) => void;
-  handlePhotoRemove?: (url: string) => void; 
+  handlePhotoRemove?: (url: string) => void;
   existingImages?: string[];
 }
 
@@ -25,15 +25,13 @@ export default function CloudinaryUpload({
     const updated = [...images, url];
     setImages(updated);
 
-    
     handlePhotoUpload({ url, isCover: images.length === 0 });
   };
 
-  
   const handleRemove = (url: string) => {
     const updated = images.filter((img) => img !== url);
     setImages(updated);
-    handlePhotoRemove?.(url); 
+    handlePhotoRemove?.(url);
   };
 
   return (
@@ -45,10 +43,10 @@ export default function CloudinaryUpload({
           resourceType: "image",
           folder: "vehicles",
           sources: ["local", "camera", "google_drive"],
-          theme:"minimal",
+          theme: "minimal",
           singleUploadAutoClose: true,
           language: "es",
-          multiple:false,
+          multiple: false,
         }}
         onSuccess={handleSuccess}
       >
