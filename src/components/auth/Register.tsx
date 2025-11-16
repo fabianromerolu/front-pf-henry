@@ -27,9 +27,6 @@ function scorePassword(pw: string): number {
   if (/[!@#$%^&*]/.test(pw)) s++; // 🔧 símbolo del set permitido
   return Math.min(s, 5);
 }
-function strengthLabel(score: number): string {
-  return ["Muy débil", "Muy débil", "Débil", "Aceptable", "Fuerte", "Muy fuerte"][score] ?? "";
-}
 
 /* Ampliamos localmente los valores para phone/role sin romper tu schema */
 type ExtendedValues = RegisterFormValues & { phone?: string; role?: "USER" | "RENTER" };
@@ -104,18 +101,8 @@ export default function FormRegister() {
 
   // 🔧 Derivados para checklist de password
   const pw = formik.values.password || "";
-  const pwChecks = {
-    len8: pw.length >= 8,
-    upper: /[A-Z]/.test(pw),
-    lower: /[a-z]/.test(pw),
-    digit: /\d/.test(pw),
-    sym: /[!@#$%^&*]/.test(pw), // 🔧 mismo set
-    noSpaces: /^\S+$/.test(pw) || pw.length === 0,
-  };
-
   const pwScore = useMemo(() => scorePassword(pw), [pw]);
   const pwPercent = (pwScore / 5) * 100;
-  const pwLabel = strengthLabel(pwScore);
 
   if (!mounted || !isHydrated) return null;
 
