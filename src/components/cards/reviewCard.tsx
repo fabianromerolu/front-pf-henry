@@ -3,7 +3,7 @@ import React from "react";
 interface ReviewProps {
   userName: string;
   comment: string;
-  rating: number; 
+  rating: number;
   userImage?: string;
 }
 

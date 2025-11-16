@@ -65,7 +65,7 @@ export default function Pagination({
   }
 
   return (
-    <div className="flex items-center justify-center gap-4 my-8">
+    <div className="flex flex-wrap items-center justify-center gap-4 gap-y-3 my-8 text-center">
       <DarkButton
         onClick={onPrevPage}
         disabled={!hasPrevPage}
@@ -73,31 +73,32 @@ export default function Pagination({
         text="anterior"
       />
 
-      <div className="flex items-center gap-2">
+      {/* Números */}
+      <div className="flex flex-wrap items-center justify-center gap-2 max-w-full">
         {getPageNumbers().map((pageNum, index) => (
           <button
             key={index}
             onClick={() => typeof pageNum === "number" && onGoToPage(pageNum)}
             disabled={pageNum === currentPage || pageNum === "..."}
             className={`
-              px-3 py-1 rounded-md hind text-sm font-medium transition-colors
-              ${
-                pageNum === currentPage
-                  ? "bg-custume-blue text-white"
-                  : pageNum === "..."
-                  ? "cursor-default text-custume-gray"
-                  : "bg-gray-200 text-custume-blue hover:bg-custume-blue hover:text-white"
-              }
-              ${pageNum === "..." ? "" : "min-w-[40px]"}
-              disabled:opacity-50 disabled:cursor-not-allowed
-            `}
+          px-3 py-1 rounded-md hind text-sm font-medium transition-colors
+          ${
+            pageNum === currentPage
+              ? "bg-custume-blue text-white"
+              : pageNum === "..."
+              ? "cursor-default text-custume-gray"
+              : "bg-gray-200 text-custume-blue hover:bg-custume-blue hover:text-white"
+          }
+          ${pageNum === "..." ? "" : "min-w-[40px]"}
+          disabled:opacity-50 disabled:cursor-not-allowed
+        `}
           >
             {pageNum}
           </button>
         ))}
       </div>
 
-      <span className="hind text-lg font-base text-custume-blue">
+      <span className="hind text-base sm:text-lg font-base text-custume-blue">
         de {totalPages}
       </span>
 
