@@ -14,6 +14,24 @@ import { useAuth } from "@/context/AuthContext";
 import { clearLastAuthError, getLastAuthError, loginWithAuth0 } from "@/services/authService.service";
 import { meApi } from "@/services/userRenter.service";
 
+// Dominios que pueden crear cuentas ADMIN desde el formulario
+const ADMIN_DOMAINS: string[] = (process.env.NEXT_PUBLIC_ADMIN_DOMAINS ?? "")
+  .split(",")
+  .map((d) => d.trim().toLowerCase())
+  .filter(Boolean);
+
+function getEmailDomain(email?: string | null): string {
+  if (!email) return "";
+  const parts = email.toLowerCase().trim().split("@");
+  return parts.length === 2 ? parts[1] : "";
+}
+
+function isAdminEmail(email?: string | null): boolean {
+  const domain = getEmailDomain(email);
+  if (!domain) return false;
+  return ADMIN_DOMAINS.includes(domain);
+}
+
 // ===== utils fuerza contraseña =====
 // 🔧 Alineado con PASS_RX del schema: minúscula, mayúscula, dígito, símbolo (!@#$%^&*)
 function scorePassword(pw: string): number {
@@ -54,7 +72,17 @@ export default function FormRegister() {
     validationSchema: RegisterValidationSchema as unknown as import("yup").AnyObjectSchema,
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        const ok = await registerAction(values);
+        // si el correo es de dominio admin -> fuerza rol ADMIN
+        const finalRole = isAdminEmail(values.email)
+          ? "ADMIN"
+          : (values.role ?? "USER");
+
+        const payload = {
+          ...values,
+          role: finalRole,
+        } as Parameters<typeof registerAction>[0];
+
+        const ok = await registerAction(payload);
 
         if (!ok) {
           const err = getLastAuthError();
@@ -88,6 +116,17 @@ export default function FormRegister() {
       }
     },
   });
+
+  const adminDomain = useMemo(
+    () => getEmailDomain(formik.values.email),
+    [formik.values.email]
+  );
+
+  const isAdminDomain = useMemo(
+    () => isAdminEmail(formik.values.email),
+    [formik.values.email]
+  );
+
 
   /* Helpers tipados para errores/touched */
   const getErr = <K extends keyof ExtendedValues>(k: K): string | undefined => {
@@ -384,85 +423,103 @@ export default function FormRegister() {
                     <div>
                       <span id="role-label" className={labelBase}>Tipo de cuenta</span>
 
-                      <fieldset aria-labelledby="role-label" className="mt-2">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {([
-                            {
-                              value: "USER" as const,
-                              title: "Quiero rentar un auto",
-                              hint: "Busca y reserva vehículos",
-                            },
-                            {
-                              value: "RENTER" as const,
-                              title: "Quiero rentar mi auto",
-                              hint: "Publica y gestiona tus vehículos",
-                            },
-                          ]).map((opt) => {
-                            const selected = (formik.values.role ?? "USER") === opt.value;
+                      {!isAdminDomain && (
+                        <fieldset aria-labelledby="role-label" className="mt-2">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {([
+                              {
+                                value: "USER" as const,
+                                title: "Quiero rentar un auto",
+                                hint: "Busca y reserva vehículos",
+                              },
+                              {
+                                value: "RENTER" as const,
+                                title: "Quiero rentar mi auto",
+                                hint: "Publica y gestiona tus vehículos",
+                              },
+                            ]).map((opt) => {
+                              const selected = (formik.values.role ?? "USER") === opt.value;
 
-                            return (
-                              <label
-                                key={opt.value}
-                                className={[
-                                  "cursor-pointer select-none rounded-xl border p-3 transition",
-                                  "flex items-start gap-3",
-                                  selected
-                                    ? "bg-[var(--color-light-blue)]/90 border-[var(--color-light-blue)] shadow"
-                                    : "bg-white/90 border-[var(--color-custume-light)] hover:bg-white",
-                                ].join(" ")}
-                              >
-                                <input
-                                  type="radio"
-                                  name="role"
-                                  value={opt.value}
-                                  checked={selected}
-                                  onChange={() => formik.setFieldValue("role", opt.value)}
-                                  onBlur={formik.handleBlur}
-                                  className="sr-only"
-                                />
-
-                                <span
-                                  aria-hidden
+                              return (
+                                <label
+                                  key={opt.value}
                                   className={[
-                                    "mt-1 inline-block h-3 w-3 rounded-full border",
+                                    "cursor-pointer select-none rounded-xl border p-3 transition",
+                                    "flex items-start gap-3",
                                     selected
-                                      ? "bg-[var(--color-custume-blue)] border-[var(--color-custume-blue)]"
-                                      : "bg-transparent border-[var(--color-custume-gray)]",
+                                      ? "bg-[var(--color-light-blue)]/90 border-[var(--color-light-blue)] shadow"
+                                      : "bg-white/90 border-[var(--color-custume-light)] hover:bg-white",
                                   ].join(" ")}
-                                />
+                                >
+                                  <input
+                                    type="radio"
+                                    name="role"
+                                    value={opt.value}
+                                    checked={selected}
+                                    onChange={() => formik.setFieldValue("role", opt.value)}
+                                    onBlur={formik.handleBlur}
+                                    className="sr-only"
+                                  />
 
-                                <span className="flex flex-col">
                                   <span
+                                    aria-hidden
                                     className={[
-                                      "taviraj text-sm font-semibold",
+                                      "mt-1 inline-block h-3 w-3 rounded-full border",
                                       selected
-                                        ? "text-[var(--color-custume-blue)]"
-                                        : "text-[var(--color-dark-blue)]",
+                                        ? "bg-[var(--color-custume-blue)] border-[var(--color-custume-blue)]"
+                                        : "bg-transparent border-[var(--color-custume-gray)]",
                                     ].join(" ")}
-                                  >
-                                    {opt.title}
+                                  />
+
+                                  <span className="flex flex-col">
+                                    <span
+                                      className={[
+                                        "taviraj text-sm font-semibold",
+                                        selected
+                                          ? "text-[var(--color-custume-blue)]"
+                                          : "text-[var(--color-dark-blue)]",
+                                      ].join(" ")}
+                                    >
+                                      {opt.title}
+                                    </span>
+                                    <span
+                                      className={[
+                                        "text-xs",
+                                        selected
+                                          ? "text-[var(--color-custume-blue)]/80"
+                                          : "text-[var(--color-custume-gray)]",
+                                      ].join(" ")}
+                                    >
+                                      {opt.hint}
+                                    </span>
                                   </span>
-                                  <span
-                                    className={[
-                                      "text-xs",
-                                      selected
-                                        ? "text-[var(--color-custume-blue)]/80"
-                                        : "text-[var(--color-custume-gray)]",
-                                    ].join(" ")}
-                                  >
-                                    {opt.hint}
-                                  </span>
-                                </span>
-                              </label>
-                            );
-                          })}
+                                </label>
+                              );
+                            })}
+                          </div>
+                        </fieldset>
+                      )}
+
+                      {isAdminDomain && (
+                        <div className="mt-2 rounded-xl border border-emerald-400/60 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-50">
+                          <p className="font-semibold text-sm mb-1">Cuenta de administrador</p>
+                          <p>
+                            Detectamos un dominio autorizado
+                            {adminDomain && <> (<code>{adminDomain}</code>)</>}. 
+                            Esta cuenta se creará con rol <b>ADMIN</b>.
+                          </p>
                         </div>
-                      </fieldset>
+                      )}
 
-                      {isTouched("role") && getErr("role") && (
+                      {!isAdminDomain && isTouched("role") && getErr("role") && (
                         <p className={errorText}>{getErr("role")}</p>
                       )}
                     </div>
+
+                    <p className="text-xs text-white/80">
+                      * <b>ADMIN</b> se asigna automáticamente si el dominio del correo está autorizado.
+                    </p>
+
 
                     <p className="text-xs text-white/80">
                       * <b>ADMIN</b> se asigna automáticamente si el dominio del correo está autorizado.

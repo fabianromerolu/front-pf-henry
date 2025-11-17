@@ -23,6 +23,13 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false); // para usar portal
 
+  // 🚫 Solo lógica, NINGÚN return antes de hooks
+  const shouldHideNavbar =
+    isChecking ||
+    HIDDEN_ROUTES.has(pathname) ||
+    pathname.startsWith("/login/") ||
+    pathname.startsWith("/register/");
+
   // 🔍 LOG: cada vez que cambie auth o ruta
   useEffect(() => {
     console.log("[NAVBAR] render", {
@@ -126,13 +133,14 @@ export default function Navbar() {
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + "/");
 
-  if (HIDDEN_ROUTES.has(pathname) || isChecking) return null;
+  // ✅ AHORA SÍ: return condicional, pero DESPUÉS de todos los hooks
+  if (shouldHideNavbar) return null;
 
   return (
     <>
       <header
         className={[
-          "sticky top-0 z-40",
+          "sticky top-0 z-[1000]",
           "bg-[linear-gradient(to_right,var(--color-dark-blue)_0%,var(--color-custume-blue)_50%,var(--color-dark-blue)_100%)]",
           "backdrop-blur border-b border-white/15 text-[var(--color-custume-light)]",
           "transition-shadow",

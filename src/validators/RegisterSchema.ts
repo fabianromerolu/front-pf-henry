@@ -1,7 +1,8 @@
+//src/validators/RegisterSchema.ts
 import * as Yup from "yup";
 
-// Roles permitidos desde el front (ADMIN lo decide el back por dominio)
-export type AppRole = "USER" | "RENTER";
+// Roles permitidos desde el front (ADMIN por dominio de la variable de entorno ADMIN_DOMAINS)
+export type AppRole = "USER" | "RENTER" | "ADMIN";
 
 // Interface para el formulario de registro
 export interface RegisterFormValues {

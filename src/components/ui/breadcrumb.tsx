@@ -6,8 +6,7 @@ function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
 }
 
-export interface BreadcrumbProps
-  extends React.HTMLAttributes<HTMLElement> {}
+export type BreadcrumbProps = React.HTMLAttributes<HTMLElement>;
 
 export function Breadcrumb({ className, ...props }: BreadcrumbProps) {
   return (
@@ -19,8 +18,8 @@ export function Breadcrumb({ className, ...props }: BreadcrumbProps) {
   );
 }
 
-export interface BreadcrumbListProps
-  extends React.OlHTMLAttributes<HTMLOListElement> {}
+export type BreadcrumbListProps =
+  React.OlHTMLAttributes<HTMLOListElement>;
 
 export function BreadcrumbList({ className, ...props }: BreadcrumbListProps) {
   return (
@@ -34,8 +33,8 @@ export function BreadcrumbList({ className, ...props }: BreadcrumbListProps) {
   );
 }
 
-export interface BreadcrumbItemProps
-  extends React.LiHTMLAttributes<HTMLLIElement> {}
+export type BreadcrumbItemProps =
+  React.LiHTMLAttributes<HTMLLIElement>;
 
 export function BreadcrumbItem({ className, ...props }: BreadcrumbItemProps) {
   return (
@@ -89,8 +88,8 @@ export function BreadcrumbLink({
   );
 }
 
-export interface BreadcrumbSeparatorProps
-  extends React.HTMLAttributes<HTMLSpanElement> {}
+export type BreadcrumbSeparatorProps =
+  React.HTMLAttributes<HTMLSpanElement>;
 
 export function BreadcrumbSeparator({
   className,

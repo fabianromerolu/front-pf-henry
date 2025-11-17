@@ -1,4 +1,3 @@
-// src/components/ui/skeleton.tsx
 "use client";
 
 import * as React from "react";
@@ -7,8 +6,7 @@ function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
 }
 
-export interface SkeletonProps
-  extends React.HTMLAttributes<HTMLDivElement> {}
+export type SkeletonProps = React.HTMLAttributes<HTMLDivElement>;
 
 const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
   ({ className, ...props }, ref) => {
@@ -19,7 +17,6 @@ const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
           "animate-pulse rounded-md",
           "bg-white/5",
           "relative overflow-hidden",
-          // ligero shimmer
           "before:absolute before:inset-0 before:-translate-x-full before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:animate-[skeleton-shimmer_1.4s_infinite]",
           className
         )}
