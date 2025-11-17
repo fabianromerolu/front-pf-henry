@@ -374,45 +374,85 @@ export function loginWithAuth0(): void {
 
 /* ============= Guardar token desde ?token=... ============= */
 export async function saveTokenFromQueryAndHydrateAuth(
-  setAuth: (user: AuthUser | null, token: string | null) => void
+  setAuth: (user: AuthUser | null, token: string | null) => void,
+  opts?: { redirect?: boolean }
 ): Promise<void> {
   if (typeof window === "undefined") return;
+
+  const redirect = opts?.redirect ?? true;
+
+  console.log("[AUTH] saveTokenFromQueryAndHydrateAuth START", {
+    href: window.location.href,
+    redirect,
+  });
+
   const url = new URL(window.location.href);
   const token = url.searchParams.get("token");
+
+  console.log("[AUTH] URL token param =", token ? "present" : "absent");
 
   // Caso moderno: NO llega ?token= (solo cookie httpOnly del back)
   if (!token) {
     const me = await getMe();
+    console.log("[AUTH] no ?token, getMe() =>", me);
+
     if (me) {
-      // ✅ Sólo setea estado en memoria/localStorage; NO cookies que usen el middleware
       setAuth(me, null);
-      window.location.replace(
-       me.role === "admin" ? "/dashboard/admin" :
-        me.role === "renter" ? "/dashboard/renter" : "/dashboard"
-      );
+
+      if (redirect) {
+        const target =
+          me.role === "admin"
+            ? "/dashboard/admin"
+            : me.role === "renter"
+            ? "/dashboard/renter"
+            : "/dashboard";
+
+        console.log("[AUTH] redirect (no-token branch) to", target);
+        window.location.replace(target);
+      }
     }
     return;
   }
 
   // Compat: llegó ?token=
+  console.log("[AUTH] token branch, snippet =", token.slice(0, 15) + "...");
+
   const user = await resolveUserFromToken(token);
+  console.log("[AUTH] resolveUserFromToken =>", user);
+
   localStorage.setItem("auth:token", token);
   if (user) localStorage.setItem("auth:user", JSON.stringify(user));
-  // Cookies legibles por el front
+
   const maxAge = 60 * 60 * 24 * 7;
-  document.cookie = `auth_token=${encodeURIComponent(token)}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
-  if (user?.role) document.cookie = `role=${user.role}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
+  document.cookie = `auth_token=${encodeURIComponent(
+    token
+  )}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
+  if (user?.role)
+    document.cookie = `role=${user.role}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
+
+  console.log("[AUTH] cookies after saveToken:", document.cookie);
 
   setAuth(user ?? null, token);
 
   url.searchParams.delete("token");
   window.history.replaceState({}, document.title, url.toString());
 
-  window.location.replace(
-    user?.role === "admin" ? "/dashboard/admin" :
-    user?.role === "renter" ? "/dashboard/renter" : "/dashboard"
-  );
+  if (redirect) {
+    const target =
+      user?.role === "admin"
+        ? "/dashboard/admin"
+        : user?.role === "renter"
+        ? "/dashboard/renter"
+        : "/dashboard";
+
+    console.log("[AUTH] redirect (token branch) to", target);
+    window.location.replace(target);
+  } else {
+    console.log("[AUTH] redirect=false, staying on page");
+  }
 }
+
+
 
 
 /* ============= getMe() (hook useUser) ============= */

@@ -164,17 +164,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  const setAuth = useCallback((user: AuthUser | null, token: string | null) => {
-    const payload = token ? decodeJwt<JwtPayload>(token) ?? {} : {};
-    const mergedRole = mergeRole({ userRole: user?.role, tokenIsAdmin: !!payload?.isAdmin });
-    const normalizedUser = user
-      ? { ...user, role: mergedRole ?? normalizeRole(user?.role) ?? "user" }
-      : null;
+const setAuth = useCallback((user: AuthUser | null, token: string | null) => {
+  const payload = token ? (decodeJwt<JwtPayload>(token) ?? {}) : {};
+  const mergedRole = mergeRole({ userRole: user?.role, tokenIsAdmin: !!payload?.isAdmin });
+  const normalizedUser = user
+    ? { ...user, role: mergedRole ?? normalizeRole(user?.role) ?? "user" }
+    : null;
 
-    setState({ user: normalizedUser, token });
-    writeStorage({ user: normalizedUser, token });
-    writeCookies(normalizedUser, token);
-  }, []);
+  console.log("[AUTHCTX] setAuth()", {
+    incomingUser: user,
+    incomingUserRole: user?.role,
+    tokenPresent: !!token,
+    payload,
+    mergedRole,
+    finalUser: normalizedUser,
+  });
+
+  setState({ user: normalizedUser, token });
+  writeStorage({ user: normalizedUser, token });
+  writeCookies(normalizedUser, token);
+}, []);
+
 
   // ✅ Bootstrap de sesión
   useEffect(() => {
@@ -184,7 +194,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     (async () => {
       setIsChecking(true);
       try {
-        await saveTokenFromQueryAndHydrateAuth(setAuth);
+        await saveTokenFromQueryAndHydrateAuth(setAuth, { redirect: false });
 
         const hasUser = Boolean(readStorage().user);
         const hasToken = Boolean(readStorage().token);

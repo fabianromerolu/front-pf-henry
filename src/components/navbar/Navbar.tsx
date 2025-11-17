@@ -23,6 +23,24 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false); // para usar portal
 
+  // 🔍 LOG: cada vez que cambie auth o ruta
+  useEffect(() => {
+    console.log("[NAVBAR] render", {
+      pathname,
+      isAuthenticated,
+      isChecking,
+      user,
+      userRole: user?.role,
+    });
+  }, [pathname, isAuthenticated, isChecking, user]);
+
+  // 🔍 LOG: cookies que ve el cliente
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      console.log("[NAVBAR] document.cookie =", document.cookie);
+    }
+  }, [isAuthenticated, user?.role]);
+
   // Marca como montado (solo cliente)
   useEffect(() => {
     setMounted(true);
@@ -76,10 +94,23 @@ export default function Navbar() {
   );
 
   const dashboardHref = useMemo(() => {
-    const role = (user?.role ?? "user") as UserRole;
-    if (role === "admin") return "/dashboard/admin";
-    if (role === "renter") return "/dashboard/renter";
-    return "/dashboard/user";
+    const role = user?.role as UserRole | undefined;
+
+    const href =
+      role === "admin"
+        ? "/dashboard/admin"
+        : role === "renter"
+        ? "/dashboard/renter"
+        : role === "user"
+        ? "/dashboard/user"
+        : "/dashboard"; // fallback
+
+    console.log("[NAVBAR] dashboardHref computed", {
+      role,
+      href,
+    });
+
+    return href;
   }, [user?.role]);
 
   const authLinks = useMemo(() => {
@@ -101,7 +132,7 @@ export default function Navbar() {
     <>
       <header
         className={[
-          "sticky top-0 z-40", // z normal, el overlay va en portal aparte
+          "sticky top-0 z-40",
           "bg-[linear-gradient(to_right,var(--color-dark-blue)_0%,var(--color-custume-blue)_50%,var(--color-dark-blue)_100%)]",
           "backdrop-blur border-b border-white/15 text-[var(--color-custume-light)]",
           "transition-shadow",
@@ -134,6 +165,13 @@ export default function Navbar() {
                 <Link
                   key={l.href}
                   href={l.href}
+                  onClick={() => {
+                    console.log("[NAVBAR] click link", {
+                      name: l.name,
+                      href: l.href,
+                      currentRole: user?.role,
+                    });
+                  }}
                   className={[
                     "inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition font-medium whitespace-nowrap",
                     isActive(l.href)
