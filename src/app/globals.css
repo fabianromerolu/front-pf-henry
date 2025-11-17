@@ -57,3 +57,13 @@ body {
 .animate-fade-slide {
   animation: fade-slide 0.28s ease-out both;
 }
+
+@keyframes skeleton-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  60%,
+  100% {
+    transform: translateX(100%);
+  }
+}
