@@ -1,5 +1,6 @@
 // src/components/auth/Register.tsx
 "use client";
+
 import { useFormik, type FormikTouched } from "formik";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useEffect, type CSSProperties } from "react";
@@ -11,14 +12,29 @@ import {
 import { FiArrowLeft, FiEye, FiEyeOff } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import { useAuth } from "@/context/AuthContext";
-import { clearLastAuthError, getLastAuthError, loginWithAuth0 } from "@/services/authService.service";
+import {
+  clearLastAuthError,
+  getLastAuthError,
+  loginWithAuth0,
+} from "@/services/authService.service";
 import { meApi } from "@/services/userRenter.service";
 
 // Dominios que pueden crear cuentas ADMIN desde el formulario
-const ADMIN_DOMAINS: string[] = (process.env.NEXT_PUBLIC_ADMIN_DOMAINS ?? "")
-  .split(",")
+const RAW_ADMIN_DOMAINS =
+  (process.env.NEXT_PUBLIC_ADMIN_DOMAINS ||
+    process.env.ADMIN_DOMAINS ||
+    "").trim();
+
+const ADMIN_DOMAINS: string[] = RAW_ADMIN_DOMAINS.split(",")
   .map((d) => d.trim().toLowerCase())
   .filter(Boolean);
+
+if (typeof window !== "undefined") {
+  console.log("[REGISTER] ENV ADMIN DOMAINS", {
+    RAW_ADMIN_DOMAINS,
+    ADMIN_DOMAINS,
+  });
+}
 
 function getEmailDomain(email?: string | null): string {
   if (!email) return "";
@@ -32,8 +48,8 @@ function isAdminEmail(email?: string | null): boolean {
   return ADMIN_DOMAINS.includes(domain);
 }
 
-// ===== utils fuerza contraseña =====
-// 🔧 Alineado con PASS_RX del schema: minúscula, mayúscula, dígito, símbolo (!@#$%^&*)
+
+// utils fuerza contraseña
 function scorePassword(pw: string): number {
   if (!pw) return 0;
   let s = 0;
@@ -42,14 +58,15 @@ function scorePassword(pw: string): number {
   if (/[A-Z]/.test(pw)) s++;
   if (/[a-z]/.test(pw)) s++;
   if (/\d/.test(pw)) s++;
-  if (/[!@#$%^&*]/.test(pw)) s++; // 🔧 símbolo del set permitido
+  if (/[!@#$%^&*]/.test(pw)) s++;
   return Math.min(s, 5);
 }
 
-/* Ampliamos localmente los valores para phone/role sin romper tu schema */
-type ExtendedValues = RegisterFormValues & { phone?: string; role?: "USER" | "RENTER" };
+type ExtendedValues = RegisterFormValues & {
+  phone?: string;
+  role?: "USER" | "RENTER";
+};
 
-/** CSS Vars tipadas (evita any) */
 type CSSVars = CSSProperties & {
   "--bg-opacity"?: string;
   "--bg-blur"?: string;
@@ -59,7 +76,9 @@ type CSSVars = CSSProperties & {
 export default function FormRegister() {
   const router = useRouter();
   const { isHydrated, register: registerAction } = useAuth();
-  const [alert, setAlert] = useState<null | { title: string; detail?: string; rid?: string }>(null);
+  const [alert, setAlert] = useState<
+    null | { title: string; detail?: string; rid?: string }
+  >(null);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -67,18 +86,29 @@ export default function FormRegister() {
   const [showPw, setShowPw] = useState(false);
   const [showPw2, setShowPw2] = useState(false);
 
+  // email bloqueado al pasar al paso 2
+  const [lockedEmail, setLockedEmail] = useState<string>("");
+
   const formik = useFormik<ExtendedValues>({
     initialValues: { ...RegisterInitialValues, phone: "", role: "USER" },
-    validationSchema: RegisterValidationSchema as unknown as import("yup").AnyObjectSchema,
+    validationSchema:
+      RegisterValidationSchema as unknown as import("yup").AnyObjectSchema,
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        // si el correo es de dominio admin -> fuerza rol ADMIN
-        const finalRole = isAdminEmail(values.email)
+        const effectiveEmail = lockedEmail || values.email;
+        const finalRole = isAdminEmail(effectiveEmail)
           ? "ADMIN"
           : (values.role ?? "USER");
 
+        console.log("[REGISTER] onSubmit", {
+          effectiveEmail,
+          finalRole,
+          isAdminEmail: isAdminEmail(effectiveEmail),
+        });
+
         const payload = {
           ...values,
+          email: effectiveEmail,
           role: finalRole,
         } as Parameters<typeof registerAction>[0];
 
@@ -88,7 +118,9 @@ export default function FormRegister() {
           const err = getLastAuthError();
           setAlert({
             title: err?.message || "No se pudo crear la cuenta.",
-            detail: err ? `${err.ctx} • ${err.status} ${err.statusText}` : undefined,
+            detail: err
+              ? `${err.ctx} • ${err.status} ${err.statusText}`
+              : undefined,
             rid: err?.requestId ?? undefined,
           });
           return;
@@ -96,7 +128,9 @@ export default function FormRegister() {
 
         clearLastAuthError();
 
-        const hasToken = typeof window !== "undefined" && !!localStorage.getItem("auth:token");
+        const hasToken =
+          typeof window !== "undefined" &&
+          !!localStorage.getItem("auth:token");
         if (hasToken) {
           try {
             const me = await meApi.getMe();
@@ -105,7 +139,10 @@ export default function FormRegister() {
             else if (role === "RENTER") router.push("/dashboard/renter");
             else router.push("/dashboard/user");
           } catch {
-            const fallback = values.role === "RENTER" ? "/dashboard/renter" : "/dashboard/user";
+            const fallback =
+              values.role === "RENTER"
+                ? "/dashboard/renter"
+                : "/dashboard/user";
             router.push(fallback);
           }
         } else {
@@ -117,18 +154,43 @@ export default function FormRegister() {
     },
   });
 
+  // email efectivo para detección de dominio / rol (usa lo bloqueado si existe)
+  const effectiveEmail = useMemo(
+    () => lockedEmail || formik.values.email,
+    [lockedEmail, formik.values.email]
+  );
+
   const adminDomain = useMemo(
-    () => getEmailDomain(formik.values.email),
-    [formik.values.email]
+    () => getEmailDomain(effectiveEmail),
+    [effectiveEmail]
   );
 
   const isAdminDomain = useMemo(
-    () => isAdminEmail(formik.values.email),
-    [formik.values.email]
+    () => isAdminEmail(effectiveEmail),
+    [effectiveEmail]
   );
 
+  // DEBUG GENERAL
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    console.log("[REGISTER] DEBUG STATE", {
+      step,
+      formikEmail: formik.values.email,
+      lockedEmail,
+      effectiveEmail,
+      adminDomain,
+      isAdminDomain,
+      ADMIN_DOMAINS,
+    });
+  }, [
+    step,
+    formik.values.email,
+    lockedEmail,
+    effectiveEmail,
+    adminDomain,
+    isAdminDomain,
+  ]);
 
-  /* Helpers tipados para errores/touched */
   const getErr = <K extends keyof ExtendedValues>(k: K): string | undefined => {
     const e = formik.errors[k];
     return typeof e === "string" ? e : undefined;
@@ -138,24 +200,22 @@ export default function FormRegister() {
     return typeof t === "boolean" ? t : false;
   };
 
-  // 🔧 Derivados para checklist de password
   const pw = formik.values.password || "";
   const pwScore = useMemo(() => scorePassword(pw), [pw]);
   const pwPercent = (pwScore / 5) * 100;
 
   if (!mounted || !isHydrated) return null;
 
-  /* ======== Variables para el fondo (tipadas) ======== */
   const bgVars: CSSVars = {
     "--bg-opacity": "0.75",
     "--bg-blur": "3px",
     "--bg-tint": "0.60",
   };
 
-  /* ===== estilos ===== */
   const inputBase =
     "w-full h-11 px-3 rounded-lg bg-white/10 border border-white/15 text-[var(--color-custume-light)] placeholder-white/60 outline-none focus:border-[var(--color-light-blue)]/60 focus:ring-2 focus:ring-[var(--color-light-blue)]/25 transition";
-  const labelBase = "block text-sm font-medium text-[var(--color-custume-light)]";
+  const labelBase =
+    "block text-sm font-medium text-[var(--color-custume-light)]";
   const errorText = "mt-1 text-[13px] text-red-300";
   const iconBtn =
     "absolute inset-y-0 right-3 my-auto inline-flex items-center text-white/80 hover:text-[var(--color-light-blue)]";
@@ -170,20 +230,55 @@ export default function FormRegister() {
     "h-11 rounded-lg font-medium border border-white/30 bg-white/5 hover:bg-white/10 hover:border-white/60 " +
     "transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-light-blue)]/40";
 
-  /* ===== validación por paso ===== */
   const step1Fields: (keyof ExtendedValues)[] = ["name", "username", "email"];
-  const step2Fields: (keyof ExtendedValues)[] = ["phone", "role"];
 
-  const nextFrom = async (fields: (keyof ExtendedValues)[], toStep: 2 | 3) => {
+  const nextFrom = async (
+    fields: (keyof ExtendedValues)[],
+    toStep: 2 | 3
+  ) => {
     const errors = await formik.validateForm();
-    const touchedObj = fields.reduce<Partial<Record<keyof ExtendedValues, boolean>>>((acc, k) => {
+    const touchedObj = fields.reduce<
+      Partial<Record<keyof ExtendedValues, boolean>>
+    >((acc, k) => {
       acc[k] = true;
       return acc;
     }, {});
     formik.setTouched(touchedObj as FormikTouched<ExtendedValues>, true);
 
-    const hasErrors = fields.some((k) => Boolean((errors as Partial<Record<keyof ExtendedValues, unknown>>)[k]));
-    if (!hasErrors) setStep(toStep);
+    const hasErrors = fields.some((k) =>
+      Boolean(
+        (errors as Partial<Record<keyof ExtendedValues, unknown>>)[k]
+      )
+    );
+
+    if (hasErrors) {
+      console.log("[REGISTER] nextFrom: hay errores, no cambiamos de paso", {
+        fields,
+        errors,
+      });
+      return;
+    }
+
+    if (toStep === 2) {
+      const emailNow = formik.values.email || "";
+      const adminNow = isAdminEmail(emailNow);
+      console.log("[REGISTER] Paso 1 -> 2", {
+        emailNow,
+        adminNow,
+        domain: getEmailDomain(emailNow),
+        ADMIN_DOMAINS,
+      });
+      setLockedEmail(emailNow);
+    }
+
+    if (toStep === 3) {
+      console.log("[REGISTER] Paso 2 -> 3", {
+        effectiveEmail,
+        isAdminDomain,
+      });
+    }
+
+    setStep(toStep);
   };
 
   const onBack = () => {
@@ -197,31 +292,60 @@ export default function FormRegister() {
       return (
         <ul className="list-disc pl-4 space-y-1">
           <li>
-            Usuario: minúsculas/números/<code>_</code> (sin <code>__</code>, ni empezar/terminar en <code>_</code>).
+            Usuario: minúsculas/números/<code>_</code> (sin{" "}
+            <code>__</code>, ni empezar/terminar en <code>_</code>).
           </li>
           <li>Usa un email válido; ahí llegan confirmaciones.</li>
-          <li>Nombre: solo letras y espacios (p. ej., &laquo;Ana Mar&iacute;a&raquo;).</li>
+          <li>
+            Nombre: solo letras y espacios (p. ej., &laquo;Ana
+            Mar&iacute;a&raquo;).
+          </li>
         </ul>
       );
     }
     if (step === 2) {
       return (
         <ul className="list-disc pl-4 space-y-1">
-          <li>Teléfono opcional; formato internacional (+57…), se aceptan guiones/paréntesis.</li>
-          <li><b>ADMIN</b> se asigna automáticamente si el dominio del correo está autorizado.</li>
-          <li>Elige <b>Usuario</b> o <b>Arrendador (RENTER)</b>.</li>
+          <li>
+            Teléfono opcional; formato internacional (+57…), se aceptan
+            guiones/paréntesis.
+          </li>
+          <li>
+            Si tu email pertenece a un dominio interno autorizado, la
+            cuenta se crea como <b>ADMIN</b> automáticamente.
+          </li>
+          <li>
+            Elige <b>Usuario</b> o <b>Arrendador (RENTER)</b> para usos
+            normales.
+          </li>
         </ul>
       );
     }
     return (
       <ul className="list-disc pl-4 space-y-1">
-        {/* 🔧 texto alineado con el backend */}
-        <li>Mín. 8 caracteres; mayúscula, minúscula, número y símbolo (!@#$%^&*).</li>
+        <li>
+          Mín. 8 caracteres; mayúscula, minúscula, número y símbolo
+          (!@#$%^&*).
+        </li>
         <li>No uses tu nombre/usuario/prefijo de email.</li>
-        <li>Frase secreta memorable &gt; password random olvidable.</li>
+        <li>
+          Frase secreta memorable &gt; password random olvidable.
+        </li>
       </ul>
     );
   };
+
+  // LOG explícito cada vez que renderiza el paso 2
+  if (step === 2 && typeof window !== "undefined") {
+    console.log("[REGISTER] Render STEP 2", {
+      formikEmail: formik.values.email,
+      lockedEmail,
+      effectiveEmail,
+      adminDomain,
+      isAdminDomain,
+      showRoleRadios: !isAdminDomain,
+    });
+  }
 
   return (
     <main
@@ -234,7 +358,7 @@ export default function FormRegister() {
         flex items-center
       "
     >
-      {/* === Capa de fondo con imagen + blur + opacidad variables === */}
+      {/* Fondo */}
       <div aria-hidden className="absolute inset-0 -z-10">
         <div
           className="absolute inset-0 bg-[url('/register.jpg')] bg-cover bg-center will-change-transform"
@@ -253,9 +377,8 @@ export default function FormRegister() {
         />
       </div>
 
-      {/* Grid principal: form + aside */}
       <section className="w-full max-w-6xl mx-auto grid md:grid-cols-[minmax(0,1fr)_320px] items-start gap-3 md:gap-4">
-        {/* ===== Columna FORM ===== */}
+        {/* FORM */}
         <div className="max-w-md w-full mx-auto md:mx-0 md:justify-self-end">
           <div
             className="
@@ -265,8 +388,7 @@ export default function FormRegister() {
               bg-[linear-gradient(to_right,var(--color-dark-blue)_0%,var(--color-custume-blue)_50%,var(--color-dark-blue)_100%)]
             "
           >
-
-            {/* ===== ALERTA ===== */}
+            {/* ALERTA */}
             {alert && (
               <div
                 role="alert"
@@ -274,11 +396,20 @@ export default function FormRegister() {
               >
                 <div className="flex items-start gap-3">
                   <div className="flex-1">
-                    <p className="font-semibold text-sm">{alert.title}</p>
-                    {alert.detail && <p className="text-xs opacity-90 mt-0.5">{alert.detail}</p>}
+                    <p className="font-semibold text-sm">
+                      {alert.title}
+                    </p>
+                    {alert.detail && (
+                      <p className="text-xs opacity-90 mt-0.5">
+                        {alert.detail}
+                      </p>
+                    )}
                     {alert.rid && (
                       <p className="text-[11px] opacity-70 mt-0.5">
-                        id: <code className="opacity-90">{alert.rid}</code>
+                        id:{" "}
+                        <code className="opacity-90">
+                          {alert.rid}
+                        </code>
                       </p>
                     )}
                   </div>
@@ -294,9 +425,8 @@ export default function FormRegister() {
                 </div>
               </div>
             )}
-            {/* ===== /ALERTA ===== */}
 
-            {/* Header: volver + título + pasos */}
+            {/* Header */}
             <header className="mb-6 grid grid-cols-[auto_1fr_auto] items-center gap-2">
               <button
                 type="button"
@@ -311,8 +441,12 @@ export default function FormRegister() {
               </button>
 
               <div className="justify-self-center text-center">
-                <h1 className="text-2xl sm:text-3xl font-semibold">Crear cuenta</h1>
-                <p className="mt-1 text-sm text-white/80">Únete a Volantia</p>
+                <h1 className="text-2xl sm:text-3xl font-semibold">
+                  Crear cuenta
+                </h1>
+                <p className="mt-1 text-sm text-white/80">
+                  Únete a Volantia
+                </p>
               </div>
 
               <div className="justify-self-end flex items-center gap-2 text-xs text-white/80">
@@ -321,7 +455,11 @@ export default function FormRegister() {
                   {[1, 2, 3].map((n) => (
                     <span
                       key={n}
-                      className={`h-2 w-2 rounded-full ${step >= n ? "bg-[var(--color-light-blue)]" : "bg-white/25"}`}
+                      className={`h-2 w-2 rounded-full ${
+                        step >= n
+                          ? "bg-[var(--color-light-blue)]"
+                          : "bg-white/25"
+                      }`}
                     />
                   ))}
                 </span>
@@ -329,7 +467,7 @@ export default function FormRegister() {
               </div>
             </header>
 
-            {/* ===== FORM ===== */}
+            {/* FORM BODY */}
             <form onSubmit={formik.handleSubmit} className="space-y-4">
               <div key={`step-${step}`}>
                 {/* PASO 1 */}
@@ -337,7 +475,9 @@ export default function FormRegister() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label htmlFor="name" className={labelBase}>Nombre completo</label>
+                        <label htmlFor="name" className={labelBase}>
+                          Nombre completo
+                        </label>
                         <input
                           id="name"
                           name="name"
@@ -350,12 +490,19 @@ export default function FormRegister() {
                           className={inputBase}
                         />
                         {isTouched("name") && getErr("name") && (
-                          <p className={errorText}>{getErr("name")}</p>
+                          <p className={errorText}>
+                            {getErr("name")}
+                          </p>
                         )}
                       </div>
 
                       <div>
-                        <label htmlFor="username" className={labelBase}>Usuario</label>
+                        <label
+                          htmlFor="username"
+                          className={labelBase}
+                        >
+                          Usuario
+                        </label>
                         <input
                           id="username"
                           name="username"
@@ -367,32 +514,48 @@ export default function FormRegister() {
                           placeholder="johndoe"
                           className={inputBase}
                         />
-                        {isTouched("username") && getErr("username") && (
-                          <p className={errorText}>{getErr("username")}</p>
-                        )}
+                        {isTouched("username") &&
+                          getErr("username") && (
+                            <p className={errorText}>
+                              {getErr("username")}
+                            </p>
+                          )}
                       </div>
                     </div>
 
                     <div>
-                      <label htmlFor="email" className={labelBase}>Email</label>
+                      <label htmlFor="email" className={labelBase}>
+                        Email
+                      </label>
                       <input
                         id="email"
                         name="email"
                         type="email"
                         autoComplete="email"
                         value={formik.values.email}
-                        onChange={(e) => formik.setFieldValue("email", e.target.value.trimStart())}
+                        onChange={(e) =>
+                          formik.setFieldValue(
+                            "email",
+                            e.target.value.trimStart()
+                          )
+                        }
                         onBlur={formik.handleBlur}
                         placeholder="john@volantia.com"
                         className={inputBase}
                       />
                       {isTouched("email") && getErr("email") && (
-                        <p className={errorText}>{getErr("email")}</p>
+                        <p className={errorText}>
+                          {getErr("email")}
+                        </p>
                       )}
                     </div>
 
                     <div className="pt-1">
-                      <button type="button" onClick={() => nextFrom(step1Fields, 2)} className={`w-full ${btnPrimary}`}>
+                      <button
+                        type="button"
+                        onClick={() => nextFrom(step1Fields, 2)}
+                        className={`w-full ${btnPrimary}`}
+                      >
                         Continuar
                       </button>
                     </div>
@@ -403,7 +566,9 @@ export default function FormRegister() {
                 {step === 2 && (
                   <div className="space-y-6">
                     <div>
-                      <label htmlFor="phone" className={labelBase}>Teléfono (opcional)</label>
+                      <label htmlFor="phone" className={labelBase}>
+                        Teléfono (opcional)
+                      </label>
                       <input
                         id="phone"
                         name="phone"
@@ -416,17 +581,25 @@ export default function FormRegister() {
                         className={inputBase}
                       />
                       {isTouched("phone") && getErr("phone") && (
-                        <p className={errorText}>{getErr("phone")}</p>
+                        <p className={errorText}>
+                          {getErr("phone")}
+                        </p>
                       )}
                     </div>
 
                     <div>
-                      <span id="role-label" className={labelBase}>Tipo de cuenta</span>
+                      <span id="role-label" className={labelBase}>
+                        Tipo de cuenta
+                      </span>
 
+                      {/* Si NO es dominio admin: mostrar opciones de rol */}
                       {!isAdminDomain && (
-                        <fieldset aria-labelledby="role-label" className="mt-2">
+                        <fieldset
+                          aria-labelledby="role-label"
+                          className="mt-2"
+                        >
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            {([
+                            {[
                               {
                                 value: "USER" as const,
                                 title: "Quiero rentar un auto",
@@ -437,8 +610,10 @@ export default function FormRegister() {
                                 title: "Quiero rentar mi auto",
                                 hint: "Publica y gestiona tus vehículos",
                               },
-                            ]).map((opt) => {
-                              const selected = (formik.values.role ?? "USER") === opt.value;
+                            ].map((opt) => {
+                              const selected =
+                                (formik.values.role ?? "USER") ===
+                                opt.value;
 
                               return (
                                 <label
@@ -456,7 +631,12 @@ export default function FormRegister() {
                                     name="role"
                                     value={opt.value}
                                     checked={selected}
-                                    onChange={() => formik.setFieldValue("role", opt.value)}
+                                    onChange={() =>
+                                      formik.setFieldValue(
+                                        "role",
+                                        opt.value
+                                      )
+                                    }
                                     onBlur={formik.handleBlur}
                                     className="sr-only"
                                   />
@@ -500,36 +680,71 @@ export default function FormRegister() {
                         </fieldset>
                       )}
 
+                      {/* Si ES dominio admin: ocultar radios y mostrar checkbox/badge forzado */}
                       {isAdminDomain && (
                         <div className="mt-2 rounded-xl border border-emerald-400/60 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-50">
-                          <p className="font-semibold text-sm mb-1">Cuenta de administrador</p>
-                          <p>
-                            Detectamos un dominio autorizado
-                            {adminDomain && <> (<code>{adminDomain}</code>)</>}. 
-                            Esta cuenta se creará con rol <b>ADMIN</b>.
+                          <p className="font-semibold text-sm mb-2">
+                            Cuenta de administrador
                           </p>
+                          <label className="flex items-start gap-2">
+                            <input
+                              type="checkbox"
+                              checked
+                              readOnly
+                              className="mt-0.5 h-3 w-3 rounded border-emerald-300 bg-emerald-400 accent-emerald-500"
+                            />
+                            <span>
+                              Por usar un dominio autorizado
+                              {adminDomain && (
+                                <>
+                                  {" "}
+                                  (<code>{adminDomain}</code>)
+                                </>
+                              )}
+                              , esta cuenta se registrará como{" "}
+                              <b>ADMIN</b> en la plataforma.
+                            </span>
+                          </label>
                         </div>
                       )}
 
-                      {!isAdminDomain && isTouched("role") && getErr("role") && (
-                        <p className={errorText}>{getErr("role")}</p>
-                      )}
+                      {!isAdminDomain &&
+                        isTouched("role") &&
+                        getErr("role") && (
+                          <p className={errorText}>
+                            {getErr("role")}
+                          </p>
+                        )}
                     </div>
 
-                    <p className="text-xs text-white/80">
-                      * <b>ADMIN</b> se asigna automáticamente si el dominio del correo está autorizado.
-                    </p>
-
-
-                    <p className="text-xs text-white/80">
-                      * <b>ADMIN</b> se asigna automáticamente si el dominio del correo está autorizado.
-                    </p>
+                    {/* Nota única sobre ADMIN cuando no es dominio admin */}
+                    {!isAdminDomain && (
+                      <p className="text-xs text-white/80">
+                        * <b>ADMIN</b> se asigna automáticamente si el
+                        dominio del correo está autorizado.
+                      </p>
+                    )}
 
                     <div className="pt-1 flex gap-3">
-                      <button type="button" onClick={() => setStep(1)} className={`flex-1 ${btnSecondary}`}>
+                      <button
+                        type="button"
+                        onClick={() => setStep(1)}
+                        className={`flex-1 ${btnSecondary}`}
+                      >
                         Anterior
                       </button>
-                      <button type="button" onClick={() => nextFrom(step2Fields, 3)} className={`flex-1 ${btnPrimary}`}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          nextFrom(
+                            isAdminDomain
+                              ? (["phone"] as (keyof ExtendedValues)[])
+                              : (["phone", "role"] as (keyof ExtendedValues)[]),
+                            3
+                          )
+                        }
+                        className={`flex-1 ${btnPrimary}`}
+                      >
                         Continuar
                       </button>
                     </div>
@@ -540,7 +755,12 @@ export default function FormRegister() {
                 {step === 3 && (
                   <div className="space-y-4">
                     <div>
-                      <label htmlFor="password" className={labelBase}>Contraseña</label>
+                      <label
+                        htmlFor="password"
+                        className={labelBase}
+                      >
+                        Contraseña
+                      </label>
                       <div className="relative">
                         <input
                           id="password"
@@ -555,19 +775,27 @@ export default function FormRegister() {
                         />
                         <button
                           type="button"
-                          onClick={() => setShowPw((v) => !v)}
+                          onClick={() =>
+                            setShowPw((v) => !v)
+                          }
                           className={iconBtn}
-                          aria-label={showPw ? "Ocultar contraseña" : "Mostrar contraseña"}
+                          aria-label={
+                            showPw
+                              ? "Ocultar contraseña"
+                              : "Mostrar contraseña"
+                          }
                           title={showPw ? "Ocultar" : "Mostrar"}
                         >
                           {showPw ? <FiEyeOff /> : <FiEye />}
                         </button>
                       </div>
-                      {isTouched("password") && getErr("password") && (
-                        <p className={errorText}>{getErr("password")}</p>
-                      )}
+                      {isTouched("password") &&
+                        getErr("password") && (
+                          <p className={errorText}>
+                            {getErr("password")}
+                          </p>
+                        )}
 
-                      {/* 🔧 Barra de fuerza + checklist alineado al backend */}
                       <div className="mt-2">
                         <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden">
                           <div
@@ -579,7 +807,12 @@ export default function FormRegister() {
                     </div>
 
                     <div>
-                      <label htmlFor="confirmPassword" className={labelBase}>Confirmar contraseña</label>
+                      <label
+                        htmlFor="confirmPassword"
+                        className={labelBase}
+                      >
+                        Confirmar contraseña
+                      </label>
                       <div className="relative">
                         <input
                           id="confirmPassword"
@@ -594,39 +827,85 @@ export default function FormRegister() {
                         />
                         <button
                           type="button"
-                          onClick={() => setShowPw2((v) => !v)}
+                          onClick={() =>
+                            setShowPw2((v) => !v)
+                          }
                           className={iconBtn}
-                          aria-label={showPw2 ? "Ocultar confirmación" : "Mostrar confirmación"}
+                          aria-label={
+                            showPw2
+                              ? "Ocultar confirmación"
+                              : "Mostrar confirmación"
+                          }
                           title={showPw2 ? "Ocultar" : "Mostrar"}
                         >
                           {showPw2 ? <FiEyeOff /> : <FiEye />}
                         </button>
                       </div>
-                      {isTouched("confirmPassword") && getErr("confirmPassword") && (
-                        <p className={errorText}>{getErr("confirmPassword")}</p>
-                      )}
+                      {isTouched("confirmPassword") &&
+                        getErr("confirmPassword") && (
+                          <p className={errorText}>
+                            {getErr("confirmPassword")}
+                          </p>
+                        )}
 
-                      {/* 🔧 checklist breve para confirm (coincidencia + mismo set) */}
                       <ul className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-[12px] text-white/80">
-                        <li className={(formik.values.confirmPassword === formik.values.password && formik.values.password.length > 0) ? "opacity-100" : "opacity-60"}>
+                        <li
+                          className={
+                            formik.values.confirmPassword ===
+                              formik.values.password &&
+                            formik.values.password.length > 0
+                              ? "opacity-100"
+                              : "opacity-60"
+                          }
+                        >
                           <span className="mr-1">
-                            {(formik.values.confirmPassword === formik.values.password && formik.values.password.length > 0) ? "✓" : "•"}
+                            {formik.values.confirmPassword ===
+                              formik.values.password &&
+                            formik.values.password.length > 0
+                              ? "✓"
+                              : "•"}
                           </span>
                           Coincide con la contraseña
                         </li>
-                        <li className={/[!@#$%^&*]/.test(formik.values.confirmPassword || "") ? "opacity-100" : "opacity-60"}>
-                          <span className="mr-1">{/[!@#$%^&*]/.test(formik.values.confirmPassword || "") ? "✓" : "•"}</span>
+                        <li
+                          className={
+                            /[!@#$%^&*]/.test(
+                              formik.values.confirmPassword || ""
+                            )
+                              ? "opacity-100"
+                              : "opacity-60"
+                          }
+                        >
+                          <span className="mr-1">
+                            {/[!@#$%^&*]/.test(
+                              formik.values.confirmPassword || ""
+                            )
+                              ? "✓"
+                              : "•"}
+                          </span>
                           Incluye símbolo (!@#$%^&*)
                         </li>
                       </ul>
                     </div>
 
                     <div className="pt-1 flex gap-3">
-                      <button type="button" onClick={() => setStep(2)} className={`flex-1 ${btnSecondary}`}>
+                      <button
+                        type="button"
+                        onClick={() => setStep(2)}
+                        className={`flex-1 ${btnSecondary}`}
+                      >
                         Anterior
                       </button>
-                      <button type="submit" disabled={!formik.isValid || formik.isSubmitting} className={`flex-1 ${btnPrimary}`}>
-                        {formik.isSubmitting ? "Creando..." : "Crear cuenta"}
+                      <button
+                        type="submit"
+                        disabled={
+                          !formik.isValid || formik.isSubmitting
+                        }
+                        className={`flex-1 ${btnPrimary}`}
+                      >
+                        {formik.isSubmitting
+                          ? "Creando..."
+                          : "Crear cuenta"}
                       </button>
                     </div>
                   </div>
@@ -636,7 +915,7 @@ export default function FormRegister() {
           </div>
         </div>
 
-        {/* ===== Columna ASIDE ===== */}
+        {/* ASIDE */}
         <aside className="space-y-4">
           <div
             className="
@@ -644,7 +923,9 @@ export default function FormRegister() {
               bg-[linear-gradient(to_right,var(--color-dark-blue)_0%,var(--color-custume-blue)_50%,var(--color-dark-blue)_100%)]
             "
           >
-            <h3 className="text-xs font-semibold mb-3 text-white/90">Acceso rápido</h3>
+            <h3 className="text-xs font-semibold mb-3 text-white/90">
+              Acceso rápido
+            </h3>
             <button
               type="button"
               onClick={loginWithAuth0}
@@ -656,7 +937,10 @@ export default function FormRegister() {
             </button>
             <p className="mt-3 text-[12px] text-white/80">
               ¿Ya tienes cuenta?{" "}
-              <a href="/login" className="underline underline-offset-4 decoration-white/30 hover:decoration-white hover:text-[var(--color-light-blue)]">
+              <a
+                href="/login"
+                className="underline underline-offset-4 decoration-white/30 hover:decoration-white hover:text-[var(--color-light-blue)]"
+              >
                 Inicia sesión
               </a>
             </p>
@@ -668,7 +952,9 @@ export default function FormRegister() {
               bg-[linear-gradient(to_right,var(--color-dark-blue)_0%,var(--color-custume-blue)_50%,var(--color-dark-blue)_100%)]
             "
           >
-            <p className="mb-1 font-medium text-white">Consejos para este paso</p>
+            <p className="mb-1 font-medium text-white">
+              Consejos para este paso
+            </p>
             <StepTips />
           </div>
         </aside>

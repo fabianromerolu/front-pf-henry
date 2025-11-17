@@ -6,7 +6,6 @@ import { useAuth } from "@/context/AuthContext";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-
 function mapPathToTitle(pathname: string): string {
   if (pathname === "/dashboard/admin") return "Panel de administración";
 
@@ -30,6 +29,11 @@ export default function AdminHeader() {
       .map((p) => p.charAt(0).toUpperCase())
       .slice(0, 2)
       .join("") || "A";
+
+  const profilePicture =
+    typeof (user as { profilePicture?: unknown })?.profilePicture === "string"
+      ? (user as { profilePicture?: string }).profilePicture
+      : undefined;
 
   return (
     <header className="flex items-center justify-between gap-3">
@@ -65,10 +69,7 @@ export default function AdminHeader() {
         </div>
         <Avatar className="h-9 w-9 border border-white/20 shadow">
           <AvatarImage
-            src={
-              (user as any)?.profilePicture ??
-              undefined
-            }
+            src={profilePicture}
             alt={user?.name || user?.email || "Admin"}
           />
           <AvatarFallback className="bg-[var(--color-light-blue)] text-[var(--color-dark-blue)] text-xs font-semibold">

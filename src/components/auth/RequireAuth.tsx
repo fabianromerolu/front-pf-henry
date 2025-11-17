@@ -1,4 +1,3 @@
-//src/components/auth/RequiereAuth.tsx
 "use client";
 
 import { ReactNode, useEffect, useMemo, useState } from "react";
@@ -21,8 +20,11 @@ function safeDecodeIsAdmin(token: string | null): boolean {
           .call(atob(padded), (c: string) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
           .join("")
       )
-    );
-    return !!json?.isAdmin;
+    ) as { role?: string; isAdmin?: boolean };
+
+    if (json.isAdmin) return true;
+    if (typeof json.role === "string" && json.role.toUpperCase() === "ADMIN") return true;
+    return false;
   } catch {
     return false;
   }
@@ -30,8 +32,8 @@ function safeDecodeIsAdmin(token: string | null): boolean {
 
 export default function RequireAuth({
   children,
-  role,               // "admin" | "user" | undefined
-  fallback = null,    // lo que muestras mientras decide
+  role,
+  fallback = null,
 }: {
   children: ReactNode;
   role?: UserRole;
@@ -41,16 +43,13 @@ export default function RequireAuth({
   const [ready, setReady] = useState(false);
   const [allowed, setAllowed] = useState(false);
 
-  // Rol efectivo: primero el del user del contexto, si no hay, el del token (isAdmin)
   const effectiveRole: Role = useMemo(() => {
     if (user?.role) return user.role;
     if (token) return safeDecodeIsAdmin(token) ? "admin" : "user";
     return undefined;
   }, [user?.role, token]);
 
-
   useEffect(() => {
-    // Logs de diagnóstico
     console.log("[RequireAuth]", {
       isHydrated,
       hasUser: !!user,
@@ -77,7 +76,6 @@ export default function RequireAuth({
       return;
     }
 
-    // Si no exige admin, o el rol es admin, permitir
     setAllowed(true);
     setReady(true);
   }, [isHydrated, user, token, role, effectiveRole]);
@@ -89,11 +87,7 @@ export default function RequireAuth({
         <section className="max-w-md w-full px-8 py-10 rounded-3xl bg-dark-blue/90 border border-light-blue/50 shadow-xl shadow-black/40 text-center space-y-6 animate-fade-slide">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-light-blue/20 text-light-blue">
             {/* icono candado */}
-            <svg
-              viewBox="0 0 24 24"
-              className="h-6 w-6"
-              aria-hidden="true"
-            >
+            <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden="true">
               <path
                 d="M17 11V8a5 5 0 0 0-10 0v3"
                 fill="none"
@@ -135,12 +129,12 @@ export default function RequireAuth({
               Volver atrás
             </button>
 
-          <Link
-            href="/"
-            className="hind inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-medium border border-light-blue/70 text-light-blue hover:bg-light-blue/10 transition"
-          >
-            Ir al inicio
-          </Link>
+            <Link
+              href="/"
+              className="hind inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-medium border border-light-blue/70 text-light-blue hover:bg-light-blue/10 transition"
+            >
+              Ir al inicio
+            </Link>
           </div>
 
           <p className="taviraj text-[11px] tracking-wide text-custume-gray">
