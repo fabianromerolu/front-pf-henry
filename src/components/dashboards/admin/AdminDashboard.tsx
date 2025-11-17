@@ -212,18 +212,23 @@ export default function AdminDashboard() {
                         fontSize: 12,
                       }}
                       labelStyle={{ color: "white" }}
-                      formatter={(value: any, name) => {
+                      formatter={(value: number | string, name: string) => {
                         if (name === "Bookings") return [value, "Reservas"];
+
                         if (name === "Revenue") {
+                          const numeric =
+                            typeof value === "number" ? value : Number(value || 0);
+
                           return [
                             new Intl.NumberFormat("es-CO", {
                               style: "currency",
                               currency: "COP",
                               minimumFractionDigits: 0,
-                            }).format(value as number),
+                            }).format(numeric),
                             "Revenue",
                           ];
                         }
+
                         return [value, name];
                       }}
                     />
