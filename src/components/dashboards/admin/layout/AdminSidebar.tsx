@@ -27,8 +27,14 @@ const NAV_ITEMS: NavItem[] = [
 export default function AdminSidebar() {
   const pathname = usePathname();
 
-  const isActive = (href: string) =>
-    pathname === href || pathname.startsWith(href + "/");
+  // Solo el root hace match exacto.
+  // Para las demás rutas, permitimos subrutas (/users/123, etc.)
+  const isActive = (href: string) => {
+    if (href === "/dashboard/admin") {
+      return pathname === href;
+    }
+    return pathname === href || pathname.startsWith(href + "/");
+  };
 
   const handleLogout = () => {
     logout();
@@ -46,7 +52,6 @@ export default function AdminSidebar() {
         flex flex-col gap-3
       "
     >
-
       <ul className="space-y-1">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
