@@ -133,11 +133,20 @@ export type Booking = {
   totalPrice: string | number;
   paymentStatus?: "UNPAID" | "PENDING" | "PAID" | "FAILED";
   currency?: string;
-  pin?: { id: string; title?: string; make?: string; model?: string };
+  pin?: {
+    id: string;
+    title?: string;
+    make?: string;
+    model?: string;
+    city?: string | null;
+    state?: string | null;
+    country?: string | null;
+  };
   user?: { id: string; name?: string; email?: string };
   createdAt?: string;
   updatedAt?: string;
 };
+
 
 export type WalletTransaction = {
   id: string;
