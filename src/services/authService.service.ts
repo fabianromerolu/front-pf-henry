@@ -223,11 +223,24 @@ export async function resolveUserFromToken(accessToken: string): Promise<AuthUse
       method: "GET",
       credentials: "include",
     });
-    const me = await safeJson<{ user?: APIUser | null }>(meRes);
-    if (meRes.ok && me?.user) {
-      const user = normalizeApiUser(me.user);
+    const me = await safeJson<{ user?: APIUser | null } | APIUser>(meRes);
+
+    if (meRes.ok && me) {
+      let rawUser: APIUser | null = null;
+
+      if ("email" in me) {
+        // caso: respuesta es APIUser plano
+        rawUser = me;
+      } else if ("user" in me && me.user) {
+        // caso: respuesta es { user: APIUser }
+        rawUser = me.user;
+      }
+
+      const user = normalizeApiUser(rawUser);
       if (user) return user;
     }
+
+
 
     // 3) Fallback: /users/:id si el JWT trae sub=UUID
     const payload = decodeJwtPayload(accessToken);
@@ -477,11 +490,24 @@ export async function getMe(): Promise<AuthUser | null> {
       method: "GET",
       credentials: "include",
     });
-    const me = await safeJson<{ user?: APIUser | null }>(meRes);
-    if (meRes.ok && me?.user) {
-      const user = normalizeApiUser(me.user);
+    const me = await safeJson<{ user?: APIUser | null } | APIUser>(meRes);
+
+    if (meRes.ok && me) {
+      let rawUser: APIUser | null = null;
+
+      if ("email" in me) {
+        // APIUser plano
+        rawUser = me;
+      } else if ("user" in me && me.user) {
+        // { user: APIUser }
+        rawUser = me.user;
+      }
+
+      const user = normalizeApiUser(rawUser);
       if (user) return user;
     }
+
+
 
     // 3) Si hay token guardado, intenta el resolutor largo
     if (token) return await resolveUserFromToken(token);

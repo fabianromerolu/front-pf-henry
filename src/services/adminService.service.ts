@@ -122,11 +122,11 @@ export type AdminMetricsOverview = {
 
 /** No tienes schema explícito para series, lo dejamos abierto pero tipado por conveniencia */
 export type AdminMetricsSeriesPoint = {
-  /** Fecha según granularity (día/mes) */
   date: string;
   bookings: number;
-  revenue: string; // COP en string
+  revenue: number; // número, como viene del back
 };
+
 
 export type AdminMetricsSeriesResponse = {
   data: AdminMetricsSeriesPoint[];
@@ -198,14 +198,11 @@ export const adminBookingsApi = {
   async listBookings(params: AdminBookingsFilters = {}) {
     const { data } = await api.get<{
       data: Booking[];
-      total: number;
-      page: number;
-      limit: number;
-      totalPages: number;
-      hasNext: boolean;
-      hasPrev: boolean;
+      meta: PaginationMeta;
     }>(`/admin/bookings${q(params)}`);
-    return data;
+
+    // si quieres devolver directo el objeto con data + meta:
+    return data; // { data: Booking[], meta: PaginationMeta }
   },
 
   /** GET /bookings/{id} – detalle de reserva */
@@ -268,16 +265,13 @@ export const adminMetricsApi = {
    * GET /admin/metrics/series – series temporales de bookings y revenue
    * from/to: YYYY-MM-DD (según swagger)
    */
-  async getSeries(params: {
-    from?: string;
-    to?: string;
-    granularity?: "day" | "month";
-  }) {
-    const { data } = await api.get<AdminMetricsSeriesResponse>(
+  async getSeries(params: { from?: string; to?: string; granularity?: "day" | "month" }) {
+    const { data } = await api.get<AdminMetricsSeriesPoint[]>(
       `/admin/metrics/series${q(params)}`
     );
-    return data;
-  },
+    return data; // data es AdminMetricsSeriesPoint[]
+  }
+
 };
 
 /* ====================== ADMIN PINS (GLOBAL) ====================== */

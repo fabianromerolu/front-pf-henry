@@ -1,10 +1,7 @@
 "use client";
 
 import * as React from "react";
-
-function cn(...classes: Array<string | false | null | undefined>) {
-  return classes.filter(Boolean).join(" ");
-}
+import { cn } from "@/lib/utils";
 
 export type SkeletonProps = React.HTMLAttributes<HTMLDivElement>;
 
@@ -14,9 +11,9 @@ const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
       <div
         ref={ref}
         className={cn(
-          "animate-pulse rounded-md",
-          "bg-white/5",
-          "relative overflow-hidden",
+          "relative overflow-hidden rounded-md",
+          "animate-pulse",
+          "bg-muted/60",
           "before:absolute before:inset-0 before:-translate-x-full before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:animate-[skeleton-shimmer_1.4s_infinite]",
           className
         )}

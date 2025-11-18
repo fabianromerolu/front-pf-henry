@@ -3,7 +3,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, CarFront, CalendarRange, Wallet } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  CarFront,
+  CalendarRange,
+  Wallet,
+  LogOut,
+} from "lucide-react";
+import { logout } from "@/services/authService.service";
 
 type NavItem = {
   label: string;
@@ -25,11 +33,22 @@ export default function AdminSidebar() {
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + "/");
 
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
-    <nav className="h-full rounded-2xl border border-white/10 bg-black/15 backdrop-blur-md p-3 shadow-[0_18px_45px_rgba(0,0,0,.45)]">
-      <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[var(--color-light-blue)]/80 mb-3">
-        Admin
-      </p>
+    <nav
+      className="
+        rounded-2xl
+        border border-[var(--color-custume-blue)]/55
+        bg-[var(--color-dark-blue)]
+        text-[var(--color-custume-light)]
+        shadow-[0_18px_45px_rgba(0,0,0,.45)]
+        p-3
+        flex flex-col gap-3
+      "
+    >
 
       <ul className="space-y-1">
         {NAV_ITEMS.map((item) => {
@@ -40,13 +59,20 @@ export default function AdminSidebar() {
               <Link
                 href={item.href}
                 className={[
-                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition",
+                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors",
                   active
-                    ? "bg-white text-[var(--color-dark-blue)] shadow border border-white/70"
-                    : "text-[var(--color-custume-light)]/85 hover:bg-white/10 hover:border-white/40 border border-transparent",
+                    ? "bg-white text-[var(--color-dark-blue)] shadow-sm"
+                    : "text-[var(--color-custume-light)]/85 hover:bg-[var(--color-custume-blue)]/55 hover:text-white",
                 ].join(" ")}
               >
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
+                <span
+                  className={[
+                    "inline-flex h-8 w-8 items-center justify-center rounded-lg",
+                    active
+                      ? "bg-[var(--color-dark-blue)]/5 text-[var(--color-dark-blue)]"
+                      : "bg-[var(--color-custume-blue)]/65 text-white",
+                  ].join(" ")}
+                >
                   <Icon className="h-4 w-4" />
                 </span>
                 <span className="truncate font-medium">{item.label}</span>
@@ -55,6 +81,25 @@ export default function AdminSidebar() {
           );
         })}
       </ul>
+
+      {/* Cerrar sesión */}
+      <div className="pt-3 border-t border-[var(--color-custume-blue)]/40">
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="
+            w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
+            text-[var(--color-custume-light)]/85
+            transition-colors
+            hover:bg-[var(--color-custume-red)]/20 hover:text-white
+          "
+        >
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--color-custume-red)]/80 text-white">
+            <LogOut className="h-4 w-4" />
+          </span>
+          <span className="truncate font-medium">Cerrar sesión</span>
+        </button>
+      </div>
     </nav>
   );
 }

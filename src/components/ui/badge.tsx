@@ -1,11 +1,7 @@
-// src/components/ui/badge.tsx
 "use client";
 
 import * as React from "react";
-
-function cn(...classes: Array<string | false | null | undefined>) {
-  return classes.filter(Boolean).join(" ");
-}
+import { cn } from "@/lib/utils";
 
 type BadgeVariant =
   | "default"
@@ -15,24 +11,23 @@ type BadgeVariant =
   | "destructive"
   | "warning";
 
-export interface BadgeProps
-  extends React.HTMLAttributes<HTMLSpanElement> {
+export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   variant?: BadgeVariant;
 }
 
 const variantClasses: Record<BadgeVariant, string> = {
   default:
-    "bg-light-blue text-dark-blue border border-light-blue/80",
+    "bg-[var(--color-light-blue)] text-[var(--color-dark-blue)] border border-[var(--color-light-blue)]/80",
   secondary:
-    "bg-white/10 text-custume-light border border-white/20",
+    "bg-card/10 text-[var(--color-custume-light)] border border-border/60",
   outline:
-    "bg-transparent text-custume-light border border-white/40",
+    "bg-transparent text-[var(--color-custume-gray)] border border-border/80",
   success:
-    "bg-emerald-500/15 text-emerald-300 border border-emerald-400/70",
+    "bg-emerald-500/12 text-emerald-300 border border-emerald-400/70",
   destructive:
-    "bg-red-500/15 text-red-300 border border-red-400/70",
+    "bg-[var(--color-custume-red)]/12 text-[var(--color-custume-red)] border border-[var(--color-custume-red)]/70",
   warning:
-    "bg-amber-500/15 text-amber-200 border border-amber-400/70",
+    "bg-amber-500/12 text-amber-200 border border-amber-400/70",
 };
 
 const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(

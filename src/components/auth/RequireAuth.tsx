@@ -83,8 +83,8 @@ export default function RequireAuth({
   if (!ready) return <>{fallback}</>;
   if (!allowed) {
     return (
-      <main className="min-h-dvh flex items-center justify-center bg-gradient-to-b from-dark-blue to-custume-blue text-custume-light">
-        <section className="max-w-md w-full px-8 py-10 rounded-3xl bg-dark-blue/90 border border-light-blue/50 shadow-xl shadow-black/40 text-center space-y-6 animate-fade-slide">
+      <main className="min-h-dvh flex items-center justify-center bg-gradient-to-b text-custume-light">
+        <section className="max-w-md w-full px-8 py-10 rounded-3xl bg-dark-blue/120 border border-light-blue/50 shadow-xl shadow-black/40 text-center space-y-6 animate-fade-slide">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-light-blue/20 text-light-blue">
             {/* icono candado */}
             <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden="true">

@@ -20,7 +20,14 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { CalendarRange, CarFront, LucideIcon, TrendingUp, Users, Wallet } from "lucide-react";
+import {
+  CalendarRange,
+  CarFront,
+  LucideIcon,
+  TrendingUp,
+  Users,
+  Wallet,
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,8 +38,9 @@ type ChartPoint = {
   revenue: number;
 };
 
-function parseCop(value: string): number {
-  if (!value) return 0;
+function parseCop(value: string | number | null | undefined): number {
+  if (value == null) return 0;
+  if (typeof value === "number") return value;
   const cleaned = value.replace(/[^\d.-]/g, "");
   const n = Number(cleaned);
   return Number.isNaN(n) ? 0 : n;
@@ -63,7 +71,7 @@ export default function AdminDashboard() {
         ]);
         if (cancelled) return;
         setOverview(ov);
-        setSeries(se.data || []);
+        setSeries(se || []);
       } catch (err) {
         console.error("[AdminDashboard] error:", err);
         if (!cancelled) setError("No se pudieron cargar las métricas.");
@@ -96,10 +104,10 @@ export default function AdminDashboard() {
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {loading && !kpi ? (
           <>
-            <Skeleton className="h-28 rounded-2xl bg-white/10" />
-            <Skeleton className="h-28 rounded-2xl bg-white/10" />
-            <Skeleton className="h-28 rounded-2xl bg-white/10" />
-            <Skeleton className="h-28 rounded-2xl bg-white/10" />
+            <Skeleton className="h-28 rounded-2xl bg-[var(--color-custume-blue)]/40" />
+            <Skeleton className="h-28 rounded-2xl bg-[var(--color-custume-blue)]/40" />
+            <Skeleton className="h-28 rounded-2xl bg-[var(--color-custume-blue)]/40" />
+            <Skeleton className="h-28 rounded-2xl bg-[var(--color-custume-blue)]/40" />
           </>
         ) : kpi ? (
           <>
@@ -142,11 +150,12 @@ export default function AdminDashboard() {
 
       {/* ===== Chart bookings + revenue ===== */}
       <section className="grid grid-cols-1 lg:grid-cols-[minmax(0,2.2fr)_minmax(0,1fr)] gap-4">
-        <Card className="bg-black/30 border-white/10 text-[var(--color-custume-light)] rounded-2xl">
+        {/* Card del gráfico */}
+        <Card className="bg-[var(--color-dark-blue)]/95 border-[var(--color-custume-blue)]/55 text-[var(--color-custume-light)] rounded-2xl shadow-[0_18px_45px_rgba(0,0,0,.45)]">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between gap-2">
               <div>
-                <CardTitle className="text-sm font-semibold">
+                <CardTitle className="text-sm font-semibold text-[var(--color-light-blue)]">
                   Bookings & revenue (30 días)
                 </CardTitle>
                 <p className="text-[11px] text-[var(--color-custume-light)]/75">
@@ -158,9 +167,9 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent className="pt-4">
             {loading && chartData.length === 0 ? (
-              <Skeleton className="h-56 rounded-xl bg-white/10" />
+              <Skeleton className="h-56 rounded-xl bg-[var(--color-custume-blue)]/40" />
             ) : chartData.length === 0 ? (
-              <p className="text-sm text-[var(--color-custume-light)]/80">
+              <p className="text-sm text-[var(--color-custume-light)]/85">
                 Todavía no hay datos suficientes para mostrar la serie.
               </p>
             ) : (
@@ -177,7 +186,10 @@ export default function AdminDashboard() {
                         <stop offset="95%" stopColor="#22c55e" stopOpacity={0.05} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.15)" />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="rgba(255,255,255,0.15)"
+                    />
                     <XAxis
                       dataKey="date"
                       tickLine={false}
@@ -234,7 +246,11 @@ export default function AdminDashboard() {
                     />
                     <Legend
                       formatter={(v) =>
-                        v === "Bookings" ? "Reservas" : v === "Revenue" ? "Revenue (COP)" : v
+                        v === "Bookings"
+                          ? "Reservas"
+                          : v === "Revenue"
+                          ? "Revenue (COP)"
+                          : v
                       }
                     />
                     <Area
@@ -265,9 +281,9 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Top ciudades */}
-        <Card className="bg-black/30 border-white/10 text-[var(--color-custume-light)] rounded-2xl">
+        <Card className="bg-[var(--color-dark-blue)]/95 border-[var(--color-custume-blue)]/55 text-[var(--color-custume-light)] rounded-2xl shadow-[0_18px_45px_rgba(0,0,0,.45)]">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold">
+            <CardTitle className="text-sm font-semibold text-[var(--color-light-blue)]">
               Top ciudades
             </CardTitle>
             <p className="text-[11px] text-[var(--color-custume-light)]/75">
@@ -276,9 +292,9 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent className="pt-4">
             {loading && !kpi ? (
-              <Skeleton className="h-32 rounded-xl bg-white/10" />
+              <Skeleton className="h-32 rounded-xl bg-[var(--color-custume-blue)]/40" />
             ) : !kpi || !kpi.topCities || kpi.topCities.length === 0 ? (
-              <p className="text-sm text-[var(--color-custume-light)]/80">
+              <p className="text-sm text-[var(--color-custume-light)]/85">
                 Aún no hay ciudades destacadas.
               </p>
             ) : (
@@ -315,7 +331,6 @@ type KpiCardProps = {
   isMoney?: boolean;
 };
 
-
 function KpiCard({ icon: Icon, label, value, hint, isMoney }: KpiCardProps) {
   const formatted =
     typeof value === "number" && isMoney
@@ -327,21 +342,19 @@ function KpiCard({ icon: Icon, label, value, hint, isMoney }: KpiCardProps) {
       : value;
 
   return (
-    <Card className="bg-black/35 border-white/10 text-[var(--color-custume-light)] rounded-2xl">
+    <Card className="bg-[var(--color-dark-blue)]/95 border-[var(--color-custume-blue)]/55 text-[var(--color-custume-light)] rounded-2xl shadow-[0_14px_32px_rgba(0,0,0,.4)]">
       <CardHeader className="pb-2 flex flex-row items-center justify-between gap-2">
-        <CardTitle className="text-xs font-semibold text-[var(--color-custume-light)]/80">
+        <CardTitle className="text-xs font-semibold text-[var(--color-light-blue)]">
           {label}
         </CardTitle>
-        <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-white/10">
+        <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--color-custume-blue)]/70">
           <Icon className="h-4 w-4 text-[var(--color-light-blue)]" />
         </span>
       </CardHeader>
       <CardContent>
-        <p className="text-xl font-semibold text-white">
-          {formatted ?? "—"}
-        </p>
+        <p className="text-xl font-semibold text-white">{formatted ?? "—"}</p>
         {hint && (
-          <p className="mt-1 text-[11px] text-[var(--color-custume-light)]/75">
+          <p className="mt-1 text-[11px] text-[var(--color-custume-light)]/80">
             {hint}
           </p>
         )}
