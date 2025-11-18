@@ -550,6 +550,12 @@ export default function FormRegister() {
                       )}
                     </div>
 
+                    {/* Nota única sobre ADMIN cuando no es dominio admin */}
+                      <p className="text-xs text-white/80">
+                        *Si te quieres registrar como <b>ADMIN</b> usa este dominio de correo:
+                         <b> @admin.volantia.com</b> Ten en cuenta que como admin no recibirás una notificación de bienvenida.
+                      </p>
+
                     <div className="pt-1">
                       <button
                         type="button"
@@ -716,14 +722,6 @@ export default function FormRegister() {
                           </p>
                         )}
                     </div>
-
-                    {/* Nota única sobre ADMIN cuando no es dominio admin */}
-                    {!isAdminDomain && (
-                      <p className="text-xs text-white/80">
-                        * <b>ADMIN</b> se asigna automáticamente si el
-                        dominio del correo está autorizado.
-                      </p>
-                    )}
 
                     <div className="pt-1 flex gap-3">
                       <button
