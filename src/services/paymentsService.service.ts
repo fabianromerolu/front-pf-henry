@@ -4,6 +4,7 @@ const API_URL =
 
 // Tipos para la API de pagos
 export interface CreatePaymentRequest {
+  bookingId: string;
   propertyId: string;
   userId: string;
   checkIn: string;

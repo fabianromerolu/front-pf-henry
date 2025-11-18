@@ -28,8 +28,7 @@ export default function Home() {
           </div>
           {!user && (
             <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-6">
-              <DarkButtom href="/register" size="xl" text="Registrarse" />
-              <LightButtom href="/login" size="xl" text="Iniciar Sesión" />
+              <DarkButtom href="/register" size="xl" text="REGISTRARSE" />
             </div>
           )}
         </div>

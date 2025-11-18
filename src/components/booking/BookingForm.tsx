@@ -1,3 +1,5 @@
+// components/BookingForm.tsx
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -9,12 +11,12 @@ import {
   createBooking,
   calculateBookingDuration,
 } from "@/services/bookingService.service";
-import { processPayment } from "@/services/paymentsService.service";
 import { BookingValidationSchema } from "@/validators/BookingSchema";
+import { CreatePaymentRequest } from "@/services/paymentsService.service";
 import "react-datepicker/dist/react-datepicker.css";
 import BookingDates from "./BookingDates";
 import PersonalInfoCheckout from "./PersonalInfoCheckout";
-import DarkButton from "../Buttoms/DarkButtom";
+import PaymentButton from "../Buttoms/paymentButton";
 
 interface BookingCheckoutFormProps {
   vehicleId: string;
@@ -31,23 +33,18 @@ export default function BookingForm({
   const router = useRouter();
 
   const [isDataConfirmed, setIsDataConfirmed] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const parseDDMMYYYYToISO = (dateStr: string): string => {
-    const [day, month, year] = dateStr.split("/");
-    if (!day || !month || !year) {
-      throw new Error("Formato de fecha inválido. Use DD/MM/AAAA");
-    }
-    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-  };
+  const [bookingData, setBookingData] = useState<CreatePaymentRequest | null>(
+    null
+  );
 
   const calculateTotalPrice = () => {
     if (!formik.values.startDate || !formik.values.endDate) return 0;
 
     try {
-      const startISO = parseDDMMYYYYToISO(formik.values.startDate);
-      const endISO = parseDDMMYYYYToISO(formik.values.endDate);
-      const days = calculateBookingDuration(startISO, endISO);
+      const days = calculateBookingDuration(
+        formik.values.startDate,
+        formik.values.endDate
+      );
       return days * vehiclePrice;
     } catch {
       return 0;
@@ -60,129 +57,100 @@ export default function BookingForm({
       endDate: "",
     },
     validationSchema: BookingValidationSchema,
-    onSubmit: async (values) => {
-      const token = AuthUser?.token;
-      const userId = AuthUser?.user?.id;
-
-      if (!token || !userId) {
-        alert("Debes iniciar sesión para hacer una reserva");
-        router.push("/login");
-        return;
-      }
-
-      if (!isDataConfirmed) {
-        alert("Por favor confirma que los datos son correctos");
-        return;
-      }
-
-      setIsSubmitting(true);
-
-      try {
-        const startISO = parseDDMMYYYYToISO(values.startDate);
-        const endISO = parseDDMMYYYYToISO(values.endDate);
-
-        // Validar monto mínimo para Mercado Pago
-        const calculatedTotal = calculateTotalPrice();
-        if (calculatedTotal < 1000) {
-          alert(
-            `El monto de la reserva (${calculatedTotal}) es muy bajo para procesarse por Mercado Pago. El mínimo es $1,000 COP.\n\nPor favor, extiende las fechas de tu reserva.`
-          );
-          setIsSubmitting(false);
-          return;
-        }
-
-        console.log("📤 Enviando datos al backend:", {
-          userId,
-          pinId: vehicleId,
-          start_date: startISO,
-          end_date: endISO,
-        });
-
-        // 1. Crear la reserva
-        const response = await createBooking(
-          {
-            userId,
-            pinId: vehicleId,
-            start_date: startISO,
-            end_date: endISO,
-          },
-          token
-        );
-
-        // 2. Extraer el bookingId de la respuesta
-        const responseAny = response as any;
-
-        if (responseAny && typeof responseAny === "object") {
-          console.log("📦 Respuesta del backend:");
-          for (const [key, value] of Object.entries(responseAny)) {
-            console.log(`  - ${key}:`, value);
-          }
-        }
-
-        let extractedId = null;
-
-        if (response?.id) {
-          extractedId = response.id;
-        } else if (responseAny?._id) {
-          extractedId = responseAny._id;
-        } else if (responseAny?.data?.id) {
-          extractedId = responseAny.data.id;
-        } else if (responseAny?.booking?.id) {
-          extractedId = responseAny.booking.id;
-        } else if (typeof responseAny === "string") {
-          extractedId = responseAny;
-        }
-
-        if (!extractedId) {
-          throw new Error(
-            "No se pudo obtener el ID de la reserva del servidor"
-          );
-        }
-
-        console.log("✅ Reserva creada con ID:", extractedId);
-
-        // 3. Redirigir automáticamente a Mercado Pago
-        console.log("🚀 Redirigiendo a Mercado Pago...");
-
-        try {
-          await processPayment(extractedId);
-          // Si llegamos aquí es porque hubo un error (no debería pasar porque processPayment redirige)
-        } catch (paymentError) {
-          console.error("💥 Error al procesar el pago:", paymentError);
-
-          // Mostrar mensaje más específico
-          const errorMessage =
-            paymentError instanceof Error
-              ? paymentError.message
-              : "Error al conectar con Mercado Pago";
-
-          alert(
-            `La reserva se creó exitosamente (ID: ${extractedId}), pero hubo un problema al procesar el pago:\n\n${errorMessage}\n\nPor favor, contacta al soporte con tu ID de reserva.`
-          );
-
-          // Opcional: redirigir a "mis reservas" para que vea su reserva creada
-          router.push("/my-bookings");
-        }
-      } catch (error) {
-        console.error("💥 Error al crear reserva:", error);
-        alert(
-          error instanceof Error
-            ? error.message
-            : "Error al procesar la reserva"
-        );
-        setIsSubmitting(false);
-      }
+    onSubmit: async () => {
+      // Esta función ya no se usa, la lógica está en handleCreateBooking
     },
   });
 
+  // Función para crear la reserva (se llama desde PaymentButton)
+  const handleCreateBooking = async () => {
+    const token = AuthUser?.token;
+    const userId = AuthUser?.user?.id;
+
+    if (!token || !userId) {
+      alert("Debes iniciar sesión para hacer una reserva");
+      router.push("/login");
+      return;
+    }
+
+    if (!isDataConfirmed) {
+      alert("Por favor confirma que los datos son correctos");
+      return;
+    }
+
+    try {
+      const calculatedTotal = calculateTotalPrice();
+      if (calculatedTotal < 1000) {
+        alert(
+          `El monto de la reserva (${calculatedTotal}) es muy bajo para procesarse por Mercado Pago. El mínimo es $1,000 COP.\n\nPor favor, extiende las fechas de tu reserva.`
+        );
+        return;
+      }
+
+      console.log("📤 Enviando reserva con fechas ISO:", {
+        startDate: formik.values.startDate,
+        endDate: formik.values.endDate,
+      });
+
+      const response = await createBooking(
+        {
+          userId,
+          pinId: vehicleId,
+          start_date: formik.values.startDate,
+          end_date: formik.values.endDate,
+        },
+        token
+      );
+
+      const responseAny = response as any;
+
+      // Extrae el ID de la reserva
+      let extractedId = null;
+      if (response?.id) extractedId = response.id;
+      else if (responseAny?._id) extractedId = responseAny._id;
+      else if (responseAny?.data?.id) extractedId = responseAny.data.id;
+      else if (responseAny?.booking?.id) extractedId = responseAny.booking.id;
+      else if (typeof responseAny === "string") extractedId = responseAny;
+
+      if (!extractedId) {
+        throw new Error("No se pudo obtener el ID de la reserva del servidor");
+      }
+
+      console.log("✅ Reserva creada con ID:", extractedId);
+
+      // Prepara los datos para el pago
+      const paymentData: CreatePaymentRequest = {
+        bookingId: extractedId,
+        propertyId: vehicleId,
+        userId: userId,
+        checkIn: formik.values.startDate,
+        checkOut: formik.values.endDate,
+        guests: 1, // Ajusta según tu lógica
+        totalPrice: calculatedTotal,
+      };
+
+      setBookingData(paymentData);
+
+      // El PaymentButton automáticamente procesará el pago
+      // cuando bookingData cambie de null a un objeto
+    } catch (error) {
+      console.error("💥 Error al crear reserva:", error);
+      alert(
+        error instanceof Error ? error.message : "Error al procesar la reserva"
+      );
+    }
+  };
+
   const totalPrice = calculateTotalPrice();
+
   const duration =
     formik.values.startDate && formik.values.endDate
       ? (() => {
           try {
-            const startISO = parseDDMMYYYYToISO(formik.values.startDate);
-            const endISO = parseDDMMYYYYToISO(formik.values.endDate);
-            return calculateBookingDuration(startISO, endISO);
+            return calculateBookingDuration(
+              formik.values.startDate,
+              formik.values.endDate
+            );
           } catch {
             return 0;
           }
@@ -193,7 +161,7 @@ export default function BookingForm({
 
   return (
     <div className="w-full max-w-4xl mx-auto p-6">
-      <form onSubmit={formik.handleSubmit} className="space-y-6">
+      <div className="space-y-6">
         <PersonalInfoCheckout
           isDataConfirmed={isDataConfirmed}
           setIsDataConfirmed={setIsDataConfirmed}
@@ -205,11 +173,26 @@ export default function BookingForm({
           totalPrice={totalPrice}
         />
 
-        <DarkButton
-          text={isSubmitting ? "Procesando..." : "Crear reserva y pagar"}
-          onClick={() => formik.handleSubmit()}
-          type="button"
-          disabled={isSubmitting || !areDatesValid || !isDataConfirmed}
+        {/* Resumen de reserva si ya fue creada */}
+        {bookingData && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <h3 className="font-semibold text-green-800 mb-2">
+              ✅ Reserva creada exitosamente
+            </h3>
+            <p className="text-sm text-green-700">
+              ID: {bookingData.bookingId}
+            </p>
+            <p className="text-sm text-green-700 mt-2">
+              Haz clic en el botón para proceder al pago
+            </p>
+          </div>
+        )}
+
+        <PaymentButton
+          bookingData={bookingData}
+          isDataConfirmed={isDataConfirmed}
+          onCreateBooking={handleCreateBooking}
+          disabled={!areDatesValid}
           className="w-full"
         />
 
@@ -218,7 +201,7 @@ export default function BookingForm({
             Por favor confirma que los datos son correctos
           </p>
         )}
-      </form>
+      </div>
     </div>
   );
 }

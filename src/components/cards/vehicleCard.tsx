@@ -27,46 +27,52 @@ export const VehicleCard = ({ vehicle }: CardProps) => {
   };
 
   return (
-    <div className="block">
-      <div className="group relative w-full max-w-[380px] h-auto bg-white overflow-hidden transition-all duration-300 hover:shadow-2xl rounded-2xl shadow-lg p-4 mx-auto">
-        <div className="flex justify-between items-start mb-4">
-          <div>
-            <h4 className="text-custume-blue montserrat text-4xl font-bold lowercase mb-0">
+    <div className="w-full">
+      <div className="group relative w-full bg-white overflow-hidden transition-all duration-300 hover:shadow-2xl rounded-xl shadow-lg p-3 flex flex-col h-full">
+        {/* HEADER */}
+        <div className="flex justify-between items-start mb-2">
+          <div className="min-w-0 flex-1">
+            <h4 className="text-custume-blue montserrat text-base sm:text-lg md:text-xl font-bold lowercase truncate">
               {vehicle.make}
             </h4>
-            <h3 className="text-custume-blue montserrat text-3xl font-medium lowercase mb-0">
+            <h3 className="text-custume-blue montserrat text-sm sm:text-base md:text-lg font-medium lowercase truncate">
               {vehicle.model}
             </h3>
           </div>
         </div>
 
+        {/* IMAGE */}
         <Link
           href={`/vehicles/${vehicle.id}`}
-          className="block relative w-full h-[240px] overflow-hidden mb-6 bg-gray-50"
+          className="block relative w-full aspect-[4/3] overflow-hidden mb-3 bg-gray-50 rounded-lg"
         >
           <Image
             fill
             src={vehicle.thumbnailUrl}
-            alt={vehicle.model}
+            alt={`${vehicle.make} ${vehicle.model}`}
             className="object-cover transition-all duration-500 group-hover:scale-105"
-            sizes="(max-width: 380px) 100vw, 380px"
-            priority
+            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
         </Link>
 
-        <div className="mb-5 text-gray-400 montserrat text-xl">
+        {/* PRICE */}
+        <div className="mb-3 text-gray-400 montserrat text-xs sm:text-sm md:text-base">
           Precio por día
-          <span className="text-custume-blue"> ${vehicle.pricePerDay}</span>
+          <span className="text-custume-blue font-semibold">
+            {" "}
+            ${vehicle.pricePerDay.toLocaleString()}
+          </span>
         </div>
 
-        <div className="flex flex-col gap-3">
+        {/* BUTTONS */}
+        <div className="flex flex-col gap-2 mt-auto">
           <DarkButtom
-            className="w-full py-4 rounded-full text-xl lowercase"
+            className="w-full py-2 sm:py-2.5 rounded-full text-xs sm:text-sm md:text-base lowercase"
             text="rentar ahora"
             onClick={handleRentNow}
           />
           <LightButtom
-            className="w-full py-4 rounded-full text-xl lowercase"
+            className="w-full py-2 sm:py-2.5 rounded-full text-xs sm:text-sm md:text-base lowercase"
             text="ver detalles"
             onClick={handleViewDetails}
           />

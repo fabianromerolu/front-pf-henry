@@ -11,8 +11,6 @@ interface RenderVehicleProps {
 }
 
 export default function RenderVehicle({ vehicle }: RenderVehicleProps) {
-  console.log("thumbnailUrl:", vehicle.thumbnailUrl); // 👈 Agrega esto
-
   return (
     <div className="bg-white border border-custume-blue/20 rounded-2xl p-6 shadow-xl sticky top-6">
       <h3 className="text-xl font-bold text-custume-blue mb-4">
