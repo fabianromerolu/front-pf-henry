@@ -22,9 +22,6 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   { label: "Resumen", href: "/dashboard/admin", icon: LayoutDashboard },
   { label: "Usuarios", href: "/dashboard/admin/users", icon: Users },
-  { label: "Vehículos", href: "/dashboard/admin/pins", icon: CarFront },
-  { label: "Reservas", href: "/dashboard/admin/bookings", icon: CalendarRange },
-  { label: "Pagos", href: "/dashboard/admin/payments", icon: Wallet },
 ];
 
 export default function AdminSidebar() {
