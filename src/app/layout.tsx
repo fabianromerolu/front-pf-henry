@@ -1,11 +1,11 @@
-//src/app/layout.tsx
+// src/app/layout.tsx
 import { AuthProvider } from "@/context/AuthContext";
 import type { Metadata } from "next";
 import { Montserrat, Taviraj, Hind } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/navbar/Navbar";
-import Footer from "@/components/footer/Footer"
+import Footer from "@/components/footer/Footer";
 import { VehicleProvider } from "@/context/VehicleContext";
+import ClientLayout from "@/components/layout/ClientLayout";
 
 const geistMontserrat = Montserrat({
   variable: "--font-montserrat",
@@ -53,11 +53,10 @@ export default function RootLayout({
         className={`${geistMontserrat.variable} ${geistTaviraj.variable} ${geistHind.variable} antialiased`}
       >
         <AuthProvider>
-        <Navbar />
-        <VehicleProvider>
-        {children}
-        </VehicleProvider>
-        <Footer/>
+          <VehicleProvider>
+            <ClientLayout>{children}</ClientLayout>
+          </VehicleProvider>
+          <Footer />
         </AuthProvider>
       </body>
     </html>

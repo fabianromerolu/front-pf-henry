@@ -213,9 +213,16 @@ export async function resolveUserFromToken(accessToken: string): Promise<AuthUse
       headers: { Authorization: `Bearer ${accessToken}` },
     });
     const meJwt = await safeJson<{ user?: APIUser | null }>(meJwtRes);
+
     if (meJwtRes.ok && meJwt?.user) {
-      const user = normalizeApiUser(meJwt.user);
-      if (user) return user;
+      const raw = meJwt.user;
+
+      // 🔒 Solo confiamos si el back nos da role o isAdmin explícitos
+      if (raw.role || raw.isAdmin) {
+        const user = normalizeApiUser(raw);
+        if (user) return user;
+      }
+      // Si no trae rol/isAdmin, seguimos con los siguientes métodos
     }
 
     // 2) Sesión OIDC (cookie httpOnly puesta por el back tras SSO)
@@ -223,9 +230,20 @@ export async function resolveUserFromToken(accessToken: string): Promise<AuthUse
       method: "GET",
       credentials: "include",
     });
-    const me = await safeJson<{ user?: APIUser | null }>(meRes);
-    if (meRes.ok && me?.user) {
-      const user = normalizeApiUser(me.user);
+    const me = await safeJson<{ user?: APIUser | null } | APIUser>(meRes);
+
+    if (meRes.ok && me) {
+      let rawUser: APIUser | null = null;
+
+      if ("email" in me) {
+        // caso: respuesta es APIUser plano
+        rawUser = me;
+      } else if ("user" in me && me.user) {
+        // caso: respuesta es { user: APIUser }
+        rawUser = me.user;
+      }
+
+      const user = normalizeApiUser(rawUser);
       if (user) return user;
     }
 
@@ -245,6 +263,7 @@ export async function resolveUserFromToken(accessToken: string): Promise<AuthUse
     return null;
   }
 }
+
 
 /* ============== Auth local ============== */
 export async function RegisterUser(userData: {
@@ -371,7 +390,6 @@ export function loginWithAuth0(): void {
   window.location.href = `${apiBase}/login?returnTo=${encodeURIComponent(returnTo)}`;
 }
 
-
 /* ============= Guardar token desde ?token=... ============= */
 export async function saveTokenFromQueryAndHydrateAuth(
   setAuth: (user: AuthUser | null, token: string | null) => void,
@@ -397,7 +415,9 @@ export async function saveTokenFromQueryAndHydrateAuth(
     console.log("[AUTH] no ?token, getMe() =>", me);
 
     if (me) {
-      setAuth(me, null);
+      // 👇 Usamos el token ya almacenado (si existe) para no perder info de rol del JWT
+      const localToken = getStoredToken();
+      setAuth(me, localToken);
 
       if (redirect) {
         const target =
@@ -452,9 +472,6 @@ export async function saveTokenFromQueryAndHydrateAuth(
   }
 }
 
-
-
-
 /* ============= getMe() (hook useUser) ============= */
 export async function getMe(): Promise<AuthUser | null> {
   try {
@@ -467,9 +484,15 @@ export async function getMe(): Promise<AuthUser | null> {
       headers: token ? { Authorization: `Bearer ${token}` } : undefined,
     });
     const meJwt = await safeJson<{ user?: APIUser | null }>(meJwtRes);
+
     if (meJwtRes.ok && meJwt?.user) {
-      const user = normalizeApiUser(meJwt.user);
-      if (user) return user;
+      const raw = meJwt.user;
+
+      // 🔒 Igual que en resolveUserFromToken: sólo si viene rol/isAdmin
+      if (raw.role || raw.isAdmin) {
+        const user = normalizeApiUser(raw);
+        if (user) return user;
+      }
     }
 
     // 2) Luego /auth/me (sesión OIDC pura)
@@ -477,9 +500,20 @@ export async function getMe(): Promise<AuthUser | null> {
       method: "GET",
       credentials: "include",
     });
-    const me = await safeJson<{ user?: APIUser | null }>(meRes);
-    if (meRes.ok && me?.user) {
-      const user = normalizeApiUser(me.user);
+    const me = await safeJson<{ user?: APIUser | null } | APIUser>(meRes);
+
+    if (meRes.ok && me) {
+      let rawUser: APIUser | null = null;
+
+      if ("email" in me) {
+        // APIUser plano
+        rawUser = me;
+      } else if ("user" in me && me.user) {
+        // { user: APIUser }
+        rawUser = me.user;
+      }
+
+      const user = normalizeApiUser(rawUser);
       if (user) return user;
     }
 
@@ -492,3 +526,4 @@ export async function getMe(): Promise<AuthUser | null> {
     return null;
   }
 }
+
