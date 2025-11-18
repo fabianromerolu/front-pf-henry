@@ -44,22 +44,20 @@ export default function VehiclesPage() {
     <div className="min-h-screen bg-custume-light">
       <MenuBar />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="bg-custume-light">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="flex items-center justify-center gap-4">
-              <div className="h-px bg-gradient-to-r from-transparent via-custume-blue to-transparent w-full max-w-xs"></div>
-              <div className="w-3 h-3 bg-custume-red rounded-full"></div>
-              <div className="h-px bg-gradient-to-r from-transparent via-custume-blue to-transparent w-full max-w-xs"></div>
-            </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <div className="bg-custume-light mb-8">
+          <div className="flex items-center justify-center gap-4">
+            <div className="h-px bg-gradient-to-r from-transparent via-custume-blue to-transparent w-full max-w-xs"></div>
+            <div className="w-3 h-3 bg-custume-red rounded-full"></div>
+            <div className="h-px bg-gradient-to-r from-transparent via-custume-blue to-transparent w-full max-w-xs"></div>
           </div>
         </div>
 
         <div className="mb-8">
-          <h1 className="text-4xl taviraj font-semibold text-custume-red mb-2 text-center">
+          <h1 className="text-3xl sm:text-4xl taviraj font-semibold text-custume-red mb-2 text-center">
             Todos nuestros vehículos
           </h1>
-          <p className="text-custume-blue text-center text-lg">
+          <p className="text-custume-blue text-center text-base sm:text-lg">
             Explora nuestra flota completa de {total} vehículos disponibles
           </p>
         </div>
@@ -72,7 +70,7 @@ export default function VehiclesPage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 mb-8">
               {vehicles.map((vehicle) => (
                 <VehicleCard key={vehicle.id} vehicle={vehicle} />
               ))}
