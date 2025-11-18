@@ -9,10 +9,10 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const sizeClasses = {
-  sm: "text-sm px-2 py-2.5 min-w-[200px]",
-  md: "text-base px-6 py-2.5 min-w-[300px]",
-  lg: "text-lg px-8 py-3 min-w-[350px]",
-  xl: "text-xl px-10 py-3.5 min-w-[400px]",
+  sm: "text-sm px-6 py-2.5 min-w-[160px]",
+  md: "text-base px-8 py-3 min-w-[200px]",
+  lg: "text-lg px-10 py-3.5 min-w-[240px]",
+  xl: "text-xl px-12 py-4 min-w-[280px]",
 };
 
 function DarkButton({
@@ -23,31 +23,40 @@ function DarkButton({
   ...props
 }: ButtonProps) {
   const buttonClasses = `
-    inline-flex items-center justify-center taviraj
-    rounded-full shadow-lg
-    bg-custume-blue text-light-blue 
-    hover:bg-light-blue hover:text-custume-blue
-    border-2 border-custume-blue hover:border-custume-blue
-    transition-all duration-300 ease-in-out
-    transform hover:scale-105 hover:shadow-xl
-    active:scale-95
+    group relative inline-flex items-center justify-center gap-3
+    rounded-full font-medium taviraj
+    bg-custume-blue text-light-blue
+    border-2 border-custume-blue
+    hover:bg-custume-blue hover:text-light-blue hover:border-light-blue
+    transition-all duration-300 ease-out
+    hover:shadow-[0_0_25px_rgba(139,92,246,0.4)]
+    active:scale-[0.98]
+    disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none
+    focus:outline-none focus:ring-2 focus:ring-custume-blue focus:ring-offset-2
     ${sizeClasses[size]}
     ${className}
   `
     .trim()
     .replace(/\s+/g, " ");
 
+  const content = (
+    <>
+      <span className="relative z-10">{text}</span>
+      <div className="absolute inset-0 rounded-full bg-light-blue/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    </>
+  );
+
   if (href) {
     return (
       <Link href={href} className={buttonClasses}>
-        {text}
+        {content}
       </Link>
     );
   }
 
   return (
     <button className={buttonClasses} {...props}>
-      {text}
+      {content}
     </button>
   );
 }

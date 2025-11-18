@@ -1,45 +1,51 @@
-import { processPayment } from "@/services/paymentsService.service";
 import { useState } from "react";
-import DarkButton from "../Buttoms/DarkButtom";
+import DarkButton from "./DarkButtom";
+import {
+  CreatePaymentRequest,
+  processPayment,
+} from "@/services/paymentsService.service";
 
 interface PaymentButtonProps {
-  bookingId: string | null;
+  bookingData: CreatePaymentRequest;
   disabled?: boolean;
   isDataConfirmed?: boolean;
   className?: string;
-  onCreateBooking?: () => void;
 }
 
 export default function PaymentButton({
-  bookingId,
+  bookingData,
   disabled,
   isDataConfirmed = true,
   className,
-  onCreateBooking,
 }: PaymentButtonProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handlePayment = async () => {
-    if (!bookingId && onCreateBooking) {
-      onCreateBooking();
+    if (!bookingData.propertyId || !bookingData.userId) {
+      setError("Faltan datos necesarios para procesar el pago");
       return;
     }
 
-    if (!bookingId) {
-      setError("No se encontró el ID de la reserva");
+    if (!bookingData.checkIn || !bookingData.checkOut) {
+      setError("Debes seleccionar las fechas de la reserva");
+      return;
+    }
+
+    if (!bookingData.guests || bookingData.guests < 1) {
+      setError("Debes especificar el número de huéspedes");
       return;
     }
 
     try {
       setIsSubmitting(true);
       setError(null);
-      await processPayment(bookingId);
+
+      await processPayment(bookingData);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Error al procesar el pago"
       );
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -47,20 +53,18 @@ export default function PaymentButton({
   return (
     <div className="flex flex-col gap-2">
       <DarkButton
-        text={
-          !bookingId
-            ? "Crear reserva"
-            : isSubmitting
-            ? "Procesando..."
-            : "Realizar pago"
-        }
+        text="Realizar pago"
         onClick={handlePayment}
         type="button"
-        disabled={isSubmitting || disabled || !isDataConfirmed}
+        disabled={disabled || !isDataConfirmed}
         className={className}
       />
 
-      {error && <p className="text-red-600 text-sm">{error}</p>}
+      {error && (
+        <p className="text-red-600 text-sm font-medium" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

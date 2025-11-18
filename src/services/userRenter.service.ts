@@ -78,10 +78,11 @@ export type PaginationMeta = {
   page: number;
   limit: number;
   total: number;
-  pages?: number;
-  hasNext?: boolean;
-  hasPrev?: boolean;
+  pages: number;     
+  hasNext: boolean;
+  hasPrev: boolean;
 };
+
 
 export type Paginated<T> = { data: T[]; meta: PaginationMeta };
 

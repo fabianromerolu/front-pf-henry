@@ -1,4 +1,4 @@
-// src/context/AuthContext.tsx
+//src/context/AuthContext.tsx
 "use client";
 import { logout as apiLogout } from "@/services/authService.service";
 import {
@@ -47,8 +47,8 @@ function mergeRole({
 }): UserRole | undefined {
   const ur = normalizeRole(userRole);
   if (tokenIsAdmin) return "admin"; // el token puede elevar a admin
-  if (ur) return ur;                // si user ya trae rol, respetar (incluye renter)
-  return "user";                    // fallback
+  if (ur) return ur; // si user ya trae rol, respetar (incluye renter)
+  return "user"; // fallback
 }
 
 export interface AuthState {
@@ -71,10 +71,12 @@ export interface AuthContextValue extends AuthState {
 const USER_KEY = "auth:user";
 const TOKEN_KEY = "auth:token";
 
+// 👇 añadimos role al payload
 type JwtPayload = {
   sub?: string;
   email?: string;
   name?: string;
+  role?: string;
   isAdmin?: boolean;
 };
 
@@ -93,6 +95,14 @@ function decodeJwt<T = Record<string, unknown>>(token: string): T | null {
   } catch {
     return null;
   }
+}
+
+/** 👇 Unificamos la lógica: cómo detectamos si un token “huele” a admin */
+function tokenLooksAdmin(payload?: JwtPayload | null): boolean {
+  if (!payload) return false;
+  if (payload.isAdmin) return true;
+  if (typeof payload.role === "string" && payload.role.toUpperCase() === "ADMIN") return true;
+  return false;
 }
 
 function readStorage(): AuthState {
@@ -131,7 +141,7 @@ function writeCookies(user: AuthUser | null, token: string | null) {
 
   // Derivar rol sin degradar renter a user
   const payload = token ? (decodeJwt<JwtPayload>(token) ?? {}) : {};
-  const role = mergeRole({ userRole: user?.role, tokenIsAdmin: !!payload?.isAdmin });
+  const role = mergeRole({ userRole: user?.role, tokenIsAdmin: tokenLooksAdmin(payload) });
 
   if (role) document.cookie = `role=${role}; ${baseAttrs}`;
   else document.cookie = `role=; Path=/; Max-Age=0; SameSite=Lax`;
@@ -165,11 +175,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const setAuth = useCallback((user: AuthUser | null, token: string | null) => {
-    const payload = token ? decodeJwt<JwtPayload>(token) ?? {} : {};
-    const mergedRole = mergeRole({ userRole: user?.role, tokenIsAdmin: !!payload?.isAdmin });
+    const payload = token ? (decodeJwt<JwtPayload>(token) ?? {}) : {};
+    const mergedRole = mergeRole({
+      userRole: user?.role,
+      tokenIsAdmin: tokenLooksAdmin(payload),
+    });
+
     const normalizedUser = user
       ? { ...user, role: mergedRole ?? normalizeRole(user?.role) ?? "user" }
       : null;
+
+    console.log("[AUTHCTX] setAuth()", {
+      incomingUser: user,
+      incomingUserRole: user?.role,
+      tokenPresent: !!token,
+      payload,
+      mergedRole,
+      finalUser: normalizedUser,
+    });
 
     setState({ user: normalizedUser, token });
     writeStorage({ user: normalizedUser, token });
@@ -184,7 +207,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     (async () => {
       setIsChecking(true);
       try {
-        await saveTokenFromQueryAndHydrateAuth(setAuth);
+        await saveTokenFromQueryAndHydrateAuth(setAuth, { redirect: false });
 
         const hasUser = Boolean(readStorage().user);
         const hasToken = Boolean(readStorage().token);
@@ -216,23 +239,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const token =
       (typeof anyRes.token === "string" ? anyRes.token : undefined) ??
       (typeof anyRes.accessToken === "string" ? anyRes.accessToken : undefined) ??
-      (typeof anyRes.access_token === "string" ? anyRes.access_token : undefined) ?? // <--
-      (typeof anyRes.jwt === "string" ? anyRes.jwt : undefined) ??                   // <--
-      (typeof anyRes.id_token === "string" ? anyRes.id_token : undefined) ??         // <--
+      (typeof anyRes.access_token === "string" ? anyRes.access_token : undefined) ??
+      (typeof anyRes.jwt === "string" ? anyRes.jwt : undefined) ??
+      (typeof anyRes.id_token === "string" ? anyRes.id_token : undefined) ??
       null;
 
     const rawUser = anyRes.user as unknown;
     let user: AuthUser | null =
       rawUser && typeof rawUser === "object" ? (rawUser as AuthUser) : null;
 
-    const payload = token ? decodeJwt<JwtPayload>(token) ?? {} : {};
+    const payload = token ? (decodeJwt<JwtPayload>(token) ?? {}) : {};
 
     // No degradar renter a user. Si el token trae admin, se eleva a admin.
     if (user) {
       user = {
         ...user,
         role:
-          mergeRole({ userRole: user.role, tokenIsAdmin: !!payload.isAdmin }) ??
+          mergeRole({ userRole: user.role, tokenIsAdmin: tokenLooksAdmin(payload) }) ??
           normalizeRole(user.role) ??
           "user",
       };
