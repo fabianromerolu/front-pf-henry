@@ -1,14 +1,13 @@
-//src/components/dashboards/renter/MyProfile.tsx
+// src/components/dashboards/renter/MyProfile.tsx
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { meApi } from "@/services/userRenter.service";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import DarkButton from "@/components/Buttoms/DarkButtom";
-import LightButton from "@/components/Buttoms/LightButtom";
 import type { UserProfile } from "@/services/userRenter.service";
 
 type SexType = "male" | "female" | "other" | "undisclosed";
@@ -55,10 +54,27 @@ const schema = Yup.object({
   birthDate: Yup.string().nullable(),
 });
 
+function resolveAvatarSrc(profile?: UserProfile | null): string | null {
+  const p = profile?.profilePicture;
+  if (!p) return null;
+
+  // Caso viejo: ya es una URL completa
+  if (p.startsWith("http://") || p.startsWith("https://")) {
+    return p;
+  }
+
+  // Caso nuevo o legacy: public_id de Cloudinary
+  const cloud = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ?? "";
+  if (!cloud) return null;
+
+  return `https://res.cloudinary.com/${cloud}/image/upload/${p}.jpg`;
+}
+
 export default function MyProfile() {
   const [loading, setLoading] = useState(true);
   const [photoBusy, setPhotoBusy] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const formik = useFormik<ProfileForm>({
     initialValues: {
@@ -78,7 +94,9 @@ export default function MyProfile() {
       try {
         const patch: ProfilePatch = {
           ...values,
-          birthDate: values.birthDate ? new Date(values.birthDate).toISOString() : null,
+          birthDate: values.birthDate
+            ? new Date(values.birthDate).toISOString()
+            : null,
         };
         const res = await meApi.updateMe(patch);
         setProfile(res);
@@ -127,101 +145,192 @@ export default function MyProfile() {
       form.append("timestamp", String(sig.timestamp));
       form.append("folder", sig.folder);
       form.append("signature", sig.signature);
-      const cloudUrl = `https://api.cloudinary.com/${sig.cloudName ? `v1_1/${sig.cloudName}` : "v1_1"}/auto/upload`;
+
+      const cloudUrl = `https://api.cloudinary.com/${
+        sig.cloudName ? `v1_1/${sig.cloudName}` : "v1_1"
+      }/auto/upload`;
+
       const res = await fetch(cloudUrl, { method: "POST", body: form });
       const json = await res.json();
-      if (!json?.public_id) throw new Error("Upload failed");
 
-      const updated = await meApi.updateProfilePicture(json.public_id);
+      // Guardamos secure_url (igual que en el otro dashboard)
+      if (!json?.secure_url) throw new Error("Upload failed");
+
+      const updated = await meApi.updateProfilePicture(json.secure_url);
       setProfile(updated);
       toast.success("Foto de perfil actualizada");
     } catch {
       toast.error("No se pudo subir la imagen");
     } finally {
       setPhotoBusy(false);
+      // Limpiamos el input para que se pueda volver a subir el mismo archivo si quiere
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
+  }
+
+  function handleOpenFileDialog() {
+    if (photoBusy) return;
+    fileInputRef.current?.click();
   }
 
   if (loading) return <div>Cargando…</div>;
 
+  const avatarSrc = resolveAvatarSrc(profile);
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-light-blue">
-          {profile?.profilePicture ? (
-            <Image
-              src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ?? ""}/image/upload/${profile.profilePicture}.jpg`}
-              alt="avatar"
-              fill
-              sizes="80px"
-              className="object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-light-blue grid place-items-center text-custume-blue">
-              No img
-            </div>
-          )}
-        </div>
-        <label className="inline-flex items-center gap-2">
-          <input type="file" accept="image/*" onChange={handlePhotoChange} disabled={photoBusy} />
-          <DarkButton text={photoBusy ? "Uploading..." : "Change photo"} disabled={photoBusy} />
-        </label>
+    <div className="max-w-3xl mx-auto space-y-6">
+      {/* Título */}
+      <div>
+        <h1 className="text-xl font-semibold text-custume-blue">
+          My profile
+        </h1>
+        <p className="text-sm text-custume-gray mt-1">
+          Update your personal information and profile picture.
+        </p>
       </div>
 
-      {/* Form */}
-      <form onSubmit={formik.handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="hind text-sm text-custume-gray">Name</label>
-          <input className={fieldsBase} {...formik.getFieldProps("name")} />
-        </div>
-        <div>
-          <label className="hind text-sm text-custume-gray">Username</label>
-          <input className={fieldsBase} {...formik.getFieldProps("username")} />
-        </div>
-        <div>
-          <label className="hind text-sm text-custume-gray">City</label>
-          <input className={fieldsBase} {...formik.getFieldProps("city")} />
-        </div>
-        <div>
-          <label className="hind text-sm text-custume-gray">State</label>
-          <input className={fieldsBase} {...formik.getFieldProps("state")} />
-        </div>
-        <div>
-          <label className="hind text-sm text-custume-gray">Country</label>
-          <input className={fieldsBase} {...formik.getFieldProps("country")} />
-        </div>
-        <div>
-          <label className="hind text-sm text-custume-gray">Address</label>
-          <input className={fieldsBase} {...formik.getFieldProps("address")} />
-        </div>
-        <div>
-          <label className="hind text-sm text-custume-gray">Phone</label>
-          <input className={fieldsBase} {...formik.getFieldProps("phone")} />
-        </div>
-        <div>
-          <label className="hind text-sm text-custume-gray">Sex</label>
-          <select className={fieldsBase} {...formik.getFieldProps("sex")}>
-            <option value="undisclosed">Undisclosed</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        <div>
-          <label className="hind text-sm text-custume-gray">Birth date</label>
-          <input type="date" className={fieldsBase} {...formik.getFieldProps("birthDate")} />
-        </div>
-        <div className="md:col-span-2">
-          <label className="hind text-sm text-custume-gray">Biography</label>
-          <textarea rows={3} className={fieldsBase} {...formik.getFieldProps("biography")} />
+      {/* Card principal */}
+      <div className="bg-white rounded-2xl border border-light-blue/40 shadow-sm p-6 md:p-8 space-y-6">
+        {/* Header con avatar */}
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+          <div className="flex flex-col items-center gap-3">
+            <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden border-2 border-light-blue shadow-sm">
+              {avatarSrc ? (
+                <Image
+                  src={avatarSrc}
+                  alt="avatar"
+                  fill
+                  sizes="112px"
+                  className="object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-light-blue grid place-items-center text-custume-blue text-xs">
+                  No image
+                </div>
+              )}
+            </div>
+
+            {/* Input oculto */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handlePhotoChange}
+              disabled={photoBusy}
+            />
+
+            <DarkButton
+              type="button"
+              text={photoBusy ? "Uploading..." : "Change photo"}
+              disabled={photoBusy}
+              // @ts-ignore: asumimos que DarkButton pasa onClick al botón interno
+              onClick={handleOpenFileDialog}
+            />
+
+            <p className="text-[11px] text-custume-gray text-center leading-snug">
+              JPG, PNG o WEBP. Tamaño recomendado: cuadrado.
+            </p>
+          </div>
+
+          {/* Resumen rápido del usuario */}
+          <div className="w-full md:flex-1 space-y-1 text-center md:text-left">
+            <p className="text-base font-semibold text-custume-blue">
+              {formik.values.name || "User name"}
+            </p>
+            <p className="text-sm text-custume-gray">
+              @{formik.values.username || "username"}
+            </p>
+            <p className="text-xs text-custume-gray mt-2">
+              This information will be visible to owners when you request a place.
+            </p>
+          </div>
         </div>
 
-        <div className="md:col-span-2 flex gap-2">
-          <DarkButton text="Save changes" type="submit" />
-          <LightButton text="Reset" type="button" onClick={() => formik.resetForm()} />
-        </div>
-      </form>
+        {/* Formulario */}
+        <form
+          onSubmit={formik.handleSubmit}
+          className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5"
+        >
+          <div>
+            <label className="hind text-sm text-custume-gray">Name</label>
+            <input className={fieldsBase} {...formik.getFieldProps("name")} />
+          </div>
+
+          <div>
+            <label className="hind text-sm text-custume-gray">Username</label>
+            <input
+              className={fieldsBase}
+              {...formik.getFieldProps("username")}
+            />
+          </div>
+
+          <div>
+            <label className="hind text-sm text-custume-gray">City</label>
+            <input className={fieldsBase} {...formik.getFieldProps("city")} />
+          </div>
+
+          <div>
+            <label className="hind text-sm text-custume-gray">State</label>
+            <input className={fieldsBase} {...formik.getFieldProps("state")} />
+          </div>
+
+          <div>
+            <label className="hind text-sm text-custume-gray">Country</label>
+            <input
+              className={fieldsBase}
+              {...formik.getFieldProps("country")}
+            />
+          </div>
+
+          <div>
+            <label className="hind text-sm text-custume-gray">Address</label>
+            <input
+              className={fieldsBase}
+              {...formik.getFieldProps("address")}
+            />
+          </div>
+
+          <div>
+            <label className="hind text-sm text-custume-gray">Phone</label>
+            <input className={fieldsBase} {...formik.getFieldProps("phone")} />
+          </div>
+
+          <div>
+            <label className="hind text-sm text-custume-gray">Sex</label>
+            <select className={fieldsBase} {...formik.getFieldProps("sex")}>
+              <option value="undisclosed">Undisclosed</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="hind text-sm text-custume-gray">Birth date</label>
+            <input
+              type="date"
+              className={fieldsBase}
+              {...formik.getFieldProps("birthDate")}
+            />
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="hind text-sm text-custume-gray">Biography</label>
+            <textarea
+              rows={3}
+              className={fieldsBase}
+              {...formik.getFieldProps("biography")}
+            />
+          </div>
+
+          <div className="md:col-span-2 flex justify-end gap-2 pt-2">
+            <DarkButton text="Save changes" type="submit" />
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
