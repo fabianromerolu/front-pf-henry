@@ -80,7 +80,7 @@ export default function MyVehicles() {
             </div>
             <div className="p-3 space-y-2">
               <div className="taviraj text-custume-blue">{`${v.make} ${v.model} ${v.year}`}</div>
-              <div className="text-sm text-custume-gray">COP {v.pricePerDay ?? "-"} / día</div>
+              <div className="text-sm text-custume-gray">MXN {v.pricePerDay ?? "-"} / día</div>
               <div className="flex gap-2 flex-wrap">
                 <Link className="underline text-custume-blue" href={`/dashboard/renter/vehicles/${v.id}`}>Details</Link>
                 <Link className="underline text-custume-blue" href={`/dashboard/renter/vehicles/${v.id}/edit`}>Edit</Link>

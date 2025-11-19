@@ -90,7 +90,7 @@ export default function BookingDetail() {
           </p>
           <p>
             <span className="font-semibold">Total: </span>
-            COP {data.totalPrice}
+            MXN {data.totalPrice}
           </p>
           {data.paymentStatus && (
             <p>

@@ -45,9 +45,7 @@ export type StandardUserOverview = {
   bookingsTotal: number;
   bookingsActive: number;
   bookingsComplete: number;
-  /** Total gastado en los últimos 30 días (string COP) */
   spentLast30d: string;
-  /** Próxima reserva futura activa (o null si no hay) */
   nextBooking: StandardUserNextBooking | null;
 };
 

@@ -6,9 +6,6 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
-  CarFront,
-  CalendarRange,
-  Wallet,
   LogOut,
 } from "lucide-react";
 import { logout } from "@/services/authService.service";

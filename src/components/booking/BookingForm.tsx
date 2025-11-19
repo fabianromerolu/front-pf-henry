@@ -82,7 +82,7 @@ export default function BookingForm({
       const calculatedTotal = calculateTotalPrice();
       if (calculatedTotal < 1000) {
         alert(
-          `El monto de la reserva (${calculatedTotal}) es muy bajo para procesarse por Mercado Pago. El mínimo es $1,000 COP.\n\nPor favor, extiende las fechas de tu reserva.`
+          `El monto de la reserva (${calculatedTotal}) es muy bajo para procesarse por Mercado Pago. El mínimo es $1,000 MXN.\n\nPor favor, extiende las fechas de tu reserva.`
         );
         return;
       }

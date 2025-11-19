@@ -216,17 +216,11 @@ export default function MyBookings() {
                   </td>
                   <td className="px-3 py-2 align-middle">
                     <span className="text-[11px]">
-                      COP {b.totalPrice}
+                      MXN {b.totalPrice}
                     </span>
                   </td>
                   <td className="px-3 py-2 align-middle">
                     <div className="flex flex-wrap gap-2 items-center">
-                      <Link
-                        href={`/dashboard/bookings/${b.id}`}
-                        className="text-xs text-custume-blue underline"
-                      >
-                        Ver detalle
-                      </Link>
                       {b.status === "active" && (
                         <button
                           type="button"

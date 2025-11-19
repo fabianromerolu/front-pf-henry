@@ -42,7 +42,7 @@ export default function VehicleDetail() {
           <div><b>Transmission</b>: {data.transmission}</div>
           <div><b>Fuel</b>: {data.fuel}</div>
           <div><b>Seats</b>: {data.seats}</div>
-          <div><b>Price/day</b>: COP {data.pricePerDay}</div>
+          <div><b>Price/day</b>: MXN {data.pricePerDay}</div>
           <div><b>Location</b>: {`${data.city}, ${data.state}, ${data.country}`}</div>
           {data.rules && <div><b>Rules</b>: {data.rules}</div>}
           {data.description && <div><b>Description</b>: {data.description}</div>}

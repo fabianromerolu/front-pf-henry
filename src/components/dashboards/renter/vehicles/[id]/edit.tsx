@@ -210,7 +210,7 @@ export default function EditVehicle() {
           />
         </div>
         <div>
-          <label className="text-sm text-custume-gray">Price/day (COP)</label>
+          <label className="text-sm text-custume-gray">Price/day (MXN)</label>
           <input
             type="number"
             className={input}
