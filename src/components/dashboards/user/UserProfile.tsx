@@ -142,9 +142,8 @@ export default function UserProfile() {
       }/auto/upload`;
       const res = await fetch(cloudUrl, { method: "POST", body: form });
       const json = await res.json();
-      if (!json?.public_id) throw new Error("Upload failed");
-
-      const updated = await meApi.updateProfilePicture(json.public_id);
+      if (!json?.secure_url) throw new Error("Upload failed");
+      const updated = await meApi.updateProfilePicture(json.secure_url);
       setProfile(updated);
       toast.success("Foto de perfil actualizada");
     } catch {
@@ -163,9 +162,7 @@ export default function UserProfile() {
         <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-light-blue">
           {profile?.profilePicture ? (
             <Image
-              src={`https://res.cloudinary.com/${
-                process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ?? ""
-              }/image/upload/${profile.profilePicture}.jpg`}
+              src={profile.profilePicture}
               alt="avatar"
               fill
               sizes="80px"
@@ -271,11 +268,6 @@ export default function UserProfile() {
 
         <div className="md:col-span-2 flex gap-2">
           <DarkButton text="Guardar cambios" type="submit" />
-          <LightButton
-            text="Reiniciar"
-            type="button"
-            onClick={() => formik.resetForm()}
-          />
         </div>
       </form>
     </div>
