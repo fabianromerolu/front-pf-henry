@@ -21,11 +21,11 @@ export default function TechnicalSpecsSection({
 }: TechnicalSpecsSectionProps) {
   const bodyTypeOptions = [
     { value: "SEDAN", label: "Sedán" },
-    { value: "SUV", label: "SUV" },
     { value: "HATCHBACK", label: "Hatchback" },
-    { value: "COUPE", label: "Coupé" },
-    { value: "TRUCK", label: "Camioneta" },
+    { value: "SUV", label: "SUV" },
+    { value: "PICKUP", label: "Camioneta" },
     { value: "VAN", label: "Van" },
+    { value: "COUPE", label: "Coupé" },
     { value: "CONVERTIBLE", label: "Convertible" },
   ];
 
@@ -52,7 +52,7 @@ export default function TechnicalSpecsSection({
     { value: "FWD", label: "Delantera (FWD)" },
     { value: "RWD", label: "Trasera (RWD)" },
     { value: "AWD", label: "Integral (AWD)" },
-    { value: "4WD", label: "4x4 (4WD)" },
+    { value: "WD4", label: "4x4 (4WD)" },
   ];
 
   return (

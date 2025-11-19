@@ -42,7 +42,7 @@ export const vehicleSchema = yup.object().shape({
     .string()
     .required("El tipo de carrocería es requerido")
     .oneOf(
-      ["SEDAN", "SUV", "HATCHBACK", "COUPE", "TRUCK", "VAN", "CONVERTIBLE"],
+      ["SEDAN", "SUV", "HATCHBACK", "COUPE", "PICKUP", "VAN", "CONVERTIBLE"],
       "Tipo de carrocería no válido"
     ),
 
@@ -58,7 +58,7 @@ export const vehicleSchema = yup.object().shape({
     .string()
     .required("La transmisión es requerida")
     .oneOf(
-      ["MANUAL", "AUTOMATIC", "SEMI_AUTOMATIC"],
+      ["MANUAL", "AUTOMATIC"],
       "Tipo de transmisión no válido"
     ),
 
@@ -66,14 +66,14 @@ export const vehicleSchema = yup.object().shape({
     .string()
     .required("El tipo de combustible es requerido")
     .oneOf(
-      ["GASOLINE", "DIESEL", "ELECTRIC", "HYBRID", "PLUGIN_HYBRID"],
+      ["GASOLINE", "DIESEL", "ELECTRIC", "HYBRID"],
       "Tipo de combustible no válido"
     ),
 
   drivetrain: yup
     .string()
     .required("El tipo de tracción es requerido")
-    .oneOf(["FWD", "RWD", "AWD", "4WD"], "Tipo de tracción no válido"),
+    .oneOf(["FWD", "RWD", "AWD", "WD4"], "Tipo de tracción no válido"),
 
   color: yup
     .string()

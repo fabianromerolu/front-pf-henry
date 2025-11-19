@@ -23,8 +23,8 @@ export enum Category {
 export enum Fuel {
   Gasoline = "Gasoline",
   Diesel = "Diesel",
-  Hybrid = "Hybrid",
   Electric = "Electric",
+  Hybrid = "Hybrid",
 }
 
 export enum DriveTrain {
