@@ -16,12 +16,8 @@ export enum Transmition {
 export enum Category {
   Economy = "Economy",
   Compact = "Compact",
-  Modsize = "Modsize",
-  Suv = "Suv",
-  Pickup = "Pickup",
-  Van = "Van",
+  Midsize = "Midsize",
   Premium = "Premium",
-  Electric = "Electric",
 }
 
 export enum Fuel {
