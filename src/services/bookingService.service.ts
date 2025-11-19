@@ -1,4 +1,6 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://back-pf-henry-production-03d3.up.railway.app";
 
 interface CreateBookingPayload {
   userId: string;
