@@ -27,7 +27,7 @@ export default function RenterDashboard() {
     revenueLast30d: string;
     revenuePending: string;
   } | null>(null);
-  const [balance, setBalance] = useState<{ available: string; pending: string; currency: "COP" } | null>(null);
+  const [balance, setBalance] = useState<{ available: string; pending: string; currency: "MXN" } | null>(null);
 
   // === Auth: para cerrar sesión y mostrar quién está logueado ===
   const { user, logout } = useAuth();
@@ -118,13 +118,13 @@ export default function RenterDashboard() {
         <div className={kpiCard}>
           <div className="text-custume-gray text-sm">Revenue (30d)</div>
           <div className="text-2xl taviraj text-custume-blue">
-            {loading ? "…" : `COP ${overview?.revenueLast30d ?? "0"}`}
+            {loading ? "…" : `MXN ${overview?.revenueLast30d ?? "0"}`}
           </div>
         </div>
         <div className={kpiCard}>
           <div className="text-custume-gray text-sm">Available</div>
           <div className="text-2xl taviraj text-custume-blue">
-            {loading ? "…" : `COP ${balance?.available ?? "0"}`}
+            {loading ? "…" : `MXN ${balance?.available ?? "0"}`}
           </div>
         </div>
       </section>
@@ -137,7 +137,7 @@ export default function RenterDashboard() {
         </div>
         <div className="rounded-2xl p-4 shadow-lg bg-white border border-custume-light">
           <h3 className="taviraj text-lg text-custume-blue">Pending revenue</h3>
-          <p className="mt-2 text-2xl">{loading ? "…" : `COP ${overview?.revenuePending ?? "0"}`}</p>
+          <p className="mt-2 text-2xl">{loading ? "…" : `MXN ${overview?.revenuePending ?? "0"}`}</p>
           <p className="text-sm text-custume-gray">Se libera cuando pasan los días de hold.</p>
         </div>
       </section>

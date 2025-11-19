@@ -1,4 +1,3 @@
-// src/components/dashboards/renter/MyProfile.tsx
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
@@ -68,6 +67,15 @@ function resolveAvatarSrc(profile?: UserProfile | null): string | null {
   if (!cloud) return null;
 
   return `https://res.cloudinary.com/${cloud}/image/upload/${p}.jpg`;
+}
+
+// Wrapper para poder pasar onClick de forma tipada
+type DarkButtonWithClickProps = React.ComponentProps<typeof DarkButton> & {
+  onClick?: () => void;
+};
+
+function ClickableDarkButton(props: DarkButtonWithClickProps) {
+  return <DarkButton {...props} />;
 }
 
 export default function MyProfile() {
@@ -222,11 +230,10 @@ export default function MyProfile() {
               disabled={photoBusy}
             />
 
-            <DarkButton
+            <ClickableDarkButton
               type="button"
               text={photoBusy ? "Uploading..." : "Change photo"}
               disabled={photoBusy}
-              // @ts-ignore: asumimos que DarkButton pasa onClick al botón interno
               onClick={handleOpenFileDialog}
             />
 
