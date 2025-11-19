@@ -11,6 +11,8 @@ import VehicleProps, {
 } from "@/interfaces/vehicleProps";
 import { createPin } from "@/services/vehicleService.service"; // 👈 importamos la función POST
 import { useAuth } from "@/context/AuthContext"; // 👈 para obtener el token del usuario
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 type VehicleFormData = Partial<VehicleProps> & {
   photos?: { url: string; isCover: boolean }[];
@@ -49,6 +51,8 @@ const initialFormData: VehicleFormData = {
 };
 
 export function useVehicleForm() {
+  const router = useRouter();
+
   const [formData, setFormData] = useState<VehicleFormData>(initialFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false); // 👈 para estado de carga
@@ -115,11 +119,19 @@ export function useVehicleForm() {
 
       const createdVehicle = await createPin(formData, token);
 
-      console.log("✅ Vehículo creado con éxito:", createdVehicle);
-      alert("Vehículo registrado exitosamente ✅");
+      console.log("Vehículo creado con éxito:", createdVehicle);
+      toast.success("Vehículo registrado exitosamente", {
+        position: "top-right",
+        autoClose: 3000,
+      });
 
       setSuccess(true);
       setFormData(initialFormData);
+
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 600);
+
     } catch (error: any) {
       const validationErrors: Record<string, string> = {};
       if (error.inner?.length) {
@@ -130,7 +142,11 @@ export function useVehicleForm() {
         console.error("Errores de validación:", validationErrors);
       } else {
         console.error("Error en la petición:", error.message);
-        alert(`❌ Error al registrar el vehículo: ${error.message}`);
+        toast.error("Que pena!!! Espere e intente nuevamente",{ 
+          position: "top-right",
+          autoClose: 3000,
+         }
+        );
       }
     } finally {
       setLoading(false);
