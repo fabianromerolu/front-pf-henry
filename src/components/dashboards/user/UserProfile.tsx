@@ -1,15 +1,14 @@
-//src/components/dashboards/renter/MyProfile.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { meApi } from "@/services/userRenter.service";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
+
+import { meApi, type UserProfile } from "@/services/userRenter.service";
 import DarkButton from "@/components/Buttoms/DarkButtom";
 import LightButton from "@/components/Buttoms/LightButtom";
-import type { UserProfile } from "@/services/userRenter.service";
 
 type SexType = "male" | "female" | "other" | "undisclosed";
 
@@ -51,11 +50,16 @@ const schema = Yup.object({
   address: Yup.string().max(120),
   phone: Yup.string().max(20),
   biography: Yup.string().max(150),
-  sex: Yup.mixed<SexType>().oneOf(["male", "female", "other", "undisclosed"]),
+  sex: Yup.mixed<SexType>().oneOf([
+    "male",
+    "female",
+    "other",
+    "undisclosed",
+  ]),
   birthDate: Yup.string().nullable(),
 });
 
-export default function MyProfile() {
+export default function UserProfile() {
   const [loading, setLoading] = useState(true);
   const [photoBusy, setPhotoBusy] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -78,7 +82,9 @@ export default function MyProfile() {
       try {
         const patch: ProfilePatch = {
           ...values,
-          birthDate: values.birthDate ? new Date(values.birthDate).toISOString() : null,
+          birthDate: values.birthDate
+            ? new Date(values.birthDate).toISOString()
+            : null,
         };
         const res = await meApi.updateMe(patch);
         setProfile(res);
@@ -115,19 +121,25 @@ export default function MyProfile() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handlePhotoChange(
+    e: React.ChangeEvent<HTMLInputElement>
+  ) {
     const file = e.target.files?.[0];
     if (!file) return;
     setPhotoBusy(true);
     try {
-      const sig = await meApi.getUploadSignature(`avatars/${profile?.id ?? "me"}`);
+      const sig = await meApi.getUploadSignature(
+        `avatars/${profile?.id ?? "me"}`
+      );
       const form = new FormData();
       form.append("file", file);
       form.append("api_key", sig.apiKey);
       form.append("timestamp", String(sig.timestamp));
       form.append("folder", sig.folder);
       form.append("signature", sig.signature);
-      const cloudUrl = `https://api.cloudinary.com/${sig.cloudName ? `v1_1/${sig.cloudName}` : "v1_1"}/auto/upload`;
+      const cloudUrl = `https://api.cloudinary.com/${
+        sig.cloudName ? `v1_1/${sig.cloudName}` : "v1_1"
+      }/auto/upload`;
       const res = await fetch(cloudUrl, { method: "POST", body: form });
       const json = await res.json();
       if (!json?.public_id) throw new Error("Upload failed");
@@ -151,75 +163,119 @@ export default function MyProfile() {
         <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-light-blue">
           {profile?.profilePicture ? (
             <Image
-              src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ?? ""}/image/upload/${profile.profilePicture}.jpg`}
+              src={`https://res.cloudinary.com/${
+                process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ?? ""
+              }/image/upload/${profile.profilePicture}.jpg`}
               alt="avatar"
               fill
               sizes="80px"
               className="object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-light-blue grid place-items-center text-custume-blue">
-              No img
+            <div className="w-full h-full bg-light-blue grid place-items-center text-custume-blue text-xs">
+              Sin foto
             </div>
           )}
         </div>
-        <label className="inline-flex items-center gap-2">
-          <input type="file" accept="image/*" onChange={handlePhotoChange} disabled={photoBusy} />
-          <DarkButton text={photoBusy ? "Uploading..." : "Change photo"} disabled={photoBusy} />
+        <label className="inline-flex items-center gap-2 text-xs">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handlePhotoChange}
+            disabled={photoBusy}
+          />
+          <DarkButton
+            text={photoBusy ? "Subiendo..." : "Cambiar foto"}
+            disabled={photoBusy}
+          />
         </label>
       </div>
 
       {/* Form */}
-      <form onSubmit={formik.handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form
+        onSubmit={formik.handleSubmit}
+        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+      >
         <div>
-          <label className="hind text-sm text-custume-gray">Name</label>
+          <label className="hind text-sm text-custume-gray">Nombre</label>
           <input className={fieldsBase} {...formik.getFieldProps("name")} />
         </div>
         <div>
-          <label className="hind text-sm text-custume-gray">Username</label>
-          <input className={fieldsBase} {...formik.getFieldProps("username")} />
+          <label className="hind text-sm text-custume-gray">
+            Nombre de usuario
+          </label>
+          <input
+            className={fieldsBase}
+            {...formik.getFieldProps("username")}
+          />
         </div>
         <div>
-          <label className="hind text-sm text-custume-gray">City</label>
+          <label className="hind text-sm text-custume-gray">Ciudad</label>
           <input className={fieldsBase} {...formik.getFieldProps("city")} />
         </div>
         <div>
-          <label className="hind text-sm text-custume-gray">State</label>
+          <label className="hind text-sm text-custume-gray">Estado</label>
           <input className={fieldsBase} {...formik.getFieldProps("state")} />
         </div>
         <div>
-          <label className="hind text-sm text-custume-gray">Country</label>
-          <input className={fieldsBase} {...formik.getFieldProps("country")} />
+          <label className="hind text-sm text-custume-gray">País</label>
+          <input
+            className={fieldsBase}
+            {...formik.getFieldProps("country")}
+          />
         </div>
         <div>
-          <label className="hind text-sm text-custume-gray">Address</label>
-          <input className={fieldsBase} {...formik.getFieldProps("address")} />
+          <label className="hind text-sm text-custume-gray">
+            Dirección
+          </label>
+          <input
+            className={fieldsBase}
+            {...formik.getFieldProps("address")}
+          />
         </div>
         <div>
-          <label className="hind text-sm text-custume-gray">Phone</label>
+          <label className="hind text-sm text-custume-gray">
+            Teléfono
+          </label>
           <input className={fieldsBase} {...formik.getFieldProps("phone")} />
         </div>
         <div>
-          <label className="hind text-sm text-custume-gray">Sex</label>
+          <label className="hind text-sm text-custume-gray">Sexo</label>
           <select className={fieldsBase} {...formik.getFieldProps("sex")}>
-            <option value="undisclosed">Undisclosed</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
+            <option value="undisclosed">Prefiero no decirlo</option>
+            <option value="male">Hombre</option>
+            <option value="female">Mujer</option>
+            <option value="other">Otro</option>
           </select>
         </div>
         <div>
-          <label className="hind text-sm text-custume-gray">Birth date</label>
-          <input type="date" className={fieldsBase} {...formik.getFieldProps("birthDate")} />
+          <label className="hind text-sm text-custume-gray">
+            Fecha de nacimiento
+          </label>
+          <input
+            type="date"
+            className={fieldsBase}
+            {...formik.getFieldProps("birthDate")}
+          />
         </div>
         <div className="md:col-span-2">
-          <label className="hind text-sm text-custume-gray">Biography</label>
-          <textarea rows={3} className={fieldsBase} {...formik.getFieldProps("biography")} />
+          <label className="hind text-sm text-custume-gray">
+            Biografía
+          </label>
+          <textarea
+            rows={3}
+            className={fieldsBase}
+            {...formik.getFieldProps("biography")}
+          />
         </div>
 
         <div className="md:col-span-2 flex gap-2">
-          <DarkButton text="Save changes" type="submit" />
-          <LightButton text="Reset" type="button" onClick={() => formik.resetForm()} />
+          <DarkButton text="Guardar cambios" type="submit" />
+          <LightButton
+            text="Reiniciar"
+            type="button"
+            onClick={() => formik.resetForm()}
+          />
         </div>
       </form>
     </div>
