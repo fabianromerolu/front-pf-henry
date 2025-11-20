@@ -8,7 +8,6 @@ import {
   translateFuel,
   translateTransmission,
 } from "@/helpers/translateVehicleData";
-import Pagination from "../pagination/Pagination";
 
 const mexicoStates = [
   "Aguascalientes",
@@ -55,18 +54,7 @@ const filterOptions = {
 type FilterCategory = keyof typeof filterOptions;
 
 function MenuBar() {
-  const {
-    vehicles,
-    loading,
-    error,
-    page,
-    limit,
-    total,
-    hasNextPage,
-    nextPage,
-    prevPage,
-    goToPage,
-  } = useVehicles();
+  const { vehicles, loading, error } = useVehicles();
 
   const [filters, setFilters] = useState<{
     transmission: string | null;

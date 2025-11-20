@@ -43,7 +43,7 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <div className="max-w-6xl mx-auto pt-0 p-6">
+      <div className="bg-custume-light">
         <h2 className="text-center text-4xl taviraj font-semibold text-custume-red mb-12">
           ¿Qué estás buscando?
         </h2>
