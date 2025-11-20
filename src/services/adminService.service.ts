@@ -115,8 +115,8 @@ export type AdminMetricsOverview = {
   bookingsTotal: number;
   bookingsActive: number;
   bookingsComplete: number;
-  revenueTotal: string;    // COP en string
-  revenueLast30d: string;  // COP en string
+  revenueTotal: string;   
+  revenueLast30d: string;  
   topCities: string[];
 };
 

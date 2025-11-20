@@ -172,14 +172,14 @@ export type Payout = {
 
 export type RenterOverview = {
   pins: { total: number; published: number; blocked: number };
-  revenueLast30d: string; // COP en string
-  revenuePending: string; // COP en string
+  revenueLast30d: string; 
+  revenuePending: string; 
 };
 
 export type RenterBalance = {
-  available: string; // COP
-  pending: string; // COP
-  currency: "COP";
+  available: string; 
+  pending: string; 
+  currency: "MXN";
 };
 
 /** ===== Renter (propietario) ===== */

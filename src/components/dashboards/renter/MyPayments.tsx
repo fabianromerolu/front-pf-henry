@@ -73,7 +73,7 @@ export default function MyPayments() {
           <input
             type="number"
             min={1}
-            placeholder="Monto en COP"
+            placeholder="Monto en MXN"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             className="rounded-xl border px-3 py-2"
@@ -102,7 +102,7 @@ export default function MyPayments() {
                   <td className="py-2">{new Date(w.createdAt).toLocaleString()}</td>
                   <td>{w.type}</td>
                   <td>{w.status}</td>
-                  <td>{`COP ${w.amount}`}</td>
+                  <td>{`MXN ${w.amount}`}</td>
                   <td>{w.bookingId ?? "-"}</td>
                 </tr>
               ))}
@@ -131,7 +131,7 @@ export default function MyPayments() {
               {payouts?.data?.map((p) => (
                 <tr key={p.id} className="border-t">
                   <td className="py-2">{new Date(p.createdAt).toLocaleString()}</td>
-                  <td>{`COP ${p.amount}`}</td>
+                  <td>{`MXN ${p.amount}`}</td>
                   <td>{p.status}</td>
                 </tr>
               ))}
@@ -163,7 +163,7 @@ export default function MyPayments() {
                   <td>{b.user?.name ?? b.user?.email ?? "-"}</td>
                   <td>{b.status}</td>
                   <td>{b.paymentStatus}</td>
-                  <td>{`COP ${b.totalPrice}`}</td>
+                  <td>{`MXN ${b.totalPrice}`}</td>
                 </tr>
               ))}
             </tbody>
