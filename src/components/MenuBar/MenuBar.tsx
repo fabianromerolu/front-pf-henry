@@ -8,6 +8,7 @@ import {
   translateFuel,
   translateTransmission,
 } from "@/helpers/translateVehicleData";
+import Pagination from "../pagination/Pagination";
 
 const mexicoStates = [
   "Aguascalientes",
@@ -54,7 +55,18 @@ const filterOptions = {
 type FilterCategory = keyof typeof filterOptions;
 
 function MenuBar() {
-  const { vehicles, loading, error } = useVehicles();
+  const {
+    vehicles,
+    loading,
+    error,
+    page,
+    limit,
+    total,
+    hasNextPage,
+    nextPage,
+    prevPage,
+    goToPage,
+  } = useVehicles();
 
   const [filters, setFilters] = useState<{
     transmission: string | null;
@@ -67,7 +79,7 @@ function MenuBar() {
     fuel: null,
     seats: null,
     state: null,
-    maxPrice: 2000,
+    maxPrice: 3000,
   });
 
   const [openDropdown, setOpenDropdown] = useState<FilterCategory | null>(null);
@@ -86,7 +98,7 @@ function MenuBar() {
       fuel: null,
       seats: null,
       state: null,
-      maxPrice: 2000,
+      maxPrice: 3000,
     });
   };
 
@@ -97,30 +109,32 @@ function MenuBar() {
   };
 
   const activeFiltersCount = Object.values(filters).filter(
-    (v) => v !== null && v !== 2000
+    (v) => v !== null && v !== 3000
   ).length;
 
   const hasActiveFilters = activeFiltersCount > 0;
 
-  const filteredProducts = vehicles.filter((vehicle) => {
-    if (
-      filters.transmission &&
-      vehicle.transmission?.toUpperCase() !== filters.transmission
-    )
-      return false;
+  const filteredProducts = hasActiveFilters
+    ? vehicles.filter((vehicle) => {
+        if (
+          filters.transmission &&
+          vehicle.transmission?.toUpperCase() !== filters.transmission
+        )
+          return false;
 
-    if (filters.fuel && vehicle.fuel?.toUpperCase() !== filters.fuel)
-      return false;
+        if (filters.fuel && vehicle.fuel?.toUpperCase() !== filters.fuel)
+          return false;
 
-    if (filters.seats && vehicle.seats?.toString() !== filters.seats)
-      return false;
+        if (filters.seats && vehicle.seats?.toString() !== filters.seats)
+          return false;
 
-    if (filters.state && vehicle.state !== filters.state) return false;
+        if (filters.state && vehicle.state !== filters.state) return false;
 
-    if (vehicle.pricePerDay > filters.maxPrice) return false;
+        if (vehicle.pricePerDay > filters.maxPrice) return false;
 
-    return true;
-  });
+        return true;
+      })
+    : [];
 
   const filterLabels: Record<string, string> = {
     transmission: "Transmisión",
@@ -148,7 +162,7 @@ function MenuBar() {
 
   return (
     <div>
-      <div className="sticky top-0 z-50 bg-custume-light py-4">
+      <div className="sticky top-0 z-50 py-4">
         <div className="max-w-6xl mx-auto px-3">
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
             {(Object.keys(filterOptions) as FilterCategory[]).map(
@@ -189,7 +203,7 @@ function MenuBar() {
                   </button>
 
                   {openDropdown === category && (
-                    <div className="absolute z-10 w-full mt-2 bg-custume-light border-2 border-custume-gray rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    <div className="bg-custume-light absolute z-10 w-full mt-2 border-2 border-custume-gray rounded-lg shadow-lg max-h-60 overflow-y-auto">
                       {filterOptions[category].map((option) => (
                         <button
                           key={option}
@@ -217,7 +231,7 @@ function MenuBar() {
               <input
                 type="range"
                 min={0}
-                max={2000}
+                max={3000}
                 value={filters.maxPrice}
                 onChange={(e) =>
                   setFilters((prev) => ({
@@ -254,7 +268,7 @@ function MenuBar() {
                   );
                 })}
 
-                {filters.maxPrice !== 2000 && (
+                {filters.maxPrice !== 3000 && (
                   <span className="px-2 py-1 bg-light-blue text-dark-blue rounded text-sm font-medium">
                     Máx: ${filters.maxPrice}
                   </span>
@@ -272,12 +286,8 @@ function MenuBar() {
       </div>
 
       <div className="max-w-6xl mx-auto p-0">
-        <div className="rounded-lg p-4 pt-0">
-          <h3 className="text-xl font-bold mb-6 text-custume-gray">
-            Resultados ({filteredProducts.length} de {vehicles.length})
-          </h3>
-
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="rounded-lg p-4 pt-10">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredProducts.map((vehicle) => (
               <VehicleCard key={vehicle.id} vehicle={vehicle} />
             ))}

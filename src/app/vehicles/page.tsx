@@ -44,7 +44,7 @@ export default function VehiclesPage() {
     <div className="min-h-screen bg-custume-light">
       <MenuBar />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 ">
         <div className="bg-custume-light mb-8">
           <div className="flex items-center justify-center gap-4">
             <div className="h-px bg-gradient-to-r from-transparent via-custume-blue to-transparent w-full max-w-xs"></div>
