@@ -144,7 +144,11 @@ export default function RentalConditionsSection({
     Fotos del Vehículo <span className="text-custume-red">*</span>
   </label>
 
-<CloudinaryUpload handlePhotoUpload={handlePhotoUpload} handlePhotoRemove={handlePhotoRemove}/>
+<CloudinaryUpload 
+handlePhotoUpload={handlePhotoUpload} 
+handlePhotoRemove={handlePhotoRemove}
+existingImages={formData.photos?.map(photo => photo.url) ?? []}
+/>
 
 </div>
 

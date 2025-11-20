@@ -3,7 +3,7 @@
 
 import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface CloudinaryUploadProps {
   handlePhotoUpload: (photo: { url: string; isCover: boolean }) => void;
@@ -17,6 +17,11 @@ export default function CloudinaryUpload({
   existingImages = [],
 }: CloudinaryUploadProps) {
   const [images, setImages] = useState<string[]>(existingImages);
+
+  useEffect(() => {
+  setImages(existingImages);
+}, [existingImages]);
+
 
   const handleSuccess = (result: any) => {
     const url = result?.info?.secure_url;

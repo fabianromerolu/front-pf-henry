@@ -51,7 +51,7 @@ export default function UserDashboard() {
     const value = Number(overview?.spentLast30d ?? 0);
     return new Intl.NumberFormat("es-CO", {
       style: "currency",
-      currency: "COP",
+      currency: "MXN",
       maximumFractionDigits: 0,
     }).format(value || 0);
   }, [overview?.spentLast30d]);

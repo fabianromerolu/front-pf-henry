@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { format, subDays } from "date-fns";
+import {subDays } from "date-fns";
 import {
   adminMetricsApi,
   adminUsersApi,
@@ -84,9 +84,6 @@ export default function AdminDashboard() {
       setLoading(true);
       setError(null);
       try {
-        const today = new Date();
-        const from = subDays(today, 89);
-
         const [ov, usersRes] = await Promise.all([
           adminMetricsApi.getOverview(),
           adminUsersApi.listUsers({ limit: 500 }),
@@ -212,7 +209,7 @@ export default function AdminDashboard() {
               value={parseCop(kpi.revenueTotal)}
               hint={`Últimos 30 días: ${new Intl.NumberFormat("es-CO", {
                 style: "currency",
-                currency: "COP",
+                currency: "MXN",
                 maximumFractionDigits: 0,
               }).format(parseCop(kpi.revenueLast30d))}`}
               isMoney
@@ -479,7 +476,7 @@ function KpiCard({ icon: Icon, label, value, hint, isMoney }: KpiCardProps) {
     typeof value === "number" && isMoney
       ? new Intl.NumberFormat("es-CO", {
           style: "currency",
-          currency: "COP",
+          currency: "MXN",
           maximumFractionDigits: 0,
         }).format(value)
       : value;
