@@ -67,12 +67,12 @@ export const VehicleCard = ({ vehicle }: CardProps) => {
         {/* BUTTONS */}
         <div className="flex flex-col gap-2 mt-auto">
           <DarkButtom
-            className="w-full py-2 sm:py-2.5 rounded-full text-xs sm:text-sm md:text-base lowercase"
+            className="!w-full !min-w-0 py-2 sm:py-2.5  rounded-full text-xs sm:text-sm md:text-base lowercase"
             text="rentar ahora"
             onClick={handleRentNow}
           />
           <LightButtom
-            className="w-full py-2 sm:py-2.5 rounded-full text-xs sm:text-sm md:text-base lowercase"
+            className="!w-full !min-w-0 py-2 sm:py-2.5  rounded-full text-xs sm:text-sm md:text-base lowercase"
             text="ver detalles"
             onClick={handleViewDetails}
           />
