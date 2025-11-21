@@ -31,11 +31,11 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
     router.push(`/vehicles`);
   };
 
-  const handleCreateReview = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    router.push(`/vehicles/reviewsForm`);
-  };
+  // const handleCreateReview = (e: React.MouseEvent) => {
+  //   e.preventDefault();
+  //   e.stopPropagation();
+  //   router.push(`/vehicles/reviewsForm`);
+  // };
 
   const rulesArray = vehicle.rules
     .split("\n")
@@ -114,14 +114,14 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
             Reseñas
           </h2>
           <ReviewsList pinId={vehicle.id.toString()} />
-          <div className="flex justify-center">
+          {/* <div className="flex justify-center">
             <LightButton
               text="crear reseña"
               size="xl"
               className="mt-10"
               onClick={handleCreateReview}
             />
-          </div>
+          </div> */}
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
