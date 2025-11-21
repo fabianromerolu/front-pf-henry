@@ -61,7 +61,7 @@ function ReviewCard({ review }: ReviewCardProps) {
         </div>
       )}
 
-      <div className="absolute bottom-0 left-0 w-0 h-1 bg-gradient-to-r from-custume-blue to-custume-red transition-all duration-300 group-hover:w-full"></div>
+      <div className="absolute bottom-0 left-0 w-0 h-1 bg-gradient-to-r from-custume-blue to-custume-blue transition-all duration-300 group-hover:w-full"></div>
     </div>
   );
 }

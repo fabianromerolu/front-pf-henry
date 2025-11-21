@@ -45,9 +45,9 @@ export default function ReviewsList({ pinId }: ReviewsListProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-      {reviews.map((review) => (
+      {reviews.map((review, index) => (
         <ReviewCard
-          key={review.id} // ✅ Esta es la línea que falta
+          key={review.id || `review-${index}`} // ✅ Esta es la línea que falta
           review={review}
         />
       ))}
