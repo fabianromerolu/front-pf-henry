@@ -81,12 +81,8 @@ export default function MyVehicles() {
             <div className="p-3 space-y-2">
               <div className="taviraj text-custume-blue">{`${v.make} ${v.model} ${v.year}`}</div>
               <div className="text-sm text-custume-gray">MXN {v.pricePerDay ?? "-"} / día</div>
-              <div className="flex gap-2 flex-wrap">
-                <Link className="underline text-custume-blue" href={`/dashboard/renter/vehicles/${v.id}`}>Details</Link>
-                <Link className="underline text-custume-blue" href={`/dashboard/renter/vehicles/${v.id}/edit`}>Edit</Link>
-              </div>
 
-              <div className="flex gap-2 flex-wrap pt-2">
+              <div className="grid gap-4 flex-wrap pt-2">
                 <DarkButton
                   text="Publish"
                   size="sm"
@@ -103,13 +99,12 @@ export default function MyVehicles() {
                   size="sm"
                   onClick={() => setStatus(v.id, "BLOCKED")}
                 />
-                <button
-                  className="text-custume-red text-sm underline"
+                <LightButton
+                  text="Delete"
+                  size="sm"
                   onClick={() => remove(v.id)}
                   disabled={busyId === v.id}
-                >
-                  Delete
-                </button>
+                />
               </div>
             </div>
           </div>
