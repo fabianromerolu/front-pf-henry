@@ -242,14 +242,6 @@ export default function FormLogin() {
                 <p className={errorText}>{formik.errors.password as string}</p>
               )}
 
-              <div className="mt-2 text-right">
-                <a
-                  href="/forgot-password"
-                  className="text-sm underline underline-offset-4 decoration-white/30 hover:decoration-white hover:text-[var(--color-light-blue)]"
-                >
-                  ¿Olvidaste tu contraseña?
-                </a>
-              </div>
             </div>
 
             <button

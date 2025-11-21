@@ -142,7 +142,7 @@ export function useVehicleForm() {
         console.error("Errores de validación:", validationErrors);
       } else {
         console.error("Error en la petición:", error.message);
-        toast.error("Que pena!!! Espere e intente nuevamente",{ 
+        toast.error("UPSSS!!! Espere e intente nuevamente",{ 
           position: "top-right",
           autoClose: 3000,
          }
