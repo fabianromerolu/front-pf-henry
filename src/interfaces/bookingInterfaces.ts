@@ -12,6 +12,7 @@ export interface Booking {
   start_date: string;
   end_date: string;
   status?: "pending" | "completed" | "cancelled";
+  hasReview?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

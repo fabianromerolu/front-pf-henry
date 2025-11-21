@@ -2,7 +2,6 @@
 
 import DarkButtom from "@/components/Buttoms/DarkButtom";
 import LightButtom from "@/components/Buttoms/LightButtom";
-import ReviewCard from "@/components/cards/reviewCard";
 import MenuBar from "@/components/MenuBar/MenuBar";
 import { useAuth } from "@/context/AuthContext";
 import React from "react";
@@ -120,38 +119,6 @@ export default function Home() {
               <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent"></div>
             </div>
           </div>
-        </div>
-
-        <div className="bg-custume-light py-10 mt-10">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="flex items-center justify-center gap-4">
-              <div className="h-px bg-gradient-to-r from-transparent via-custume-blue to-transparent w-full max-w-xs"></div>
-              <div className="w-3 h-3 bg-custume-red rounded-full"></div>
-              <div className="h-px bg-gradient-to-r from-transparent via-custume-blue to-transparent w-full max-w-xs"></div>
-            </div>
-          </div>
-        </div>
-
-        <h2 className="text-center text-3xl sm:text-4xl taviraj font-semibold text-custume-red my-12">
-          ¿Qué dicen de nosotros?
-        </h2>
-
-        <div className="flex flex-col md:flex-row justify-center items-center md:items-start gap-6 my-8">
-          <ReviewCard
-            userName="Juan Pérez"
-            comment="Excelente experiencia alquilando un auto. El vehículo estaba impecable, limpio y tal como se mostraba en las fotos. El propietario fue muy puntual y amable. El proceso de entrega y devolución fue súper rápido. ¡Totalmente recomendado!"
-            rating={5}
-          />
-          <ReviewCard
-            userName="María González"
-            comment="Muy buena experiencia en general. El auto funcionó perfectamente durante todo el viaje y consumió poco combustible. El dueño me explicó todo con detalle y fue muy flexible con los horarios. Solo le faltaba un poco de limpieza interior."
-            rating={4}
-          />
-          <ReviewCard
-            userName="Fernando Álvarez"
-            comment="Buen servicio y auto confiable. La comunicación con el propietario fue fluida y me ayudó con algunas dudas sobre rutas. El vehículo estaba en buen estado mecánico, aunque el sistema de audio podría mejorar. Lo volvería a rentar."
-            rating={4}
-          />
         </div>
       </div>
     </div>

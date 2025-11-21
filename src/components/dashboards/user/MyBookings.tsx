@@ -1,20 +1,17 @@
-//src/components/dashboards/user/MyBookings.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import Link from "next/link";
 import type { Booking, PaginationMeta } from "@/services/userRenter.service";
 import DarkButton from "@/components/Buttoms/DarkButtom";
 import LightButton from "@/components/Buttoms/LightButtom";
 import { standardUserApi } from "@/services/userStandar.service";
-
+import { useRouter } from "next/navigation";
 type StatusFilter = "ALL" | "active" | "complete" | "suspended";
 
 function apiMsg(e: unknown) {
-  const msg =
-    (e as { response?: { data?: { message?: string } } })?.response?.data
-      ?.message;
+  const msg = (e as { response?: { data?: { message?: string } } })?.response
+    ?.data?.message;
   return msg ?? "Ocurrió un error";
 }
 
@@ -36,6 +33,8 @@ function formatDate(iso: string) {
 }
 
 export default function MyBookings() {
+  const router = useRouter();
+
   const [status, setStatus] = useState<StatusFilter>("ALL");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
@@ -47,6 +46,19 @@ export default function MyBookings() {
   const [loading, setLoading] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  function handleLeaveReview(bookingId: string, pinId: string) {
+    console.log("🔍 Creating review for:");
+    console.log("bookingId:", bookingId);
+    console.log("pinId:", pinId);
+
+    if (!bookingId || !pinId) {
+      alert("Error: Faltan datos de la reserva.");
+      return;
+    }
+
+    router.push(`/vehicles/addReview?bookingId=${bookingId}&pinId=${pinId}`);
+  }
 
   async function load() {
     setLoading(true);
@@ -96,9 +108,7 @@ export default function MyBookings() {
       {/* Filtros */}
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <h3 className="taviraj text-lg text-custume-blue">
-            Mis reservas
-          </h3>
+          <h3 className="taviraj text-lg text-custume-blue">Mis reservas</h3>
           <p className="hind text-xs text-custume-gray">
             Ve tu historial de viajes, estados y totales.
           </p>
@@ -170,17 +180,11 @@ export default function MyBookings() {
               <tr>
                 <th className="px-3 py-2 text-left font-semibold">Inicio</th>
                 <th className="px-3 py-2 text-left font-semibold">Fin</th>
-                <th className="px-3 py-2 text-left font-semibold">
-                  Vehículo
-                </th>
-                <th className="px-3 py-2 text-left font-semibold">
-                  Ubicación
-                </th>
+                <th className="px-3 py-2 text-left font-semibold">Vehículo</th>
+                <th className="px-3 py-2 text-left font-semibold">Ubicación</th>
                 <th className="px-3 py-2 text-left font-semibold">Estado</th>
                 <th className="px-3 py-2 text-left font-semibold">Total</th>
-                <th className="px-3 py-2 text-left font-semibold">
-                  Acciones
-                </th>
+                <th className="px-3 py-2 text-left font-semibold">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -201,11 +205,7 @@ export default function MyBookings() {
                     </span>
                   </td>
                   <td className="px-3 py-2 align-middle text-[11px] text-custume-gray">
-                    {[
-                      b.pin?.city,
-                      b.pin?.state,
-                      b.pin?.country,
-                    ]
+                    {[b.pin?.city, b.pin?.state, b.pin?.country]
                       .filter(Boolean)
                       .join(", ")}
                   </td>
@@ -215,9 +215,7 @@ export default function MyBookings() {
                     </span>
                   </td>
                   <td className="px-3 py-2 align-middle">
-                    <span className="text-[11px]">
-                      MXN {b.totalPrice}
-                    </span>
+                    <span className="text-[11px]">MXN {b.totalPrice}</span>
                   </td>
                   <td className="px-3 py-2 align-middle">
                     <div className="flex flex-wrap gap-2 items-center">
@@ -228,11 +226,25 @@ export default function MyBookings() {
                           disabled={busyId === b.id}
                           className="text-xs text-custume-red underline"
                         >
-                          {busyId === b.id
-                            ? "Cancelando…"
-                            : "Cancelar"}
+                          {busyId === b.id ? "Cancelando…" : "Cancelar"}
                         </button>
                       )}
+                      {b.status === "complete" &&
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        !(b as any).hasReview &&
+                        b.pin?.id && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (b.pin?.id) {
+                                handleLeaveReview(b.id, b.pin.id);
+                              }
+                            }}
+                            className="text-xs text-custume-blue underline hover:text-custume-blue/80"
+                          >
+                            Dejar reseña
+                          </button>
+                        )}
                     </div>
                   </td>
                 </tr>
@@ -256,14 +268,10 @@ export default function MyBookings() {
           <LightButton
             text="Prev"
             size="sm"
-            onClick={() =>
-              setPage((p) => Math.max(1, p - 1))
-            }
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={loading || !canPrev || page <= 1}
           />
-          <span className="text-[11px] text-custume-gray">
-            Página {page}
-          </span>
+          <span className="text-[11px] text-custume-gray">Página {page}</span>
           <DarkButton
             text="Next"
             size="sm"
