@@ -9,6 +9,7 @@ export interface CreateReviewDto {
   rating: number;
   comment: string;
   bookingId: string;
+  pinId: string;
 }
 
 export interface Review {
@@ -16,7 +17,7 @@ export interface Review {
   rating: number;
   comment: string;
   bookingId?: string;
-  userName: string;
+  user: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -24,7 +25,7 @@ export interface Review {
 export interface ReviewSummary {
   averageRating: number;
   totalReviews: number;
-  ratingDistribution: {
+  ratingDistribution?: {
     1: number;
     2: number;
     3: number;

@@ -46,13 +46,33 @@ export const VehicleCard = ({ vehicle }: CardProps) => {
           href={`/vehicles/${vehicle.id}`}
           className="block relative w-full aspect-[4/3] overflow-hidden mb-3 bg-gray-50 rounded-lg"
         >
-          <Image
-            fill
-            src={vehicle.thumbnailUrl}
-            alt={`${vehicle.make} ${vehicle.model}`}
-            className="object-cover transition-all duration-500 group-hover:scale-105"
-            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          />
+          <div className="relative w-full h-48 bg-custume-light rounded-xl overflow-hidden mb-4">
+            {vehicle.thumbnailUrl ? (
+              <Image
+                src={vehicle.thumbnailUrl}
+                alt={vehicle.model}
+                fill // ✅ Usa fill para que se adapte al contenedor
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <svg
+                  className="w-16 h-16 text-custume-gray"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                  />
+                </svg>
+              </div>
+            )}
+          </div>
         </Link>
 
         {/* PRICE */}

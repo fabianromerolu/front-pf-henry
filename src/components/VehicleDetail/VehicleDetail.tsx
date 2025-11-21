@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import DarkButton from "@/components/Buttoms/DarkButtom";
 import LightButton from "@/components/Buttoms/LightButtom";
 import VehicleProps from "@/interfaces/vehicleProps";
-import ReviewCard from "../cards/reviewCard";
+import ReviewsList from "@/components/reviews/ReviewsList";
 import {
   translateFuel,
   translateTransmission,
@@ -29,6 +29,12 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
     e.preventDefault();
     e.stopPropagation();
     router.push(`/vehicles`);
+  };
+
+  const handleCreateReview = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    router.push(`/vehicles/reviewsForm`);
   };
 
   const rulesArray = vehicle.rules
@@ -103,18 +109,19 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
           </ul>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-6">
-          <ReviewCard
-            userName="Juan Pérez"
-            comment="Excelente servicio, el auto estaba en perfectas condiciones y la atención fue de primera. Definitivamente volveré a rentar aquí."
-            rating={5}
-          />
-
-          <ReviewCard
-            userName="Carlos Ramírez"
-            comment="La experiencia fue regular. El auto funcionó bien pero llegó con el tanque casi vacío y tuve que cargar gasolina de inmediato. La atención al cliente podría mejorar, tardaron en responder mis mensajes."
-            rating={3}
-          />
+        <div className="mb-6 lg:mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-custume-blue">
+            Reseñas
+          </h2>
+          <ReviewsList pinId={vehicle.id.toString()} />
+          <div className="flex justify-center">
+            <LightButton
+              text="crear reseña"
+              size="xl"
+              className="mt-10"
+              onClick={handleCreateReview}
+            />
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
